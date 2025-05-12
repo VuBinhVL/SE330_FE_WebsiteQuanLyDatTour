@@ -56,7 +56,7 @@ export default function Navigation() {
           Quản lý hóa đơn
         </NavLink>
 
-        <NavLink className="nav-item">
+        <NavLink to="/admin/destination-management" className="nav-item">
           <img src={destination} className="icon" alt="icon" />
           Quản lý địa điểm
         </NavLink>

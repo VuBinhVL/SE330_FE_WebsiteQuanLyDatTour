@@ -1,3 +1,3 @@
-import Header from "./Header";
+import CustomerHeader from "./CustomerHeader";
 
-export default Header;
+export default CustomerHeader;
