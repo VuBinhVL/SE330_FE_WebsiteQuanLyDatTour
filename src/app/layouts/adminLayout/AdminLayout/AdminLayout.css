@@ -1,0 +1,16 @@
+.admin-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.admin-container .admin-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.admin-container .admin-main .admin-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
