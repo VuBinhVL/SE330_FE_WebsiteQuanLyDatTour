@@ -1,11 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import "./DestinationMainPage.css";
-import search from "../../../../assets/icons/customer/header/search.png";
+import search from "../../../assets/icons/customer/header/search.png";
 import { MdOutlineAddBox } from "react-icons/md";
 import { GoTrash } from "react-icons/go";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
+import AddDestination from "../../../components/Admin/DestinationManagement/AddDestination/AddDestination";
 
 export default function DestinationMainPage() {
+  const [showAddDes, setShowAddDes] = useState(false);
+  const [showDetailDes, setShowDetailDes] = useState(false);
+
+  const toggleAddDes = () => {
+    setShowAddDes(!showAddDes);
+  };
+  const toggleDetailDes = () => {
+    setShowDetailDes(!showDetailDes);
+  };
+
   return (
     <div className="destination-container">
       <div className="top-bar">
@@ -17,7 +28,11 @@ export default function DestinationMainPage() {
             placeholder="Tìm kiếm ..."
           />
         </div>
-        <button className="add-button" title="Thêm địa điểm mới">
+        <button
+          className="add-button"
+          title="Thêm địa điểm mới"
+          onClick={toggleAddDes}
+        >
           <MdOutlineAddBox className="add-icon" />
           Thêm địa điểm
         </button>
@@ -44,6 +59,7 @@ export default function DestinationMainPage() {
               <MdOutlineRemoveRedEye
                 className="view-button"
                 title="Xem chi tiết"
+                onClick={toggleDetailDes}
               />
             </td>
             <td>
@@ -52,6 +68,11 @@ export default function DestinationMainPage() {
           </tr>
         </tbody>
       </table>
+      {/* Hiển thị popup thêm địa điểm */}
+      {showAddDes && <AddDestination onCloseAddForm={toggleAddDes} />}
+
+      {/* Hiển thị popup chi tiết địa điểm */}
+      {showDetailDes && <AddDestination onCloseAddForm={toggleDetailDes} />}
     </div>
   );
 }
