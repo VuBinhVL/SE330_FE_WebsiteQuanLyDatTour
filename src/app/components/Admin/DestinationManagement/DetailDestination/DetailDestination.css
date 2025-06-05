@@ -11,12 +11,147 @@
 }
 .des-detail-form {
   position: fixed;
-  height: 420px;
-  width: 600px;
+  height: 460px;
+  width: 730px;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: #ffffff;
   border-radius: 12px;
   z-index: 600;
+  padding: 9px;
+}
+
+/* Phần header */
+.des-detail-form .form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.des-detail-form .form-header h4 {
+  color: #c62828;
+  font-weight: bold;
+  width: 100%;
+  text-align: center;
+}
+
+.des-detail-form .form-header .close-button {
+  border: none;
+  cursor: pointer;
+  background: none;
+  font-size: 25px;
+  margin-bottom: 10px;
+}
+/* Phần edit */
+.des-detail-form .form-edit {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.des-detail-form .form-edit p {
+  font-weight: 600;
+}
+.des-detail-form .edit-button {
+  border: none;
+  background: none;
+  font-size: 25px;
+  margin-left: 10px;
+  margin-bottom: 20px;
+}
+/* Phần body */
+.des-detail-form .form-body {
+  display: flex;
+}
+
+/* Ảnh */
+.des-detail-form .form-body .image-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 100px);
+  grid-template-rows: repeat(3, 100px);
+  gap: 12px;
+  margin-right: 20px;
+}
+
+.image-slot {
+  background: #e0e0e0;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.upload-icon {
+  font-size: 24px;
+  cursor: pointer;
+  color: #555;
+}
+
+.preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Phần nhập */
+.des-detail-form .form-body .form-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.des-detail-form .form-body .form-row {
+  display: flex;
+  gap: 20px;
+}
+.des-detail-form .form-body .form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.des-detail-form .form-body .form-group label {
+  font-weight: 600;
+  margin-bottom: 9px;
+}
+
+.des-detail-form .form-body .form-group input,
+.des-detail-form .form-body.form-group select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.des-detail-form .form-body .form-group select {
+  height: 30px;
+}
+
+/* Footer */
+.des-detail-form .form-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  gap: 12px;
+}
+
+.des-detail-form .form-footer .cancel-button {
+  background: #ffecec;
+  color: #c62828;
+  padding: 8px 14px;
+  border: none;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.des-detail-form .form-footer .confirm-button {
+  background: #e0f7e9;
+  color: #2e7d32;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
 }

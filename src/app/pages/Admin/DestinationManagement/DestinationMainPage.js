@@ -5,6 +5,7 @@ import { MdOutlineAddBox } from "react-icons/md";
 import { GoTrash } from "react-icons/go";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import AddDestination from "../../../components/Admin/DestinationManagement/AddDestination/AddDestination";
+import DetailDestination from "../../../components/Admin/DestinationManagement/DetailDestination/DetailDestination";
 
 export default function DestinationMainPage() {
   const [showAddDes, setShowAddDes] = useState(false);
@@ -72,7 +73,7 @@ export default function DestinationMainPage() {
       {showAddDes && <AddDestination onCloseAddForm={toggleAddDes} />}
 
       {/* Hiển thị popup chi tiết địa điểm */}
-      {showDetailDes && <AddDestination onCloseAddForm={toggleDetailDes} />}
+      {showDetailDes && <DetailDestination onCloseAddForm={toggleDetailDes} />}
     </div>
   );
 }
