@@ -9,27 +9,26 @@
 
 .sidebar .logo {
   display: flex;
-  text-align: center;
   align-items: center;
+  text-align: center;
+  padding: 20px;
 }
 
 .sidebar .logo .logo-img {
   width: 60px;
-  margin-left: 8px;
+  margin-right: 10px;
 }
 
 .sidebar .logo h2 {
   font-size: 20px;
   font-weight: 600;
-  margin-left: 10px;
-  margin-top: 18px;
 }
 
 .sidebar .nav-links {
   margin-top: 10px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 20px;
 }
 
 .sidebar .nav-links .nav-item {
@@ -38,17 +37,28 @@
   text-decoration: none;
   color: #333;
   font-weight: 500;
-  margin: 5px;
+  font-size: 18px;
+  padding: 10px;
+  border-radius: 0 15px 15px 0;
+  transition: background-color 0.3s, color 0.3s;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 .sidebar .nav-links .nav-item:hover {
   background-color: #ece3fa;
-  border-radius: 10px;
+  color: #C34141;
 }
 
 .sidebar .nav-links .nav-item:active {
   background-color: #d6bafc;
-  border-radius: 10px;
+  color: #4a2e8c;
+}
+
+.sidebar .nav-links .nav-item.active {
+  background-color: #E7C8C8;
+  color: #C34141;
+  border-left: #C34141 10px solid;
 }
 
 .sidebar .nav-links .nav-item .icon {

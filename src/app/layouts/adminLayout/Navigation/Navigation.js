@@ -21,48 +21,48 @@ export default function Navigation() {
       </div>
 
       <nav className="nav-links">
-        <NavLink to="/admin" className="nav-item">
-          <img src={dashboard} alt="Logo" className="icon" />
+        <NavLink to="/admin" className="nav-item" activeClassName="active">
+          <img src={dashboard} alt="Dashboard Icon" className="icon" />
           Trang chủ
         </NavLink>
 
-        <NavLink className="nav-item">
-          <img src={customer} className="icon" alt="icon" />
+        <NavLink to="/admin/customers" className="nav-item" activeClassName="active">
+          <img src={customer} alt="Customer Icon" className="icon" />
           Quản lý khách hàng
         </NavLink>
 
-        <NavLink className="nav-item">
-          <img src={staff} className="icon" alt="icon" />
+        <NavLink to="/admin/staff" className="nav-item" activeClassName="active">
+          <img src={staff} alt="Staff Icon" className="icon" />
           Quản lý nhân viên
         </NavLink>
 
-        <NavLink className="nav-item">
-          <img src={tour_route} className="icon" alt="icon" />
+        <NavLink to="/admin/tour-routes" className="nav-item" activeClassName="active">
+          <img src={tour_route} alt="Tour Route Icon" className="icon" />
           Quản lý tuyến du lịch
         </NavLink>
 
-        <NavLink className="nav-item">
-          <img src={trip} className="icon" alt="icon" />
+        <NavLink to="/admin/trips" className="nav-item" activeClassName="active">
+          <img src={trip} alt="Trip Icon" className="icon" />
           Quản lý chuyến du lịch
         </NavLink>
 
-        <NavLink className="nav-item">
-          <img src={tour_booking} className="icon" alt="icon" />
+        <NavLink to="/admin/tour-bookings" className="nav-item" activeClassName="active">
+          <img src={tour_booking} alt="Tour Booking Icon" className="icon" />
           Quản lý phiếu đặt tour
         </NavLink>
 
-        <NavLink className="nav-item">
-          <img src={invoice} className="icon" alt="icon" />
+        <NavLink to="/admin/invoices" className="nav-item" activeClassName="active">
+          <img src={invoice} alt="Invoice Icon" className="icon" />
           Quản lý hóa đơn
         </NavLink>
 
-        <NavLink className="nav-item">
-          <img src={destination} className="icon" alt="icon" />
+        <NavLink to="/admin/destinations" className="nav-item" activeClassName="active">
+          <img src={destination} alt="Destination Icon" className="icon" />
           Quản lý địa điểm
         </NavLink>
 
-        <NavLink className="nav-item">
-          <img src={report} className="icon" alt="icon" />
+        <NavLink to="/admin/reports" className="nav-item" activeClassName="active">
+          <img src={report} alt="Report Icon" className="icon" />
           Báo cáo doanh thu
         </NavLink>
       </nav>
