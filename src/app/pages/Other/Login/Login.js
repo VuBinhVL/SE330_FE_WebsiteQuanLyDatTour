@@ -34,7 +34,10 @@ export default function Login() {
             </button>
           </div>
 
-          <div className="forgot-link" onClick={() => navigate("/admin")}>
+          <div
+            className="forgot-link"
+            onClick={() => navigate("/forget-password")}
+          >
             Quên mật khẩu?
           </div>
 
