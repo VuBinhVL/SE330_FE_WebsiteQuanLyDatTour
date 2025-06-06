@@ -7,6 +7,8 @@ import Dashboard from "../pages/Admin/Dashboard";
 import CustomerLayout from "../layouts/customerLayout/CustomerLayout";
 import Home from "../pages/Customer/Home";
 import DestinationMainPage from "../pages/Admin/DestinationManagement/DestinationMainPage";
+import Login from "../pages/Other/Login";
+import Register from "../pages/Other/Register";
 
 export default function MainRoutes() {
   return (
@@ -24,6 +26,8 @@ export default function MainRoutes() {
         {/* Customer */}
         <Route path="/" element={<CustomerLayout />}>
           <Route index element={<Home />}></Route>
+          <Route path="login" element={<Login />}></Route>
+          <Route path="register" element={<Register />}></Route>
         </Route>
       </Routes>
     </BrowserRouter>

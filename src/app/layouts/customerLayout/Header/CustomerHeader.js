@@ -14,12 +14,12 @@ export default function CustomerHeader() {
 
   // Navigate trang Đăng ký
   const handleRegister = () => {
-    navigate("/admin");
+    navigate("/register");
   };
 
   // Navigate trang Đăng nhập
   const handleLogin = () => {
-    navigate("/admin");
+    navigate("/login");
   };
 
   return (

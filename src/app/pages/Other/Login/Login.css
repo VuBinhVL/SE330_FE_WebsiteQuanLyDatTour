@@ -1,0 +1,102 @@
+.login-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+}
+/* Bên trái */
+.login-container .login-left {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 40px;
+  align-items: center;
+  background: #ffffff;
+}
+.login-container .login-left .logo {
+  width: 90px;
+  height: auto;
+  margin-bottom: 10px;
+}
+.login-container .login-left h1 {
+  text-align: center;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.login-container .login-left .login-form {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.login-container .login-left .login-form label {
+  font-weight: 600;
+}
+
+.login-container .login-left .login-form input {
+  padding: 9px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.login-container .login-left .password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.login-container .login-left .password-wrapper input {
+  flex: 1;
+}
+
+.login-container .login-left .toogle-password {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #666;
+}
+
+/* Quên mật khẩu */
+.login-container .login-left .forgot-link {
+  align-self: flex-end;
+  cursor: pointer;
+  color: #c34141;
+  margin-bottom: 10px;
+}
+
+/* Nút đăng nhập */
+.login-container .login-left .login-button {
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #ffffff;
+  border: none;
+  padding: 10px;
+  background-color: #c34141;
+  margin-bottom: 10px;
+}
+.login-container .login-left .register-text {
+  font-weight: 500;
+}
+
+/* Đăng ký */
+.login-container .login-left .register-text a {
+  text-decoration: none;
+  color: #c34141;
+  cursor: pointer;
+}
+/* Bên phải */
+.login-container .login-right {
+  flex: 1;
+  overflow: hidden;
+}
+.login-container .login-right .background-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
