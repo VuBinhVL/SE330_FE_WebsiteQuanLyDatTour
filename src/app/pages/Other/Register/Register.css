@@ -1,0 +1,128 @@
+.register-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+}
+/* Bên trái */
+.register-container .register-left {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 40px;
+  align-items: center;
+  background: #ffffff;
+}
+.register-container .register-left .logo {
+  width: 90px;
+  height: auto;
+  margin-bottom: 10px;
+}
+.register-container .register-left h1 {
+  text-align: center;
+  font-weight: 500;
+  margin-bottom: 20px;
+  font-size: 28px;
+}
+
+.register-container .register-left .register-form {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.register-container .register-left .register-form label {
+  font-weight: 600;
+}
+
+.register-container .register-left .register-form input {
+  padding: 9px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.register-container .register-left .password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.register-container .register-left .password-wrapper input {
+  flex: 1;
+}
+
+.register-container .register-left .toogle-password {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #666;
+}
+
+/* Quên mật khẩu */
+.register-container .register-left .forgot-link {
+  align-self: flex-end;
+  cursor: pointer;
+  color: #c34141;
+  margin-bottom: 10px;
+}
+
+/* Nút đăng ký */
+.register-container .register-left .register-button {
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #ffffff;
+  border: none;
+  padding: 10px;
+  background-color: #c34141;
+  margin-bottom: 10px;
+}
+.register-container .register-left .login-text {
+  font-weight: 500;
+}
+
+/* Đăng nhập */
+.register-container .register-left .login-text a {
+  text-decoration: none;
+  color: #c34141;
+  cursor: pointer;
+}
+/* Bên phải */
+.register-container .register-right {
+  flex: 1;
+  overflow: hidden;
+}
+.register-container .register-right .background-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Giới tính và ngày sinh */
+.register-container .register-left .form-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.register-container .register-left .form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.register-container .register-left .form-group label {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.register-container .register-left .form-group input,
+.register-container .register-left .form-group select {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}

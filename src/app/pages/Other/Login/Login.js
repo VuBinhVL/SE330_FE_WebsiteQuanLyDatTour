@@ -13,7 +13,7 @@ export default function Login() {
     <div className="login-container">
       <div className="login-left">
         <img src={logo} alt="logo" className="logo"></img>
-        <h1>Phần mềm đặt tour</h1>
+        <h1>Đăng nhập</h1>
 
         <div className="login-form">
           <label>Tên đăng nhập</label>

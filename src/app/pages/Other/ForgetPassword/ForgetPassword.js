@@ -10,7 +10,7 @@ export default function ForgetPassword() {
     <div className="forget-password-container">
       <div className="forget-password-left">
         <img src={logo} alt="logo" className="logo"></img>
-        <h1>Phần mềm đặt tour</h1>
+        <h1>Quên mật khẩu</h1>
 
         <div className="forget-password-form">
           <label>Tên đăng nhập</label>
