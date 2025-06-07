@@ -78,7 +78,7 @@ export default function Navigation() {
         </NavLink>
 
         <NavLink
-          to="/admin/destinations"
+          to="/admin/destination-management"
           className={({ isActive }) => "nav-item" + (isActive ? " active" : "")}
         >
           <img src={destination} alt="Destination Icon" className="icon" />

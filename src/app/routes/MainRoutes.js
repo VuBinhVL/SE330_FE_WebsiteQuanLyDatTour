@@ -17,7 +17,6 @@ export default function MainRoutes() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" index element={<Dashboard />} />
           <Route path="reports" element={<Report />} />
-          <Route index element={<Dashboard />}></Route>
           <Route
             path="destination-management"
             element={<DestinationMainPage />}
@@ -25,7 +24,7 @@ export default function MainRoutes() {
         </Route>
 
         {/* Customer */}
-        <Route path="/" element={<CustomerLayout />}>
+        <Route path="/customer" element={<CustomerLayout />}>
           <Route index element={<Home />}></Route>
         </Route>
       </Routes>
