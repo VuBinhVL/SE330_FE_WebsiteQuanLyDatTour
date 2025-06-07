@@ -8,6 +8,7 @@ import Report from "../pages/Admin/Report";
 import CustomerLayout from "../layouts/customerLayout/CustomerLayout";
 import Home from "../pages/Customer/Home";
 import DestinationMainPage from "../pages/Admin/DestinationManagement/DestinationMainPage";
+import Search from "../pages/Customer/Search";
 
 export default function MainRoutes() {
   return (
@@ -26,6 +27,7 @@ export default function MainRoutes() {
         {/* Customer */}
         <Route path="/customer" element={<CustomerLayout />}>
           <Route index element={<Home />}></Route>
+          <Route path="search" element={<Search />} />
         </Route>
       </Routes>
     </BrowserRouter>
