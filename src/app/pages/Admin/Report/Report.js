@@ -14,7 +14,6 @@ import {
   Legend,
   CartesianGrid,
 } from "recharts";
-import { saveAs } from "file-saver";
 import "./Report.css";
 
 const COLORS = [

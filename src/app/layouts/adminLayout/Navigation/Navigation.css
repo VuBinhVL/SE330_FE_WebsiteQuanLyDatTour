@@ -37,10 +37,15 @@
   text-decoration: none;
   color: #333;
   font-weight: 500;
-  font-size: 18px;
+  font-size: 16px;
   padding: 10px;
   border-radius: 0 15px 15px 0;
-  transition: background-color 0.3s, color 0.3s;
+  transition: 
+    background-color 0.3s cubic-bezier(0.4,0,0.2,1),
+    color 0.3s cubic-bezier(0.4,0,0.2,1),
+    box-shadow 0.3s cubic-bezier(0.4,0,0.2,1),
+    border-left 0.3s cubic-bezier(0.4,0,0.2,1),
+    font-weight 0.3s cubic-bezier(0.4,0,0.2,1);
   margin-left: 10px;
   margin-right: 10px;
 }
@@ -48,21 +53,33 @@
 .sidebar .nav-links .nav-item:hover {
   background-color: #ece3fa;
   color: #C34141;
+  box-shadow: 0 2px 12px 0 rgba(195,65,65,0.10);
+  font-weight: 600;
 }
 
 .sidebar .nav-links .nav-item:active {
   background-color: #d6bafc;
-  color: #4a2e8c;
 }
 
 .sidebar .nav-links .nav-item.active {
   background-color: #E7C8C8;
   color: #C34141;
   border-left: #C34141 10px solid;
+  box-shadow: 0 4px 16px 0 rgba(195,65,65,0.13);
+  font-weight: 700;
 }
 
 .sidebar .nav-links .nav-item .icon {
   width: 45px;
   height: 45px;
   margin-right: 10px;
+  transition: 
+    filter 0.3s cubic-bezier(0.4,0,0.2,1),
+    transform 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+.sidebar .nav-links .nav-item:hover .icon,
+.sidebar .nav-links .nav-item.active .icon {
+  filter: brightness(0) saturate(100%) invert(27%) sepia(53%) saturate(2174%) hue-rotate(337deg) brightness(103%) contrast(75%);
+  transform: scale(1.08);
 }

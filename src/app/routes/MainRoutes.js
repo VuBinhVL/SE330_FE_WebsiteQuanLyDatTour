@@ -10,7 +10,7 @@ export default function MainRoutes() {
     <BrowserRouter>
       <Routes>
         <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Dashboard />} />
+          <Route path="dashboard" index element={<Dashboard />} />
           <Route path="reports" element={<Report />} />
         </Route>
       </Routes>
