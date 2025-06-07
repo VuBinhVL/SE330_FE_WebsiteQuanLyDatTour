@@ -9,14 +9,14 @@ const FAKE_TOURS = [
     code: "DNSG838",
     duration: 5,
     nights: 4,
-    price: 8189000,
+    price: 8179000,
     departure: "TP. Hồ Chí Minh",
     destination: "Đà Nẵng",
     startDates: [
       "2025-04-15",
       "2025-04-20",
       "2025-05-01",
-      "2025-06-01",
+      "2025-06-12",
       "2025-06-10",
     ],
     image:
@@ -28,13 +28,13 @@ const FAKE_TOURS = [
     code: "DNSG838",
     duration: 5,
     nights: 4,
-    price: 8189000,
+    price: 8199000,
     departure: "TP. Hồ Chí Minh",
     destination: "Đà Nẵng",
     startDates: [
-      "2025-04-16",
-      "2025-04-25",
-      "2025-05-05",
+      "2025-06-16",
+      "2025-06-17",
+      "2025-06-11",
       "2025-06-05",
       "2025-06-15",
     ],
@@ -128,6 +128,9 @@ export default function Search() {
   const [duration, setDuration] = useState("");
   const [sort, setSort] = useState("default");
 
+  // Trạng thái yêu thích (id tour)
+  const [favorites, setFavorites] = useState([]);
+
   // Fake API fetch
   const [tours, setTours] = useState([]);
   useEffect(() => {
@@ -199,6 +202,20 @@ export default function Search() {
     return Array.from(dates).sort();
   }, [tours]);
 
+  // Xử lý chọn ngày với date picker
+  function handleDateChange(e) {
+    setDate(e.target.value);
+  }
+
+  // Xử lý favorite
+  function toggleFavorite(tourId) {
+    setFavorites((prev) =>
+      prev.includes(tourId)
+        ? prev.filter((id) => id !== tourId)
+        : [...prev, tourId]
+    );
+  }
+
   return (
     <div className="search-page">
       <div className="search-filter">
@@ -215,6 +232,15 @@ export default function Search() {
                 {b.label}
               </button>
             ))}
+            {budget && (
+              <button
+                className="clear-btn"
+                title="Xóa lọc ngân sách"
+                onClick={() => setBudget("")}
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
         <div className="filter-group">
@@ -247,14 +273,14 @@ export default function Search() {
         </div>
         <div className="filter-group">
           <div className="filter-label">Ngày đi:</div>
-          <select value={date} onChange={(e) => setDate(e.target.value)}>
-            <option value="">Tất cả</option>
-            {allValidDates.map((d) => (
-              <option key={d} value={d}>
-                {formatDate(d)}
-              </option>
-            ))}
-          </select>
+          <input
+            type="date"
+            value={date}
+            min={allValidDates[0] || ""}
+            max={allValidDates[allValidDates.length - 1] || ""}
+            onChange={handleDateChange}
+            className="date-picker"
+          />
         </div>
         <div className="filter-group">
           <div className="filter-label">Thời gian:</div>
@@ -295,9 +321,23 @@ export default function Search() {
             <div className="tour-card" key={tour.id}>
               <div className="tour-img">
                 <img src={tour.image} alt={tour.name} />
-                <button className="favorite-btn" title="Yêu thích">
-                  <span role="img" aria-label="heart">
-                    🤍
+                <button
+                  className={`favorite-btn${favorites.includes(tour.id) ? " active" : ""}`}
+                  title="Yêu thích"
+                  onClick={() => toggleFavorite(tour.id)}
+                >
+                  <span
+                    role="img"
+                    aria-label="heart"
+                    style={{
+                      color: favorites.includes(tour.id) ? "#e53935" : "#bbb",
+                      transition: "color 0.2s",
+                      filter: favorites.includes(tour.id)
+                        ? "drop-shadow(0 0 4px #e5393533)"
+                        : "none",
+                    }}
+                  >
+                    ♥
                   </span>
                 </button>
               </div>
@@ -318,11 +358,14 @@ export default function Search() {
                   </div>
                   <div>
                     <b>Ngày khởi hành:</b>{" "}
-                    {tour.validDates.map((d) => (
+                    {tour.validDates.slice(0, 3).map((d) => (
                       <span className="tour-date" key={d}>
                         {formatDate(d)}
                       </span>
                     ))}
+                    {tour.validDates.length > 3 && (
+                      <span className="tour-date more-date">+{tour.validDates.length - 3} ngày khác</span>
+                    )}
                   </div>
                 </div>
                 <div className="tour-bottom">
