@@ -1,0 +1,244 @@
+.cus-detail-overlay {
+  position: fixed;
+  inset: 0;
+  background: #0006;
+  z-index: 1000;
+}
+
+.cus-detail-form {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 440px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 32px #0002;
+  transform: translate(-50%, -50%);
+  z-index: 1001;
+  padding: 0;
+  animation: fadeIn 0.25s;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translate(-50%, -40%);}
+  to { opacity: 1; transform: translate(-50%, -50%);}
+}
+
+.cus-detail-form .form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px 10px 24px;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.cus-detail-form .form-header h4 {
+  margin: 0;
+  color: #c34141;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.cus-detail-form .close-button {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #c34141;
+  cursor: pointer;
+  transition: color 0.18s;
+  padding: 2px;
+  border-radius: 50%;
+}
+
+.cus-detail-form .close-button:hover {
+  background: #fbeaea;
+  color: #a93226;
+}
+
+.cus-detail-form .form-edit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 24px 0 24px;
+  cursor: pointer;
+  color: #5a3ea6;
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.cus-detail-form .form-edit .edit-button {
+  background: #ece3fa;
+  color: #5a3ea6;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  display: flex;
+  align-items: center;
+}
+
+.cus-detail-form .form-edit .edit-button:hover {
+  background: #c34141;
+  color: #fff;
+}
+
+.cus-detail-form .form-body {
+  display: flex;
+  gap: 18px;
+  padding: 18px 24px 0 24px;
+}
+
+.cus-detail-form .avatar-upload {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.cus-detail-form .avatar-upload .preview-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ece3fa;
+  margin-bottom: 8px;
+}
+
+.cus-detail-form .avatar-upload .upload-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #f5f5f5;
+  border: 2px dashed #c34141;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #c34141;
+  font-size: 32px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+
+.cus-detail-form .avatar-upload .upload-icon:hover {
+  background: #fbeaea;
+  color: #a93226;
+}
+
+.cus-detail-form .form-fields {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cus-detail-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cus-detail-form .form-group label {
+  font-weight: 500;
+  color: #5a3ea6;
+  font-size: 15px;
+}
+
+.cus-detail-form .form-group input[type="text"],
+.cus-detail-form .form-group input[type="email"],
+.cus-detail-form .form-group input[type="date"],
+.cus-detail-form .form-group input[type="number"] {
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1px solid #ece3fa;
+  font-size: 15px;
+  background: #fafbfc;
+  transition: border 0.18s;
+}
+
+.cus-detail-form .form-group input:focus {
+  border-color: #c34141;
+  outline: none;
+}
+
+.cus-detail-form .form-group input[readonly] {
+  background: #f5f5f5;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.cus-detail-form .form-group .radio-group {
+  display: flex;
+  gap: 18px;
+  margin-top: 2px;
+}
+
+.cus-detail-form .form-group .radio-group label {
+  font-weight: 400;
+  color: #444;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cus-detail-form .form-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 18px 24px 18px 24px;
+  border-top: 1px solid #f1f1f1;
+  background: #fafbfc;
+}
+
+.cus-detail-form .cancel-button,
+.cus-detail-form .confirm-button {
+  padding: 8px 18px;
+  border-radius: 6px;
+  border: none;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+
+.cus-detail-form .cancel-button {
+  background: #ece3fa;
+  color: #5a3ea6;
+}
+
+.cus-detail-form .cancel-button:hover {
+  background: #e7c8c8;
+  color: #c34141;
+}
+
+.cus-detail-form .confirm-button {
+  background: #c34141;
+  color: #fff;
+}
+
+.cus-detail-form .confirm-button:hover {
+  background: #a93226;
+}
+
+@media (max-width: 600px) {
+  .cus-detail-form {
+    width: 98vw;
+    min-width: unset;
+    padding: 0;
+  }
+  .cus-detail-form .form-body {
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 8px 0 8px;
+  }
+  .cus-detail-form .form-footer,
+  .cus-detail-form .form-header {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}

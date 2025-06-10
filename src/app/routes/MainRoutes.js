@@ -9,6 +9,7 @@ import CustomerLayout from "../layouts/customerLayout/CustomerLayout";
 import Home from "../pages/Customer/Home";
 import DestinationMainPage from "../pages/Admin/DestinationManagement/DestinationMainPage";
 import Search from "../pages/Customer/Search";
+import CustomerMainPage from "../pages/Admin/CustomerManagement/CustomerMainPage";
 
 export default function MainRoutes() {
   return (
@@ -18,6 +19,7 @@ export default function MainRoutes() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" index element={<Dashboard />} />
           <Route path="reports" element={<Report />} />
+          <Route path="customers" element={<CustomerMainPage />} />
           <Route
             path="destination-management"
             element={<DestinationMainPage />}

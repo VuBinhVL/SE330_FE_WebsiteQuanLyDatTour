@@ -24,7 +24,7 @@ const FAKE_TOURS = [
   },
   {
     id: 2,
-    name: "Mông c",
+    name: "Mông cổ - Phố cổ Hội An - Bà Nà Hill - Con đường ký ức",
     code: "DNSG838",
     duration: 5,
     nights: 4,
@@ -58,7 +58,7 @@ const FAKE_TOURS = [
       "2025-06-18",
     ],
     image:
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80",
+      "http://localhost:8081/uploads/avatars/1.png",
   },
   // Add more tours as needed
 ];
