@@ -8,7 +8,9 @@ import "./Register.css";
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const userId = localStorage.getItem("userId");
 
+  console.log("User ID:", userId);
   return (
     <div className="register-container">
       <div className="register-left">

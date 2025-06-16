@@ -104,3 +104,83 @@
 .customer-header .header-right .login-button:hover {
   background-color: #d62839;
 }
+
+.customer-header .header-right .header-account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+}
+
+.customer-header .header-right .avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.customer-header.header-right .user-infor {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.customer-header .header-right .full-name {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.customer-header .header-right .user-role {
+  font-size: 14px;
+  color: #888;
+  margin: 0;
+}
+
+.customer-header .header-right .dropdown-wrapper .dropdown-icon {
+  font-size: 14px;
+  color: #444;
+  cursor: pointer;
+}
+
+.customer-header.header-right .dropdown-wrapper {
+  position: relative;
+}
+
+.customer-header .header-right .dropdown-wrapper .dropdown-menu-custom {
+  position: absolute;
+  top: 70px;
+  right: 20px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px 0;
+  min-width: 180px;
+  width: max-content;
+}
+
+.customer-header .header-right .dropdown-wrapper .dropdown-menu-custom ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.customer-header .header-right .dropdown-wrapper .dropdown-menu-custom li {
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.customer-header
+  .header-right
+  .dropdown-wrapper
+  .dropdown-menu-custom
+  li:hover {
+  font-weight: 600;
+}
+
+.customer-header .header-right .dropdown-wrapper .icon-li {
+  margin-right: 6px;
+}

@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import avatar from "../../../assets/images/admin/header/avatar.jpg";
 import "./AdminHeader.css";
+import { useAuth } from "../../../lib/AuthContext";
 export default function AdminHeader() {
+  const { setIsLoggedIn } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -20,6 +22,13 @@ export default function AdminHeader() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  // Xử lý đăng xuất
+  const handleLogout = () => {
+    localStorage.removeItem("userId");
+    setIsLoggedIn(false);
+    window.location.href = "/login"; // Chuyển hướng đến trang đăng nhập
+  };
 
   return (
     <header className="header-admin">
@@ -44,7 +53,7 @@ export default function AdminHeader() {
             <div className="dropdown-menu-custom">
               <ul>
                 <li>Thông tin cá nhân</li>
-                <li>Đăng xuất</li>
+                <li onClick={handleLogout}>Đăng xuất</li>
               </ul>
             </div>
           )}

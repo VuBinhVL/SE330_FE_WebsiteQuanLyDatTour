@@ -6,10 +6,12 @@ import "./Login.css";
 import { useNavigate } from "react-router-dom";
 import { fetchPost } from "../../../lib/httpHandler";
 import { toast } from "react-toastify";
+import { useAuth } from "../../../lib/AuthContext";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { setIsLoggedIn } = useAuth();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -28,11 +30,16 @@ export default function Login() {
       uri,
       payload,
       (sus) => {
-        localStorage.setItem("userId", sus.userId);
-        if (sus.role === "ADMIN") {
-          navigate("/admin");
-        } else if (sus.role === "CUSTOMER") {
-          navigate("/");
+        if (sus.success) {
+          localStorage.setItem("userId", sus.userId);
+          setIsLoggedIn(true);
+          if (sus.role === "ADMIN") {
+            navigate("/admin/dashboard");
+          } else if (sus.role === "CUSTOMER") {
+            navigate("/");
+          }
+        } else {
+          toast.error(sus.message);
         }
       },
       (err) => toast.error(err.message),
