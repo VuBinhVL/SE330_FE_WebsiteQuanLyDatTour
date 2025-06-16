@@ -1,0 +1,130 @@
+.report-container {
+  font-family: Arial, sans-serif;
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(90, 62, 166, 0.08);
+  margin: 24px;
+}
+
+.report-container h1 {
+  text-align: center;
+  color: #5a3ea6;
+  margin-bottom: 24px;
+}
+
+.report-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.report-controls label {
+  font-weight: 500;
+  color: #333;
+}
+
+.report-controls input,
+.report-controls select {
+  margin-left: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #d9d9d9;
+}
+
+.report-controls button {
+  background: #5a3ea6;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.report-controls button:hover {
+  background: #C34141;
+}
+
+.report-loading,
+.report-error {
+  text-align: center;
+  color: #C34141;
+  font-size: 18px;
+  margin-top: 40px;
+}
+
+.report-details {
+  display: flex;
+  margin-top: 32px;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.report-table-container {
+  flex: 2;
+  min-width: 320px;
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  background: #faf8ff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.report-table th,
+.report-table td {
+  padding: 10px 12px;
+  border: 1px solid #ece3fa;
+  text-align: center;
+}
+
+.report-table th {
+  background: #ece3fa;
+  color: #5a3ea6;
+  font-weight: bold;
+}
+
+.report-table tr.selected {
+  background: #e7c8c8;
+}
+
+.report-table tr:hover {
+  background: #f6f0fa;
+  cursor: pointer;
+}
+
+.report-pie-container {
+  flex: 1;
+  min-width: 260px;
+  background: #faf8ff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 5px rgba(90, 62, 166, 0.06);
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .report-container {
+    padding: 8px;
+    margin: 0;
+  }
+  .report-details {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .report-table-container,
+  .report-pie-container {
+    min-width: unset;
+  }
+}

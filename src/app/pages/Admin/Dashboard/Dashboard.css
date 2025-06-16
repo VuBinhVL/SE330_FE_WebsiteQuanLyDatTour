@@ -1,0 +1,360 @@
+.home-main-grid {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+.home-left {
+  flex: 1.3;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.home-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.home-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px #ece3fa;
+  padding: 20px 24px;
+}
+
+.home-fav-routes .fav-routes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.fav-route-item {
+  display: flex;
+  align-items: center;
+  background: #faf8ff;
+  border-radius: 10px;
+  padding: 10px 16px;
+  gap: 16px;
+  border: 1px solid #ece3fa;
+  transition: box-shadow 0.18s, border 0.18s, background 0.18s, transform 0.15s;
+}
+
+.fav-route-item:hover {
+  background: #fff0fa;
+  border: 1px solid #E01600;
+  box-shadow: 0 4px 18px #e6249022;
+  transform: translateY(-2px) scale(1.01);
+  z-index: 1;
+}
+
+.fav-route-item img {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ece3fa;
+}
+
+.fav-route-info {
+  flex: 1;
+}
+
+.fav-route-location {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 2px;
+}
+
+.fav-route-name {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.fav-route-price {
+  color: #E01600;
+  font-weight: 600;
+}
+
+.fav-route-detail-btn {
+  background: #fff;
+  color: #E01600;
+  border: 1px solid #E01600;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.fav-route-detail-btn:hover {
+  background: #E01600;
+  color: #fff;
+}
+
+.home-recent-tickets table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.home-recent-tickets th, .home-recent-tickets td {
+  padding: 10px 10px;
+  font-size: 15px;
+}
+
+.home-recent-tickets th {
+  color: #222;
+  font-weight: 600;
+  background: #faf8ff;
+}
+
+.home-recent-tickets tbody tr {
+  transition: background 0.18s, box-shadow 0.18s;
+  cursor: pointer;
+}
+
+.home-recent-tickets tbody tr:hover {
+  background: #d3d3d388;
+  box-shadow: 0 2px 10px #00000022;
+    transform: translateY(-2px) scale(1.01);
+  z-index: 1;
+}
+
+.recent-ticket-img {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #ece3fa;
+}
+
+.ticket-status {
+  width: 100px;
+  height: 50px;
+  line-height:  40px;
+  display: inline-block;
+  padding: 3px 14px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  text-wrap: nowrap;
+  text-align: center;
+  transition: filter 0.18s, background 0.18s;
+}
+
+.ticket-status:hover {
+  filter: brightness(0.8);
+  background: #f3e9f7;
+}
+
+.home-calendar {
+  margin-bottom: 18px;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.calendar-icon {
+  font-size: 22px;
+}
+
+.calendar-month {
+  color: #e62424;
+  font-weight: 600;
+  margin: 8px 0 8px 0;
+  font-size: 17px;
+  text-align: center;
+}
+
+.calendar-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  margin-top: 6px;
+}
+
+.calendar-table th, .calendar-table td {
+  padding: 7px 0;
+  font-size: 15px;
+}
+
+.calendar-table td {
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+}
+
+.calendar-table td:not(:empty):hover {
+  background: #ffe3f0;
+  color: #e62490;
+  border-radius: 50%;
+  line-height: 16px;
+}
+
+.calendar-trip-day {
+  position: relative;
+  background: #F1968C;
+  color: #fff;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+  line-height: 16px;
+  transition: background 0.18s, color 0.18s;
+}
+
+.calendar-trip-day-hover:hover {
+  background: #e62490;
+  color: #fff;
+}
+
+.calendar-trip-tooltip {
+  display: none;
+  position: absolute;
+  left: 50%;
+  top: -38px;
+  transform: translateX(-50%);
+  background: #222;
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: 0 2px 8px #0002;
+  pointer-events: none;
+}
+
+.calendar-trip-day-hover:hover .calendar-trip-tooltip {
+  display: block;
+}
+
+.home-fav-places .fav-places-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.fav-places-btn {
+  background: #fff;
+  color: #e62490;
+  border: 1px solid #e62490;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.fav-places-btn:hover {
+  background: #e62490;
+  color: #fff;
+}
+
+.fav-places-header-centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 12px;
+}
+
+.fav-places-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.fav-places-divider {
+  width: 90%;
+  border: none;
+  border-top: 2px solid #ccc;
+  margin: 0 0 14px 0;
+}
+
+.fav-places-btn-centered {
+  background: #fff;
+  color: #444;
+  border: 1.5px solid #bbb;
+  border-radius: 8px;
+  padding: 7px 28px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+
+.fav-places-btn-centered:hover {
+  background: #ece3fa;
+  color: #E01600;
+  border-color: #E01600;
+}
+
+.fav-places-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.fav-places-grid img {
+  width: 100%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #ece3fa;
+}
+
+.fav-place-img-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.fav-place-img-wrap img {
+  width: 100%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  border-radius: 10px;
+  transition: filter 0.22s, opacity 0.22s;
+}
+
+.fav-place-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(59, 59, 59, 0.45);
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s;
+  border-radius: 10px;
+  text-align: center;
+  padding: 0 8px;
+
+}
+
+.fav-place-img-wrap:hover img {
+  filter: brightness(0.5);
+  z-index: 1;
+}
+
+.fav-place-img-wrap:hover .fav-place-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
