@@ -9,7 +9,7 @@ export default function CustomerHeader() {
   const navigate = useNavigate();
   // Navigate trang Home
   const handleHome = () => {
-    navigate("/admin");
+    navigate("/");
   };
 
   // Navigate trang Đăng ký

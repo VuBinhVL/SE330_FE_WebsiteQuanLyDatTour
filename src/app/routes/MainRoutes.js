@@ -30,7 +30,7 @@ export default function MainRoutes() {
         </Route>
 
         {/* Customer */}
-        <Route path="/customer" element={<CustomerLayout />}>
+        <Route path="/" element={<CustomerLayout />}>
           <Route index element={<Home />}></Route>
           <Route path="search" element={<Search />} />
           <Route path="login" element={<Login />}></Route>
