@@ -13,6 +13,7 @@ import Register from "../pages/Other/Register";
 import ForgetPassword from "../pages/Other/ForgetPassword";
 import Search from "../pages/Customer/Search";
 import CustomerMainPage from "../pages/Admin/CustomerManagement/CustomerMainPage";
+import EmployeeManagement from "../pages/Admin/EmployeeManagement/EmployeeManagement";
 
 export default function MainRoutes() {
   return (
@@ -26,6 +27,10 @@ export default function MainRoutes() {
           <Route
             path="destination-management"
             element={<DestinationMainPage />}
+          ></Route>
+          <Route
+            path="employee-management"
+            element={<EmployeeManagement />}
           ></Route>
         </Route>
 

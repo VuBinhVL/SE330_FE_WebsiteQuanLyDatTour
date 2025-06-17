@@ -1,0 +1,139 @@
+/* Tổng thể */
+.container {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: transparent;
+  }
+  
+  /* Header */
+  .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  }
+  
+  .header h1 {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+  }
+  
+  .header p {
+  font-size: 14px;
+  color: #666;
+  margin-top: 4px;
+  }
+  
+  /* Nút thêm nhân viên */
+  .add-employee-btn {
+  background-color: #f8d7da;
+  color: red;
+  border: 1px solid red;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  }
+  
+  .add-employee-btn:hover {
+  background-color: #f8b9bf;
+  }
+  
+  /* Thanh tìm kiếm */
+  .search-container {
+  margin: 10px 0 16px 0;
+  }
+  
+  .search-input {
+  padding: 8px 12px;
+  width: 280px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 14px;
+  }
+  
+  /* Bảng nhân viên */
+  .employee-table {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+  background-color: #fff;
+  overflow: hidden;
+  }
+  
+  /* Bo góc cho các góc bảng */
+  .employee-table thead tr:first-child th:first-child {
+  border-top-left-radius: 10px;
+  }
+  
+  .employee-table thead tr:first-child th:last-child {
+  border-top-right-radius: 10px;
+  }
+  
+  .employee-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 10px;
+  }
+  
+  .employee-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 10px;
+  }
+  
+  /* Tiêu đề bảng */
+  .employee-table th {
+  text-align: left;
+  padding: 12px;
+  background-color: #f2f2f2;
+  color: #333;
+  font-weight: 600;
+  border-bottom: 1px solid #ccc;
+  }
+  
+  /* Dòng dữ liệu */
+  .employee-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  }
+  
+  /* Dòng cuối cùng không có border dưới */
+  .employee-table tbody tr:last-child td {
+  border-bottom: none;
+  }
+  
+  /* Trạng thái */
+  .status {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  display: inline-block;
+  font-size: 13px;
+  }
+  
+  .status-open {
+  color: #2ecc71;
+  background-color: #eafaf1;
+  }
+  
+  .status-locked {
+  color: #e67e22;
+  background-color: #fff3e6;
+  }
+  
+  .status-cancelled {
+  color: #e74c3c;
+  background-color: #fdecea;
+  }
+  
+  /* Nút view */
+  .view-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  }
