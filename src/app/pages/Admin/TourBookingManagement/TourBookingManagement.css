@@ -1,0 +1,112 @@
+/* Tổng thể */
+.container {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: transparent;
+  }
+  
+  .search-container {
+    margin: 10px 0 16px 0;
+  }
+  
+  .search-input {
+    padding: 8px 12px;
+    width: 280px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+  
+  /* Bảng đặt tour */
+  .booking-table {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
+    background-color: #fff;
+    overflow: hidden;
+  }
+  
+  /* Bo góc cho các góc bảng */
+  .booking-table thead tr:first-child th:first-child {
+    border-top-left-radius: 10px;
+  }
+  
+  .booking-table thead tr:first-child th:last-child {
+    border-top-right-radius: 10px;
+  }
+  
+  .booking-table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 10px;
+  }
+  
+  .booking-table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 10px;
+  }
+  
+  /* Tiêu đề bảng */
+  .booking-table th {
+    text-align: left;
+    padding: 12px;
+    background-color: #f2f2f2;
+    color: #333;
+    font-weight: 600;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  /* Dòng dữ liệu */
+  .booking-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+  }
+  
+  /* Dòng cuối cùng không có border dưới */
+  .booking-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+  
+  /* Trạng thái */
+  .status {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: bold;
+    display: inline-block;
+    font-size: 13px;
+  }
+  
+  /* Màu trạng thái */
+  .status-paid {
+    color: #2ecc71;
+    background-color: #eafaf1;
+  }
+  
+  .status-pending {
+    color: #e67e22;
+    background-color: #fff3e6;
+  }
+  
+  .status-cancelled {
+    color: #e74c3c;
+    background-color: #fdecea;
+  }
+  
+  /* Nút View và Delete */
+  .view-btn,
+  .delete-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  .icon-svg {
+  width: 20px;
+  height: 20px;
+}
+
+  

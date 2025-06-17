@@ -14,6 +14,8 @@ import ForgetPassword from "../pages/Other/ForgetPassword";
 import Search from "../pages/Customer/Search";
 import CustomerMainPage from "../pages/Admin/CustomerManagement/CustomerMainPage";
 import EmployeeManagement from "../pages/Admin/EmployeeManagement/EmployeeManagement";
+import TourBookingManagement from "../pages/Admin/TourBookingManagement/TourBookingManagement";
+import BookingDetail from "../pages/Admin/TourBookingManagement/BookingDetail";
 
 export default function MainRoutes() {
   return (
@@ -32,6 +34,16 @@ export default function MainRoutes() {
             path="employee-management"
             element={<EmployeeManagement />}
           ></Route>
+
+          <Route
+            path="tour-booking-management"
+            element={<TourBookingManagement />}
+          ></Route>
+          <Route
+            path="tour-booking-management/detail-booking/:id"
+            element={<BookingDetail />}
+          ></Route>
+          
         </Route>
 
         {/* Customer */}
