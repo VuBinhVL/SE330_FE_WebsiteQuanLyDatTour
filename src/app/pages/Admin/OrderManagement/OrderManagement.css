@@ -31,29 +31,56 @@
 }
 
 /* Table Styling */
+/* Bảng đơn hàng */
 .order-table {
   width: 100%;
-  border-collapse: collapse;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
   background-color: #fff;
-  border-radius: 8px;
   overflow: hidden;
 }
 
-.order-table th,
-.order-table td {
+/* Bo góc bảng */
+.order-table thead tr:first-child th:first-child {
+  border-top-left-radius: 10px;
+}
+
+.order-table thead tr:first-child th:last-child {
+  border-top-right-radius: 10px;
+}
+
+.order-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 10px;
+}
+
+.order-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 10px;
+}
+
+/* Tiêu đề bảng */
+.order-table th {
   text-align: left;
   padding: 12px;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.order-table th {
   background-color: #f2f2f2;
-  font-weight: bold;
+  color: #333;
+  font-weight: 600;
+  border-bottom: 1px solid #ccc;
 }
 
+/* Dòng dữ liệu */
+.order-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+/* Dòng cuối cùng không có viền dưới */
 .order-table tbody tr:last-child td {
   border-bottom: none;
 }
+
 
 /* Status Styling */
 .status {

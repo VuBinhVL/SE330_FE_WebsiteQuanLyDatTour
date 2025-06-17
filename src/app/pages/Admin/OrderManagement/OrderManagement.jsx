@@ -32,7 +32,7 @@ export default function OrderManagement() {
   const navigate = useNavigate();
 
   const handleView = (order) => {
-    navigate(`/admin/order-management/detail/${order.id}`, { state: { order } });
+    navigate(`/admin/invoices/detail/${order.id}`, { state: { order } });
   };
 
   return (

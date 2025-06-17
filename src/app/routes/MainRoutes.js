@@ -33,28 +33,28 @@ export default function MainRoutes() {
             element={<DestinationMainPage />}
           ></Route>
           <Route
-            path="employee-management"
+            path="staff"
             element={<EmployeeManagement />}
           ></Route>
 
           <Route
-            path="tour-booking-management"
+            path="tour-bookings"
             element={<TourBookingManagement />}
           ></Route>
           <Route
-            path="tour-booking-management/detail-booking/:id"
+            path="tour-bookings/detail-booking/:id"
             element={<BookingDetail />}
           ></Route>
 
           <Route
-            path="order-management"
+            path="invoices"
             element={<OrderManagement />}
           ></Route>
           <Route
-            path="order-management/detail/:id"
+            path="invoices/detail/:id"
             element={<OrderDetail />}
           ></Route>
-          
+
         </Route>
 
         {/* Customer */}

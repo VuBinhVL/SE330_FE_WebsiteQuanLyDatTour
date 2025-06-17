@@ -32,7 +32,7 @@ export default function TourBookingManagement() {
   const navigate = useNavigate();
 
   const handleView = (booking) => {
-  navigate(`/admin/tour-booking-management/detail-booking/${booking.id}`, { state: { booking } });
+  navigate(`/admin/tour-bookings/detail-booking/${booking.id}`, { state: { booking } });
 };
 
   return (
