@@ -129,18 +129,6 @@
   background-color: #4848d1;
 }
 
-
-.booking-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.booking-table th, .booking-table td {
-  padding: 10px;
-  border: 1px solid #ddd;
-  text-align: center;
-}
-
 .cancel-btn {
   padding: 10px 20px;
   background-color: #ff4d4f;
