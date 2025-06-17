@@ -16,6 +16,8 @@ import CustomerMainPage from "../pages/Admin/CustomerManagement/CustomerMainPage
 import EmployeeManagement from "../pages/Admin/EmployeeManagement/EmployeeManagement";
 import TourBookingManagement from "../pages/Admin/TourBookingManagement/TourBookingManagement";
 import BookingDetail from "../pages/Admin/TourBookingManagement/BookingDetail";
+import OrderManagement from "../pages/Admin/OrderManagement/OrderManagement";
+import OrderDetail from "../pages/Admin/OrderManagement/OrderDetail";
 
 export default function MainRoutes() {
   return (
@@ -42,6 +44,15 @@ export default function MainRoutes() {
           <Route
             path="tour-booking-management/detail-booking/:id"
             element={<BookingDetail />}
+          ></Route>
+
+          <Route
+            path="order-management"
+            element={<OrderManagement />}
+          ></Route>
+          <Route
+            path="order-management/detail/:id"
+            element={<OrderDetail />}
           ></Route>
           
         </Route>
