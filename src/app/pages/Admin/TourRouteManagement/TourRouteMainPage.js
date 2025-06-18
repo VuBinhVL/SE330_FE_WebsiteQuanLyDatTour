@@ -7,7 +7,8 @@ import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { BE_ENDPOINT, fetchGet, fetchDelete } from "../../../lib/httpHandler";
 import { DataGrid } from "@mui/x-data-grid";
-import { Box } from "@mui/material";
+import { Box, Dialog, DialogContent, DialogTitle } from "@mui/material";
+import AddTourRoute from "../../../components/Admin/TourRouteManagement/AddTourRoute/AddTourRoute";
 
 export default function TourRouteMainPage() {
   const [tourRoutes, setTourRoutes] = useState([
@@ -22,6 +23,7 @@ export default function TourRouteMainPage() {
     },
   ]);
   const [searchValue, setSearchValue] = useState("");
+  const [openAddDialog, setOpenAddDialog] = useState(false);
   const navigate = useNavigate();
 
   // Fetch all tour routes (giữ nguyên nhưng không cần thiết với dữ liệu cứng)
@@ -40,7 +42,11 @@ export default function TourRouteMainPage() {
   );
 
   const handleShowAdd = () => {
-    // Logic thêm mới nếu cần
+    setOpenAddDialog(true);
+  };
+
+  const handleCloseAddDialog = () => {
+    setOpenAddDialog(false);
   };
 
   const handleShowDetail = (tourRoute) => {
@@ -160,6 +166,14 @@ export default function TourRouteMainPage() {
           }}
         />
       </Box>
+
+      {/* Dialog để hiển thị AddTourRoute */}
+      <Dialog open={openAddDialog} onClose={handleCloseAddDialog} maxWidth="md" fullWidth>
+        <DialogTitle>Thêm tuyến du lịch mới</DialogTitle>
+        <DialogContent>
+          <AddTourRoute onClose={handleCloseAddDialog} setTourRoutes={setTourRoutes} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
