@@ -10,6 +10,9 @@ import {
   IconButton,
   Tooltip,
   Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -17,6 +20,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import TourRouteAttractionDetail from "../../../Admin/TourRouteManagement/TourRouteAttractionDetail/TourRouteAttractionDetail";
 
 export default function DetailTourRoute() {
   const { id } = useParams();
@@ -24,21 +28,10 @@ export default function DetailTourRoute() {
   const [isEditing, setIsEditing] = useState(false);
   const [visibleDays, setVisibleDays] = useState([0, 1, 2]);
   const [tempData, setTempData] = useState({});
-
-  useEffect(() => {
-    const data = {
-      name: "Thái Lan: Bangkok - Pattaya (Chợ nổi Bốn Miền, chùa Phật Lớn...)",
-      departure: "Đà Nẵng",
-      destination: "Bangkok - Thailan",
-      startDate: "01/01/2025",
-      endDate: "01/01/2026",
-      duration: "3N2Đ",
-    };
-    setTourRoute(data);
-    setTempData(data);
-  }, [id]);
-
-  const itinerary = [
+  const [openAttractionDialog, setOpenAttractionDialog] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState(null);
+  const [selectedDayIndex, setSelectedDayIndex] = useState(null);
+  const [itinerary, setItinerary] = useState([
     {
       day: "Ngày 1",
       activities: [
@@ -79,7 +72,20 @@ export default function DetailTourRoute() {
         { name: "Ăn bánh quay sốt", tag: "Ẩm thực" },
       ],
     },
-  ];
+  ]);
+
+  useEffect(() => {
+    const data = {
+      name: "Thái Lan: Bangkok - Pattaya (Chợ nổi Bốn Miền, chùa Phật Lớn...)",
+      departure: "Đà Nẵng",
+      destination: "Bangkok - Thailan",
+      startDate: "01/01/2025",
+      endDate: "01/01/2026",
+      duration: "3N2Đ",
+    };
+    setTourRoute(data);
+    setTempData(data);
+  }, [id]);
 
   const handleToggleEdit = () => {
     setIsEditing(true);
@@ -105,6 +111,30 @@ export default function DetailTourRoute() {
     if (visibleDays[visibleDays.length - 1] < itinerary.length - 1) {
       setVisibleDays(visibleDays.map((i) => i + 1));
     }
+  };
+
+  const handleEditActivity = (dayIndex, activity) => {
+    setSelectedDayIndex(dayIndex);
+    setSelectedActivity(activity);
+    setOpenAttractionDialog(true);
+  };
+
+  const handleCloseAttractionDialog = () => {
+    setOpenAttractionDialog(false);
+    setSelectedActivity(null);
+    setSelectedDayIndex(null);
+  };
+
+  const handleSaveActivity = (updatedActivity) => {
+    setItinerary((prevItinerary) => {
+      const newItinerary = [...prevItinerary];
+      const activities = [...newItinerary[selectedDayIndex].activities];
+      const activityIndex = activities.findIndex((act) => act.name === selectedActivity.name);
+      activities[activityIndex] = updatedActivity;
+      newItinerary[selectedDayIndex].activities = activities;
+      return newItinerary;
+    });
+    handleCloseAttractionDialog();
   };
 
   if (!tourRoute) return <div>Loading...</div>;
@@ -252,7 +282,11 @@ export default function DetailTourRoute() {
                         <Typography fontSize="14px">{activity.name}</Typography>
                         <Box>
                           <Tooltip title="Sửa">
-                            <IconButton size="small" color="primary">
+                            <IconButton
+                              size="small"
+                              color="primary"
+                              onClick={() => handleEditActivity(dayIndex, activity)}
+                            >
                               <ModeEditOutlineIcon fontSize="inherit" />
                             </IconButton>
                           </Tooltip>
@@ -287,6 +321,24 @@ export default function DetailTourRoute() {
           <ArrowForwardIosIcon />
         </IconButton>
       </Box>
+
+      {/* Dialog để hiển thị TourRouteAttractionDetail */}
+      <Dialog
+        open={openAttractionDialog}
+        onClose={handleCloseAttractionDialog}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>Thông tin lịch trình</DialogTitle>
+        <DialogContent>
+          <TourRouteAttractionDetail
+            activity={selectedActivity}
+            day={itinerary[selectedDayIndex]?.day}
+            onClose={handleCloseAttractionDialog}
+            onSave={handleSaveActivity}
+          />
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 }
