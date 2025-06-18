@@ -14,40 +14,44 @@ export default function OrderDetail() {
   const { order } = location.state || {};
 
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-
+  const [orderStatus, setOrderStatus] = useState(order?.status || "");
   const [customerData, setCustomerData] = useState({
-    name: "Đặng Phú Thiện",
-    gender: "Nam",
-    birthdate: "2005-10-17",
-    email: "23521476@gm.uit.edu.vn",
-    address: "25/17/1, Cửu Long, Phường 2, Tân Bình, Hồ Chí Minh",
+    name: order?.customerName || "",
+    gender: order?.customerGender || "",
+    birthdate: order?.customerBirthdate || "",
+    email: order?.customerEmail || "",
+    address: order?.customerAddress || "",
   });
 
-   if (!order) {
+  if (!order) {
     return <p>Không có thông tin đơn hàng. Vui lòng quay lại trang quản lý đơn hàng.</p>;
   }
 
+  const handleViewBooking = () => {
+    navigate(`/admin/tour-bookings/detail-booking/${order.tourCode}`, {
+      state: { booking: order },
+    });
+  };
 
-  const bookingDetails = [
-    {
-      tourName: "Thái Lan: Bangkok - Pattaya (Làng Nong Nooch)",
-      tourCode: "HNTL1234",
-      departureDate: "17/04/2025",
-      seats: 1,
-      totalAmount: "8.190.000 đ",
-    },
-    {
-      tourName: "Thái Lan: Bangkok - Pattaya (Làng Nong Nooch)",
-      tourCode: "HNTL1234",
-      departureDate: "17/04/2025",
-      seats: 3,
-      totalAmount: "8.190.000 đ",
-    },
-  ];
+  const handleCancelOrder = () => {
+    const confirmCancel = window.confirm("Bạn có chắc muốn hủy đơn hàng này?");
+    if (confirmCancel) {
+      setOrderStatus("Đã hủy");
+    }
+  };
+
+  const handleConfirmPayment = () => {
+    if (orderStatus === "Đã hủy") {
+      alert("Đơn hàng đã bị hủy. Không thể thanh toán.");
+      return;
+    }
+
+    alert("Thanh toán thành công!");
+    // Thực hiện xử lý thanh toán thật tại đây nếu cần
+  };
 
   return (
     <div className="order-detail-container">
-
       {/* Thông tin khách hàng */}
       <div className="customer-info">
         <div className="section-header">
@@ -85,7 +89,6 @@ export default function OrderDetail() {
         </div>
       </div>
 
-      {/* Popup sửa thông tin khách hàng */}
       <EditCustomerPopup
         isOpen={isPopupOpen}
         onClose={() => setIsPopupOpen(false)}
@@ -100,28 +103,35 @@ export default function OrderDetail() {
           <div className="grid-form">
             <div className="form-group">
               <label>Mã đơn hàng:</label>
-              <input type="text" value="DNTL233" readOnly />
+              <input type="text" value={order.orderCode} readOnly />
             </div>
             <div className="form-group">
               <label>Ngày tạo:</label>
-              <input type="text" value="04:04:48 17/04/2025" readOnly />
+              <input type="text" value={order.orderDate} readOnly />
             </div>
             <div className="form-group">
               <label>Số lượng tour:</label>
-              <input type="text" value="3" readOnly />
+              <input type="text" value={order.seats} readOnly />
             </div>
             <div className="form-group">
               <label>Tổng tiền:</label>
-              <input type="text" value="18.910.900 đ" readOnly />
+              <input
+                type="text"
+                value={new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(order.totalAmount)}
+                readOnly
+              />
             </div>
             <div className="form-group">
               <label>Trạng thái:</label>
-              <input type="text" value="Chờ thanh toán" readOnly />
+              <input type="text" value={orderStatus} readOnly />
             </div>
           </div>
         </div>
 
-        {/* Phương thức thanh toán */}
+        {/* Phương thức thanh toán luôn hiển thị */}
         <div className="payment-method">
           <h3>Chọn phương thức thanh toán</h3>
           <div className="payment-options">
@@ -157,12 +167,14 @@ export default function OrderDetail() {
           </div>
 
           <div className="confirm-btn-wrapper">
-            <button className="confirm-btn">Xác nhận thanh toán</button>
+            <button className="confirm-btn" onClick={handleConfirmPayment}>
+              Xác nhận thanh toán
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Danh sách phiếu đặt chỗ */}
+      {/* Phiếu đặt chỗ */}
       <div className="booking-detail-container">
         <h3>Danh sách phiếu đặt chỗ</h3>
         <table className="booking-table">
@@ -173,32 +185,39 @@ export default function OrderDetail() {
               <th>Ngày đặt</th>
               <th>Số lượng chỗ</th>
               <th>Tổng tiền</th>
-              <th>View</th>
+              <th>Xem</th>
             </tr>
           </thead>
           <tbody>
-            {bookingDetails.map((booking, index) => (
-              <tr key={index}>
-                <td>{booking.tourName}</td>
-                <td>{booking.tourCode}</td>
-                <td>{booking.departureDate}</td>
-                <td>{booking.seats}</td>
-                <td>{booking.totalAmount}</td>
-                <td>
-                  <button className="view-btn">
-                    <ViewIcon className="icon-svg" />
-                  </button>
-                </td>
-              </tr>
-            ))}
+            <tr>
+              <td>{order.tourName}</td>
+              <td>{order.tourCode}</td>
+              <td>{order.bookingDate}</td>
+              <td>{order.seats}</td>
+              <td>
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(order.totalAmount)}
+              </td>
+              <td>
+                <button className="view-btn" onClick={handleViewBooking}>
+                  <ViewIcon className="icon-svg" />
+                </button>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
 
-      {/* Hủy đơn hàng */}
-      <div className="actions">
-        <button className="cancel-btn">Hủy đơn hàng</button>
-      </div>
+      {/* Nút hủy đơn hàng – chỉ hiện nếu chưa bị hủy */}
+      {orderStatus !== "Đã hủy" && (
+        <div className="actions">
+          <button className="cancel-btn" onClick={handleCancelOrder}>
+            Hủy đơn hàng
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./BookingDetail.css";
 import ModalPassengerEdit from "./ModalPassengerEdit";
 import { ReactComponent as EditIcon } from "../../../assets/icons/admin/Nút sửa.svg";
 
 const BookingDetail = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const booking = location.state?.booking;
@@ -16,7 +15,7 @@ const BookingDetail = () => {
   if (!booking) {
     return (
       <div className="booking-detail-container">
-        <h2>Không tìm thấy phiếu đặt tour</h2>
+        <h2>Không tìm thấy thông tin phiếu đặt chỗ</h2>
         <button onClick={() => navigate(-1)} className="back-btn">
           ⬅ Quay lại
         </button>
@@ -41,51 +40,49 @@ const BookingDetail = () => {
 
   return (
     <div className="booking-detail-container">
-
       <div className="tour-info-card">
         <p className="tour-title"><strong>{booking.tourName}</strong></p>
-
         <div className="grid-form">
           <div className="form-group">
             <label>Mã chuyến du lịch:</label>
-            <input type="text" value="DNTL233" readOnly />
+            <input type="text" value={booking.tourCode} readOnly />
           </div>
-
           <div className="form-group">
             <label>Ngày khởi hành:</label>
             <input type="text" value={booking.departureDate} readOnly />
           </div>
-
           <div className="form-group">
             <label>Ngày trở về:</label>
             <input type="text" value={booking.returnDate} readOnly />
           </div>
-
           <div className="form-group">
             <label>Giờ xuất phát:</label>
             <input type="text" value={booking.departureTime} readOnly />
           </div>
-
           <div className="form-group">
             <label>Điểm xuất phát:</label>
             <input type="text" value={booking.departureLocation} readOnly />
           </div>
-
           <div className="form-group">
             <label>Giá:</label>
-            <input type="text" value={`${booking.totalAmount} đ`} readOnly />
+            <input
+              type="text"
+              value={new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(booking.totalAmount)}
+              readOnly
+            />
           </div>
-
           <div className="form-group">
             <label>Số lượng đặt hành khách:</label>
             <input type="text" value={booking.seats} readOnly />
           </div>
-
           <div className="form-group">
             <label>Tổng tiền:</label>
-            <input type="text" value={`${booking.paidAmount} đ`} readOnly />
+            <input
+              type="text"
+              value={new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(booking.paidAmount)}
+              readOnly
+            />
           </div>
-
           <div className="form-group">
             <label>Trạng thái thanh toán:</label>
             <input type="text" value={booking.status} readOnly />
@@ -108,18 +105,18 @@ const BookingDetail = () => {
           {Array.from({ length: booking.seats }).map((_, index) => (
             <tr key={index}>
               <td>{index + 1}</td>
-              <td>{booking.customerName}</td>
-              <td>{booking.phone}</td>
-              <td>{booking.email}</td>
+              <td>{`Hành Khách ${index + 1}`}</td>
+              <td>{`09000000${index}`}</td>
+              <td>{`passenger${index}@mail.com`}</td>
               <td>
                 <button
                   className="edit-btn"
                   onClick={() =>
                     handleEditPassenger({
                       id: index + 1,
-                      name: booking.customerName,
-                      phone: booking.phone,
-                      email: booking.email,
+                      name: `Hành Khách ${index + 1}`,
+                      phone: `09000000${index}`,
+                      email: `passenger${index}@mail.com`,
                     })
                   }
                 >
@@ -143,8 +140,6 @@ const BookingDetail = () => {
           passenger={selectedPassenger}
         />
       )}
-
-
     </div>
   );
 };
