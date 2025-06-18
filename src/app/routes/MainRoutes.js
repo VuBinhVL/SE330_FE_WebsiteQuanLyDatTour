@@ -14,6 +14,7 @@ import ForgetPassword from "../pages/Other/ForgetPassword";
 import Search from "../pages/Customer/Search";
 import CustomerMainPage from "../pages/Admin/CustomerManagement/CustomerMainPage";
 import TourRouteMainPage from "../pages/Admin/TourRouteManagement/TourRouteMainPage";
+import DetailTourRoute from "../components/Admin/TourRouteManagement/DetailTourRoute/DetailTourRoute";
 
 export default function MainRoutes() {
   return (
@@ -25,6 +26,7 @@ export default function MainRoutes() {
           <Route path="reports" element={<Report />} />
           <Route path="customers" element={<CustomerMainPage />} />
            <Route path="tour-route" element={<TourRouteMainPage />} />
+           <Route path="/admin/tourroute/detail/:id" element={<DetailTourRoute />} />
           <Route
             path="destination-management"
             element={<DestinationMainPage />}
