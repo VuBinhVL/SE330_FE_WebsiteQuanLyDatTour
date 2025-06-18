@@ -4,27 +4,34 @@ import search from "../../../assets/icons/customer/header/search.png";
 import { MdOutlineAddBox } from "react-icons/md";
 import { GoTrash } from "react-icons/go";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
-// import AddTourRoute from "../../../components/Admin/TourRouteManagement/AddTourRoute/AddTourRoute";
-// import DetailTourRoute from "../../../components/Admin/TourRouteManagement/DetailTourRoute/DetailTourRoute";
+import { useNavigate } from "react-router-dom";
 import { BE_ENDPOINT, fetchGet, fetchDelete } from "../../../lib/httpHandler";
 import { DataGrid } from "@mui/x-data-grid";
 import { Box } from "@mui/material";
 
 export default function TourRouteMainPage() {
-  const [showAdd, setShowAdd] = useState(false);
-  const [showDetail, setShowDetail] = useState(false);
-  const [tourRoutes, setTourRoutes] = useState([]);
-  const [selectedTourRoute, setSelectedTourRoute] = useState(null);
+  const [tourRoutes, setTourRoutes] = useState([
+    {
+      id: 1,
+      image: "https://via.placeholder.com/36",
+      name: "Thái Lan: Bangkok - Pattaya",
+      status: "Hoạt động",
+      departure: "Đà Nẵng",
+      duration: "3N2Đ",
+      price: "5,000,000 VND",
+    },
+  ]);
   const [searchValue, setSearchValue] = useState("");
+  const navigate = useNavigate();
 
-  // Fetch all tour routes
+  // Fetch all tour routes (giữ nguyên nhưng không cần thiết với dữ liệu cứng)
   useEffect(() => {
-    fetchGet(
-      "/api/admin/tourroute/get-all",
-      (res) => setTourRoutes(res.data || []),
-      () => setTourRoutes([]),
-      () => setTourRoutes([])
-    );
+    // fetchGet(
+    //   "/api/admin/tourroute/get-all",
+    //   (res) => setTourRoutes(res.data || []),
+    //   () => setTourRoutes([]),
+    //   () => setTourRoutes([])
+    // );
   }, []);
 
   // Search filter
@@ -32,23 +39,12 @@ export default function TourRouteMainPage() {
     tr.name?.toLowerCase().includes(searchValue.toLowerCase())
   );
 
-  const handleShowAdd = () => setShowAdd(!showAdd);
+  const handleShowAdd = () => {
+    // Logic thêm mới nếu cần
+  };
 
   const handleShowDetail = (tourRoute) => {
-    setSelectedTourRoute(tourRoute);
-    setShowDetail(true);
-  };
-
-  const handleCloseDetail = () => {
-    setSelectedTourRoute(null);
-    setShowDetail(false);
-  };
-
-  const handleUpdateTourRoute = (updatedTourRoute) => {
-    setTourRoutes((prev) =>
-      prev.map((tr) => (tr.id === updatedTourRoute.id ? updatedTourRoute : tr))
-    );
-    handleCloseDetail();
+    navigate(`/admin/tourroute/detail/${tourRoute.id}`);
   };
 
   const handleDelete = (id) => {
@@ -164,23 +160,6 @@ export default function TourRouteMainPage() {
           }}
         />
       </Box>
-
-      {/* Popup thêm tuyến du lịch */}
-      {/* {showAdd && (
-        <AddTourRoute
-          onCloseAddForm={handleShowAdd}
-          onAdded={(newTourRoute) => setTourRoutes((prev) => [...prev, newTourRoute])}
-        />
-      )} */}
-
-      {/* Popup chi tiết tuyến du lịch */}
-      {/* {showDetail && selectedTourRoute && (
-        <DetailTourRoute
-          tourRoute={selectedTourRoute}
-          onCloseAddForm={handleCloseDetail}
-          onUpdated={handleUpdateTourRoute}
-        />
-      )} */}
     </div>
   );
 }
