@@ -21,6 +21,7 @@ import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import TourRouteAttractionDetail from "../../../Admin/TourRouteManagement/TourRouteAttractionDetail/TourRouteAttractionDetail";
+import AddTourRouteAttraction from "../../../Admin/TourRouteManagement/AddTourRouteAttraction/AddTourRouteAttraction";
 
 export default function DetailTourRoute() {
   const { id } = useParams();
@@ -31,6 +32,7 @@ export default function DetailTourRoute() {
   const [openAttractionDialog, setOpenAttractionDialog] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [selectedDayIndex, setSelectedDayIndex] = useState(null);
+  const [openAddAttractionDialog, setOpenAddAttractionDialog] = useState(false);
   const [itinerary, setItinerary] = useState([
     {
       day: "Ngày 1",
@@ -137,6 +139,32 @@ export default function DetailTourRoute() {
     handleCloseAttractionDialog();
   };
 
+  const handleOpenAddAttractionDialog = () => {
+    setOpenAddAttractionDialog(true);
+  };
+
+  const handleCloseAddAttractionDialog = () => {
+    setOpenAddAttractionDialog(false);
+  };
+
+  const handleAddActivity = (newActivity, selectedDay) => {
+    setItinerary((prevItinerary) => {
+      const newItinerary = [...prevItinerary];
+      const dayIndex = newItinerary.findIndex((item) => item.day === selectedDay);
+      if (dayIndex !== -1) {
+        newItinerary[dayIndex].activities.push(newActivity);
+      } else {
+        // Nếu ngày không tồn tại, tạo ngày mới
+        newItinerary.push({
+          day: selectedDay,
+          activities: [newActivity],
+        });
+      }
+      return newItinerary;
+    });
+    handleCloseAddAttractionDialog();
+  };
+
   if (!tourRoute) return <div>Loading...</div>;
 
   return (
@@ -233,7 +261,7 @@ export default function DetailTourRoute() {
         <Typography variant="h6" textAlign="center" sx={{ mr: 1 }}>
           LỊCH TRÌNH
         </Typography>
-        <IconButton sx={{ color: "green" }}>
+        <IconButton sx={{ color: "green" }} onClick={handleOpenAddAttractionDialog}>
           <AddCircleOutlineIcon />
         </IconButton>
       </Box>
@@ -336,6 +364,23 @@ export default function DetailTourRoute() {
             day={itinerary[selectedDayIndex]?.day}
             onClose={handleCloseAttractionDialog}
             onSave={handleSaveActivity}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog để hiển thị AddTourRouteAttraction */}
+      <Dialog
+        open={openAddAttractionDialog}
+        onClose={handleCloseAddAttractionDialog}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>Thêm lịch trình</DialogTitle>
+        <DialogContent>
+          <AddTourRouteAttraction
+            onClose={handleCloseAddAttractionDialog}
+            onAdd={handleAddActivity}
+            days={itinerary.map((item) => item.day)}
           />
         </DialogContent>
       </Dialog>
