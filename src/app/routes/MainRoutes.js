@@ -13,6 +13,7 @@ import Register from "../pages/Other/Register";
 import ForgetPassword from "../pages/Other/ForgetPassword";
 import Search from "../pages/Customer/Search";
 import CustomerMainPage from "../pages/Admin/CustomerManagement/CustomerMainPage";
+import TourRouteMainPage from "../pages/Admin/TourRouteManagement/TourRouteMainPage";
 
 export default function MainRoutes() {
   return (
@@ -23,6 +24,7 @@ export default function MainRoutes() {
           <Route path="dashboard" index element={<Dashboard />} />
           <Route path="reports" element={<Report />} />
           <Route path="customers" element={<CustomerMainPage />} />
+           <Route path="tour-route" element={<TourRouteMainPage />} />
           <Route
             path="destination-management"
             element={<DestinationMainPage />}
