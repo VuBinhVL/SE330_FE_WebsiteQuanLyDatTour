@@ -1,8 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
+import { AdminTitleContext } from "../AdminLayout/AdminLayout";
 import avatar from "../../../assets/images/admin/header/avatar.jpg";
 import "./AdminHeader.css";
 import { useAuth } from "../../../lib/AuthContext";
 export default function AdminHeader() {
+  const { title, subtitle } = useContext(AdminTitleContext);
   const { setIsLoggedIn } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const toggleDropdown = () => {
@@ -34,8 +36,8 @@ export default function AdminHeader() {
     <header className="header-admin">
       {/* Bên trái */}
       <div className="header-left">
-        <h1 className="title">Tất cả điểm tham quan du lịch</h1>
-        <p className="subtitle">Thông tin tất cả điểm tham quan du lịch</p>
+        <h1 className="title">{title}</h1>
+        <p className="subtitle">{subtitle}</p>
       </div>
 
       {/* Bên phải */}

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import { AdminTitleContext } from "../../../layouts/adminLayout/AdminLayout/AdminLayout";
 import "./Dashboard.css";
 import CalendarLogo from "../../../assets/icons/admin/DashBoard/calendar-heart-01.svg";
 
@@ -165,6 +166,14 @@ function Calendar({ year, month, tripDays }) {
 }
 
 export default function Dashboard() {
+  const { setTitle, setSubtitle } = useContext(AdminTitleContext);
+  
+    useEffect(() => {
+      setTitle("Trang chủ");
+      setSubtitle("Thông tin tổng quan hệ thống");
+    }, [setTitle, setSubtitle]);
+
+
   const today = new Date();
   const year = today.getFullYear();
   const month = 3; // Tháng 3 (March)

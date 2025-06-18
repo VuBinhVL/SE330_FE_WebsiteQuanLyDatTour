@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import { AdminTitleContext } from "../../../layouts/adminLayout/AdminLayout/AdminLayout";
 import "./DestinationMainPage.css";
 import search from "../../../assets/icons/customer/header/search.png";
 import { MdOutlineAddBox } from "react-icons/md";
@@ -8,6 +9,13 @@ import AddDestination from "../../../components/Admin/DestinationManagement/AddD
 import DetailDestination from "../../../components/Admin/DestinationManagement/DetailDestination/DetailDestination";
 
 export default function DestinationMainPage() {
+  const { setTitle, setSubtitle } = useContext(AdminTitleContext);
+
+  useEffect(() => {
+    setTitle("Tất cả điểm tham quan du lịch");
+    setSubtitle("Thông tin tất cả điểm tham quan du lịch");
+  }, [setTitle, setSubtitle]);
+
   const [showAddDes, setShowAddDes] = useState(false);
   const [showDetailDes, setShowDetailDes] = useState(false);
 
