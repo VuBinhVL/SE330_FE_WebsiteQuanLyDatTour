@@ -6,7 +6,7 @@ import { GoTrash } from "react-icons/go";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import AddDestination from "../../../components/Admin/DestinationManagement/AddDestination/AddDestination";
 import DetailDestination from "../../../components/Admin/DestinationManagement/DetailDestination/DetailDestination";
-import { fetchGet } from "../../../lib/httpHandler";
+import { fetchDelete, fetchGet } from "../../../lib/httpHandler";
 import { toast } from "react-toastify";
 
 export default function DestinationMainPage() {
@@ -38,6 +38,21 @@ export default function DestinationMainPage() {
   };
   const toggleDetailDes = () => {
     setShowDetailDes(!showDetailDes);
+  };
+
+  //Hàm chức năng xóa
+  const handleDeleteDestination = (id) => {
+    const uri = `/api/admin/tourist-attraction/${id}`;
+    fetchDelete(
+      uri,
+      id,
+      (sus) => {
+        setDestinationList(destinationList.filter((item) => item.id !== id));
+        toast.success(sus.message);
+      },
+      (err) => toast.error(err.message),
+      () => toast.error("Lỗi kết nối đến máy chủ")
+    );
   };
 
   return (
@@ -89,7 +104,11 @@ export default function DestinationMainPage() {
                 />
               </td>
               <td>
-                <GoTrash className="delete-button" title="Xóa" />
+                <GoTrash
+                  className="delete-button"
+                  title="Xóa"
+                  onClick={() => handleDeleteDestination(item.id)}
+                />
               </td>
             </tr>
           ))}
