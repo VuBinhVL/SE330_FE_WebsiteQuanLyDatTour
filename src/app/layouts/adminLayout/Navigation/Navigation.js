@@ -46,7 +46,7 @@ export default function Navigation() {
         </NavLink>
 
         <NavLink
-          to="/admin/tour-route"
+          to="/admin/tour-routes"
           className={({ isActive }) => "nav-item" + (isActive ? " active" : "")}
         >
           <img src={tour_route} alt="Tour Route Icon" className="icon" />
@@ -54,7 +54,7 @@ export default function Navigation() {
         </NavLink>
 
         <NavLink
-          to="/admin/trips"
+          to="/admin/tours"
           className={({ isActive }) => "nav-item" + (isActive ? " active" : "")}
         >
           <img src={trip} alt="Trip Icon" className="icon" />

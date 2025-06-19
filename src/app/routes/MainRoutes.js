@@ -15,6 +15,7 @@ import Search from "../pages/Customer/Search";
 import CustomerMainPage from "../pages/Admin/CustomerManagement/CustomerMainPage";
 import TourRouteMainPage from "../pages/Admin/TourRouteManagement/TourRouteMainPage";
 import DetailTourRoute from "../components/Admin/TourRouteManagement/DetailTourRoute/DetailTourRoute";
+import TourMainPage from "../pages/Admin/TourManagement/TourMainPage";
 
 export default function MainRoutes() {
   return (
@@ -25,8 +26,9 @@ export default function MainRoutes() {
           <Route path="dashboard" index element={<Dashboard />} />
           <Route path="reports" element={<Report />} />
           <Route path="customers" element={<CustomerMainPage />} />
-           <Route path="tour-route" element={<TourRouteMainPage />} />
-           <Route path="/admin/tourroute/detail/:id" element={<DetailTourRoute />} />
+           <Route path="tour-routes" element={<TourRouteMainPage />} />
+           <Route path="/admin/tour-routes/detail/:id" element={<DetailTourRoute />} />
+           <Route path="tours" element={<TourMainPage />} />
           <Route
             path="destination-management"
             element={<DestinationMainPage />}
