@@ -256,15 +256,15 @@ export default function Dashboard() {
           <button className="fav-places-btn-centered">Xem toàn bộ</button>
         </div>
           <div className="fav-places-grid">
-  {favoritePlaces.map((place, idx) => (
-    <div className="fav-place-img-wrap" key={idx}>
-      <img src={place.image} alt={place.name} />
-      <div className="fav-place-overlay">
-        <span>{place.name}</span>
-      </div>
-    </div>
-  ))}
-</div>
+            {favoritePlaces.map((place, idx) => (
+              <div className="fav-place-img-wrap" key={idx}>
+                <img src={place.image} alt={place.name} />
+                <div className="fav-place-overlay">
+                  <span>{place.name}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
