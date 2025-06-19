@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./DetailDestination.css";
 import { AiOutlineClose, AiOutlineCamera } from "react-icons/ai";
 import { PiPencilSimpleLineBold } from "react-icons/pi";
-import { fetchGet } from "../../../../lib/httpHandler";
+import { fetchGet, BE_ENDPOINT } from "../../../../lib/httpHandler";
 
 export default function DetailDestination({ onCloseAddForm, id }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -27,8 +27,11 @@ export default function DetailDestination({ onCloseAddForm, id }) {
         if (Array.isArray(data.galleries)) {
           data.galleries.forEach((img, i) => {
             if (i < 6) {
+              const src = img.startsWith("/")
+                ? `${BE_ENDPOINT}${img}`
+                : `${BE_ENDPOINT}/uploads/destinations/${img}`;
               filledImages[i] = {
-                src: `${img}`,
+                src,
                 file: null,
                 isNew: false,
               };
@@ -122,15 +125,15 @@ export default function DetailDestination({ onCloseAddForm, id }) {
 
         <div className="form-body">
           <div className="image-grid">
-            {[...Array(6)].map((_, i) => (
+            {images.map((img, i) => (
               <div key={i} className="image-slot">
-                {images[i] ? (
+                {img ? (
                   <div className="image-wrapper">
                     <img
-                      src={images[i].src}
+                      src={img.src}
                       alt={`Ảnh ${i + 1}`}
                       className="preview-img"
-                      onClick={() => isEditing && handleReplaceImage(i)}
+                      onClick={() => handleReplaceImage(i)}
                     />
                     {isEditing && (
                       <button

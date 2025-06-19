@@ -15,8 +15,8 @@ export default function DestinationMainPage() {
   const [destinationList, setDestinationList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDestination, setSelectedDestination] = useState(null);
-  //Lấy danh sách địa điểm từ API
-  useEffect(() => {
+  // Hàm để lấy danh sách địa điểm tham quan từ API
+  const fetchGetDestinationList = () => {
     const uri = "/api/admin/tourist-attraction";
     fetchGet(
       uri,
@@ -26,6 +26,11 @@ export default function DestinationMainPage() {
       (err) => toast.error(err.message),
       () => toast.error("Lỗi kết nối đến máy chủ")
     );
+  };
+
+  //Lấy danh sách địa điểm từ API
+  useEffect(() => {
+    fetchGetDestinationList();
   }, []);
 
   // Hàm để lọc danh sách địa điểm theo tên
@@ -34,6 +39,7 @@ export default function DestinationMainPage() {
   );
   const toggleAddDes = () => {
     setShowAddDes(!showAddDes);
+    fetchGetDestinationList(); // Cập nhật lại danh sách địa điểm khi đóng popup
   };
 
   // Hàm để hiển thị popup chi tiết địa điểm
