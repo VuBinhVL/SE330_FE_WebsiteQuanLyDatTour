@@ -1,25 +1,101 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./DetailDestination.css";
 import { AiOutlineClose, AiOutlineCamera } from "react-icons/ai";
 import { PiPencilSimpleLineBold } from "react-icons/pi";
+import { fetchGet } from "../../../../lib/httpHandler";
 
-export default function DetailDestination({ onCloseAddForm }) {
-  const [images, setImages] = useState([]);
+export default function DetailDestination({ onCloseAddForm, id }) {
   const [isEditing, setIsEditing] = useState(false);
-
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    const maxFiles = 6 - images.length;
-    if (files.length > maxFiles) {
-      alert("Chỉ được chọn tối đa 6 ảnh.");
-      return;
-    }
-    setImages([...images, ...files]);
-  };
+  const [destinationData, setDestinationData] = useState(null);
+  const [categoryList, setCategoryList] = useState([]);
+  const [images, setImages] = useState(Array(6).fill(null)); // Tối đa 6 ảnh
 
   const toggleEdit = () => {
     setIsEditing(!isEditing);
   };
+
+  //Hàm xem thông tin chi tiết địa điểm và danh sách loại địa điểm
+  useEffect(() => {
+    const uri = `/api/admin/tourist-attraction/${id}`;
+    fetchGet(
+      uri,
+      (data) => {
+        setDestinationData(data);
+        console.log("Thông tin địa điểm:", data);
+        // Cập nhật ảnh
+        const filledImages = Array(6).fill(null);
+        if (Array.isArray(data.galleries)) {
+          data.galleries.forEach((img, i) => {
+            if (i < 6) {
+              filledImages[i] = {
+                src: `${img}`,
+                file: null,
+                isNew: false,
+              };
+            }
+          });
+        }
+        setImages(filledImages);
+      },
+      (err) => console.error(err.message),
+      () => console.error("Lỗi kết nối đến máy chủ")
+    );
+
+    const categoryUri = "/api/admin/category";
+    fetchGet(
+      categoryUri,
+      (data) => {
+        setCategoryList(data);
+        console.log("Danh sách loại địa điểm:", data);
+      },
+      (err) => console.error(err.message),
+      () => console.error("Lỗi kết nối đến máy chủ")
+    );
+  }, [id]);
+
+  // Hàm thêm ảnh
+  const handleAddImage = (e, index) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const newImage = {
+      file,
+      src: URL.createObjectURL(file),
+      isNew: true,
+    };
+
+    const updatedImages = [...images];
+    updatedImages[index] = newImage;
+    setImages(updatedImages);
+  };
+
+  // Hàm thay thế ảnh
+  const handleReplaceImage = (index) => {
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
+    fileInput.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const updatedImages = [...images];
+      updatedImages[index] = {
+        file,
+        src: URL.createObjectURL(file),
+        isNew: true,
+      };
+      setImages(updatedImages);
+    };
+    fileInput.click();
+  };
+
+  // Hàm xóa ảnh
+  const handleRemoveImage = (index) => {
+    const updatedImages = [...images];
+    updatedImages[index] = null;
+    setImages(updatedImages);
+  };
+
   return (
     <>
       <div className="des-detail-overlay" onClick={onCloseAddForm}></div>
@@ -49,21 +125,34 @@ export default function DetailDestination({ onCloseAddForm }) {
             {[...Array(6)].map((_, i) => (
               <div key={i} className="image-slot">
                 {images[i] ? (
-                  <img
-                    src={URL.createObjectURL(images[i])}
-                    alt={`Ảnh ${i + 1}`}
-                    className="preview-img"
-                  />
-                ) : (
-                  <label className="upload-icon">
-                    <AiOutlineCamera />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      hidden
-                      onChange={handleImageChange}
+                  <div className="image-wrapper">
+                    <img
+                      src={images[i].src}
+                      alt={`Ảnh ${i + 1}`}
+                      className="preview-img"
+                      onClick={() => isEditing && handleReplaceImage(i)}
                     />
-                  </label>
+                    {isEditing && (
+                      <button
+                        className="btn-remove-img"
+                        onClick={() => handleRemoveImage(i)}
+                      >
+                        X
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  isEditing && (
+                    <label className="upload-icon">
+                      <AiOutlineCamera />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        hidden
+                        onChange={(e) => handleAddImage(e, i)}
+                      />
+                    </label>
+                  )
                 )}
               </div>
             ))}
@@ -73,26 +162,43 @@ export default function DetailDestination({ onCloseAddForm }) {
             <div className="form-row">
               <div className="form-group">
                 <label>Tên địa điểm</label>
-                <input type="text" readOnly={!isEditing} />
+                <input
+                  type="text"
+                  readOnly={!isEditing}
+                  value={destinationData?.name || ""}
+                />
               </div>
               <div className="form-group">
                 <label>Vị trí</label>
-                <input type="text" readOnly={!isEditing} />
+                <input
+                  type="text"
+                  readOnly={!isEditing}
+                  value={destinationData?.location || ""}
+                />
               </div>
             </div>
             <div className="form-group">
               <label>Loại địa điểm tham quan du lịch</label>
-              <select disabled={!isEditing}>
-                <option value="">Loại điểm tham quan</option>
-                <option value="Cảnh quan">Cảnh quan</option>
-                <option value="Lịch sử">Lịch sử</option>
-                <option value="Văn hóa">Văn hóa</option>
+              <select
+                disabled={!isEditing}
+                value={destinationData?.categoryId || ""}
+              >
+                {categoryList.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
               </select>
             </div>
 
             <div className="form-group">
               <label>Mô tả</label>
-              <input type="text" readOnly={!isEditing} />
+              <textarea
+                rows="4"
+                type="text"
+                readOnly={!isEditing}
+                value={destinationData?.description || ""}
+              />
             </div>
           </div>
         </div>

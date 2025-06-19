@@ -14,7 +14,7 @@ export default function DestinationMainPage() {
   const [showDetailDes, setShowDetailDes] = useState(false);
   const [destinationList, setDestinationList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-
+  const [selectedDestination, setSelectedDestination] = useState(null);
   //Lấy danh sách địa điểm từ API
   useEffect(() => {
     const uri = "/api/admin/tourist-attraction";
@@ -22,7 +22,6 @@ export default function DestinationMainPage() {
       uri,
       (data) => {
         setDestinationList(data);
-        console.log("Danh sách địa điểm:", data);
       },
       (err) => toast.error(err.message),
       () => toast.error("Lỗi kết nối đến máy chủ")
@@ -36,8 +35,11 @@ export default function DestinationMainPage() {
   const toggleAddDes = () => {
     setShowAddDes(!showAddDes);
   };
-  const toggleDetailDes = () => {
+
+  // Hàm để hiển thị popup chi tiết địa điểm
+  const toggleDetailDes = (id) => {
     setShowDetailDes(!showDetailDes);
+    setSelectedDestination(id);
   };
 
   //Hàm chức năng xóa
@@ -63,7 +65,7 @@ export default function DestinationMainPage() {
           <input
             type="text"
             className="input-search"
-            placeholder="Tìm kiếm theo tên địa điểm..."
+            placeholder="Tìm kiếm theo tên ..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -100,7 +102,7 @@ export default function DestinationMainPage() {
                 <MdOutlineRemoveRedEye
                   className="view-button"
                   title="Xem chi tiết"
-                  onClick={toggleDetailDes}
+                  onClick={() => toggleDetailDes(item.id)}
                 />
               </td>
               <td>
@@ -118,7 +120,12 @@ export default function DestinationMainPage() {
       {showAddDes && <AddDestination onCloseAddForm={toggleAddDes} />}
 
       {/* Hiển thị popup chi tiết địa điểm */}
-      {showDetailDes && <DetailDestination onCloseAddForm={toggleDetailDes} />}
+      {showDetailDes && (
+        <DetailDestination
+          onCloseAddForm={toggleDetailDes}
+          id={selectedDestination}
+        />
+      )}
     </div>
   );
 }
