@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { BE_ENDPOINT, fetchGet, fetchDelete } from "../../../lib/httpHandler";
 import { DataGrid } from "@mui/x-data-grid";
 import { Box, Dialog, DialogContent, DialogTitle } from "@mui/material";
+import AddTour from "../../../components/Admin/TourManagement/AddTour/AddTour";
 
 export default function TourMainPage() {
   const [tours, setTours] = useState([
@@ -149,9 +150,9 @@ export default function TourMainPage() {
       </Box>
 
       <Dialog open={openAddDialog} onClose={handleCloseAddDialog} maxWidth="md" fullWidth>
-        <DialogTitle>Thêm chuyến đi mới</DialogTitle>
+        <DialogTitle>Thêm chuyến du lịch</DialogTitle>
         <DialogContent>
-          {/* <AddTour onClose={handleCloseAddDialog} setTours={setTours} /> */}
+          <AddTour onClose={handleCloseAddDialog} setTours={setTours} />
         </DialogContent>
       </Dialog>
     </div>
