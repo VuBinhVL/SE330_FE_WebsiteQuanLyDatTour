@@ -48,13 +48,13 @@ export default function TourMainPage() {
   };
 
   const handleShowDetail = (tour) => {
-    navigate(`/admin/tour/detail/${tour.id}`);
+    navigate(`/admin/tours/detail/${tour.id}`);
   };
 
   const handleDelete = (id) => {
     if (window.confirm("Bạn có chắc muốn xóa chuyến đi này?")) {
       fetchDelete(
-        `/api/admin/tour/delete/${id}`,
+        `/api/admin/tours/delete/${id}`,
         null,
         () => setTours((prev) => prev.filter((tour) => tour.id !== id)),
         () => alert("Xóa thất bại!"),

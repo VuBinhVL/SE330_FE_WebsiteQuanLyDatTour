@@ -50,13 +50,13 @@ export default function TourRouteMainPage() {
   };
 
   const handleShowDetail = (tourRoute) => {
-    navigate(`/admin/tourroute/detail/${tourRoute.id}`);
+    navigate(`/admin/tour-routes/detail/${tourRoute.id}`);
   };
 
   const handleDelete = (id) => {
     if (window.confirm("Bạn có chắc muốn xóa tuyến du lịch này?")) {
       fetchDelete(
-        `/api/admin/tourroute/delete/${id}`,
+        `/api/admin/tour-routes/delete/${id}`,
         null,
         () => setTourRoutes((prev) => prev.filter((tr) => tr.id !== id)),
         () => alert("Xóa thất bại!"),

@@ -16,6 +16,7 @@ import CustomerMainPage from "../pages/Admin/CustomerManagement/CustomerMainPage
 import TourRouteMainPage from "../pages/Admin/TourRouteManagement/TourRouteMainPage";
 import DetailTourRoute from "../components/Admin/TourRouteManagement/DetailTourRoute/DetailTourRoute";
 import TourMainPage from "../pages/Admin/TourManagement/TourMainPage";
+import DetailTour from "../components/Admin/TourManagement/DetailTour/DetailTour";
 
 export default function MainRoutes() {
   return (
@@ -29,6 +30,7 @@ export default function MainRoutes() {
            <Route path="tour-routes" element={<TourRouteMainPage />} />
            <Route path="/admin/tour-routes/detail/:id" element={<DetailTourRoute />} />
            <Route path="tours" element={<TourMainPage />} />
+           <Route path="/admin/tours/detail/:id" element={<DetailTour />} />
           <Route
             path="destination-management"
             element={<DestinationMainPage />}
