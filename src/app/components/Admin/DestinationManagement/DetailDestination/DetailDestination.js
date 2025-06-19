@@ -2,13 +2,19 @@ import React, { useEffect, useState } from "react";
 import "./DetailDestination.css";
 import { AiOutlineClose, AiOutlineCamera } from "react-icons/ai";
 import { PiPencilSimpleLineBold } from "react-icons/pi";
-import { fetchGet, BE_ENDPOINT } from "../../../../lib/httpHandler";
+import { fetchGet, BE_ENDPOINT, fetchPut } from "../../../../lib/httpHandler";
+import { toast } from "react-toastify";
 
 export default function DetailDestination({ onCloseAddForm, id }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [destinationData, setDestinationData] = useState(null);
   const [categoryList, setCategoryList] = useState([]);
   const [images, setImages] = useState(Array(6).fill(null)); // Tối đa 6 ảnh
+  const [data, setData] = useState({
+    name: "",
+    description: "",
+    location: "",
+    categoryId: "",
+  });
 
   const toggleEdit = () => {
     setIsEditing(!isEditing);
@@ -20,28 +26,28 @@ export default function DetailDestination({ onCloseAddForm, id }) {
     fetchGet(
       uri,
       (data) => {
-        setDestinationData(data);
-        console.log("Thông tin địa điểm:", data);
+        setData({
+          name: data.name || "",
+          description: data.description || "",
+          location: data.location || "",
+          categoryId: data.categoryId || "",
+        });
         // Cập nhật ảnh
-        const filledImages = Array(6).fill(null);
+        const filled = Array(6).fill(null);
         if (Array.isArray(data.galleries)) {
-          data.galleries.forEach((img, i) => {
-            if (i < 6) {
-              const src = img.startsWith("/")
-                ? `${BE_ENDPOINT}${img}`
-                : `${BE_ENDPOINT}/uploads/destinations/${img}`;
-              filledImages[i] = {
-                src,
-                file: null,
-                isNew: false,
-              };
+          data.galleries.forEach((g, idx) => {
+            if (idx < 6) {
+              const src = g.url.startsWith("http")
+                ? g.url
+                : `${BE_ENDPOINT}${g.url}`;
+              filled[idx] = { id: g.id, src, file: null, isNew: false };
             }
           });
         }
-        setImages(filledImages);
+        setImages(filled);
       },
-      (err) => console.error(err.message),
-      () => console.error("Lỗi kết nối đến máy chủ")
+      (err) => console.log(err.message),
+      () => console.log("Lỗi kết nối đến máy chủ")
     );
 
     const categoryUri = "/api/admin/category";
@@ -97,6 +103,35 @@ export default function DetailDestination({ onCloseAddForm, id }) {
     const updatedImages = [...images];
     updatedImages[index] = null;
     setImages(updatedImages);
+  };
+
+  //Cập nhật thay đổi trên input
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  //Thực hiện lưu thông tin
+  const handleSave = () => {
+    if (!data.name || !data.location || !data.categoryId || !data.description) {
+      toast.error("Vui lòng điền đầy đủ thông tin!");
+      return;
+    }
+    const uri = "/api/admin/tourist-attraction/" + id;
+    fetchPut(
+      uri,
+      data,
+      (response) => {
+        toast.success(response.message);
+        setIsEditing(false);
+      },
+      (error) => {
+        toast.error("Cập nhật thông tin thất bại!");
+      },
+      () => {
+        toast.error("Lỗi kết nối đến máy chủ");
+      }
+    );
   };
 
   return (
@@ -166,25 +201,31 @@ export default function DetailDestination({ onCloseAddForm, id }) {
               <div className="form-group">
                 <label>Tên địa điểm</label>
                 <input
+                  name="name"
                   type="text"
                   readOnly={!isEditing}
-                  value={destinationData?.name || ""}
+                  value={data?.name}
+                  onChange={handleChange}
                 />
               </div>
               <div className="form-group">
                 <label>Vị trí</label>
                 <input
+                  name="location"
                   type="text"
                   readOnly={!isEditing}
-                  value={destinationData?.location || ""}
+                  value={data?.location}
+                  onChange={handleChange}
                 />
               </div>
             </div>
             <div className="form-group">
               <label>Loại địa điểm tham quan du lịch</label>
               <select
+                name="categoryId"
                 disabled={!isEditing}
-                value={destinationData?.categoryId || ""}
+                value={data?.categoryId || ""}
+                onChange={handleChange}
               >
                 {categoryList.map((category) => (
                   <option key={category.id} value={category.id}>
@@ -197,10 +238,12 @@ export default function DetailDestination({ onCloseAddForm, id }) {
             <div className="form-group">
               <label>Mô tả</label>
               <textarea
+                name="description"
                 rows="4"
                 type="text"
                 readOnly={!isEditing}
-                value={destinationData?.description || ""}
+                value={data?.description}
+                onChange={handleChange}
               />
             </div>
           </div>
@@ -211,7 +254,7 @@ export default function DetailDestination({ onCloseAddForm, id }) {
             <button className="cancel-button" onClick={toggleEdit}>
               Hủy
             </button>
-            <button className="confirm-button" onClick={onCloseAddForm}>
+            <button className="confirm-button" onClick={handleSave}>
               Xác nhận
             </button>
           </div>

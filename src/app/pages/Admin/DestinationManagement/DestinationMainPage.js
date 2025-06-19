@@ -46,6 +46,7 @@ export default function DestinationMainPage() {
   const toggleDetailDes = (id) => {
     setShowDetailDes(!showDetailDes);
     setSelectedDestination(id);
+    fetchGetDestinationList(); // Cập nhật lại danh sách địa điểm khi đóng popup
   };
 
   //Hàm chức năng xóa
