@@ -6,7 +6,6 @@ import {
   TextField,
   Grid,
   Button,
-  IconButton,
   Table,
   TableBody,
   TableCell,
@@ -14,12 +13,13 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import DeleteIcon from "@mui/icons-material/Delete";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-
+import AddTourBooking from "../AddTourBooking/AddTourBooking";
 
 export default function DetailTour() {
   const { id } = useParams();
@@ -45,9 +45,9 @@ export default function DetailTour() {
       booker: "Trần Thị B",
     },
   ]);
+  const [openAddBookingDialog, setOpenAddBookingDialog] = useState(false);
 
   useEffect(() => {
-    // Giả lập dữ liệu từ TourMainPage qua location.state
     const tourData = location.state?.tour || {
       name: "Thái Lan: Bangkok - Pattaya",
       tourId: `TOUR${id.padStart(3, "0")}`,
@@ -78,20 +78,17 @@ export default function DetailTour() {
     setIsEditing(false);
   };
 
-  const handleViewBooking = (booking) => {
-    // Xử lý xem chi tiết phiếu đặt chỗ
-    console.log("View booking:", booking);
-  };
-
-  const handleDeleteBooking = (bookingId) => {
-    if (window.confirm("Bạn có chắc muốn xóa phiếu đặt chỗ này?")) {
-      setBookings((prev) => prev.filter((booking) => booking.id !== bookingId));
-    }
-  };
-
   const handleAddBooking = () => {
-    // Xử lý thêm phiếu đặt chỗ, ví dụ mở dialog hoặc chuyển hướng
-    console.log("Add new booking");
+    setOpenAddBookingDialog(true);
+  };
+
+  const handleCloseAddBookingDialog = () => {
+    setOpenAddBookingDialog(false);
+  };
+
+  const handleSaveBooking = (newBooking) => {
+    setBookings((prev) => [...prev, newBooking]);
+    handleCloseAddBookingDialog();
   };
 
   if (!tour) return <div>Loading...</div>;
@@ -99,16 +96,12 @@ export default function DetailTour() {
   return (
     <Box sx={{ p: 3, maxWidth: "1200px", mx: "auto" }}>
       {/* Thông tin chuyến đi */}
-      <Box sx={{border: "1px solid #ccc",
-          borderRadius: 2,
-          p: 2,
-          mb: 3,
-          position: "relative", }}>
+      <Box sx={{ border: "1px solid #ccc", borderRadius: 2, p: 2, mb: 3, position: "relative" }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography variant="h6">{tour.name}</Typography>
-          <IconButton onClick={handleToggleEdit}>
+          <Button onClick={handleToggleEdit}>
             <EditIcon fontSize="small" />
-          </IconButton>
+          </Button>
         </Box>
 
         <Grid container spacing={2}>
@@ -227,8 +220,6 @@ export default function DetailTour() {
               <TableCell>Số điện thoại</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Người đặt</TableCell>
-              <TableCell align="center">View</TableCell>
-              <TableCell align="center">Delete</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -240,21 +231,24 @@ export default function DetailTour() {
                 <TableCell>{booking.phone}</TableCell>
                 <TableCell>{booking.email}</TableCell>
                 <TableCell>{booking.booker}</TableCell>
-                <TableCell align="center">
-                  <IconButton onClick={() => handleViewBooking(booking)}>
-                    <VisibilityIcon />
-                  </IconButton>
-                </TableCell>
-                <TableCell align="center">
-                  <IconButton onClick={() => handleDeleteBooking(booking.id)}>
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Dialog để thêm phiếu đặt chỗ */}
+      <Dialog
+        open={openAddBookingDialog}
+        onClose={handleCloseAddBookingDialog}
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogTitle>Thêm phiếu đặt chỗ mới</DialogTitle>
+        <DialogContent>
+          <AddTourBooking onClose={handleCloseAddBookingDialog} onSave={handleSaveBooking} />
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 }
