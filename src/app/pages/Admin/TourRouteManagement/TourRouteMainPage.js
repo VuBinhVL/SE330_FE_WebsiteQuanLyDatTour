@@ -11,30 +11,43 @@ import { Box, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import AddTourRoute from "../../../components/Admin/TourRouteManagement/AddTourRoute/AddTourRoute";
 
 export default function TourRouteMainPage() {
-  const [tourRoutes, setTourRoutes] = useState([
-    {
-      id: 1,
-      image: "https://via.placeholder.com/36",
-      name: "Thái Lan: Bangkok - Pattaya",
-      status: "Hoạt động",
-      departure: "Đà Nẵng",
-      duration: "3N2Đ",
-      price: "5,000,000 VND",
-    },
-  ]);
+  const [tourRoutes, setTourRoutes] = useState([]);
   const [searchValue, setSearchValue] = useState("");
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch all tour routes (giữ nguyên nhưng không cần thiết với dữ liệu cứng)
   useEffect(() => {
-    // fetchGet(
-    //   "/api/admin/tourroute/get-all",
-    //   (res) => setTourRoutes(res.data || []),
-    //   () => setTourRoutes([]),
-    //   () => setTourRoutes([])
-    // );
+    fetchGet(
+      "/api/admin/tour-route/get-all",
+      (res) => {
+        console.log("Dữ liệu tour routes:", res.data);
+        // Ánh xạ dữ liệu API
+        const mappedTourRoutes = res.data.map((tr) => ({
+          id: tr.id,
+          name: tr.routeName, // Đổi routeName thành name
+          image: tr.image,
+          departure: tr.startLocation, // Đổi startLocation thành departure
+          status: "Hoạt động", // Giả định trạng thái, thay đổi nếu API cung cấp
+          duration: calculateDuration(tr.startDate, tr.endDate), // Tính thời gian
+          price: "Liên hệ", // Giả định giá, thay đổi nếu API cung cấp
+        }));
+        setTourRoutes(mappedTourRoutes || []);
+      },
+      (err) => {
+        console.error("Lỗi lấy tour routes:", err);
+        setTourRoutes([]);
+      },
+      () => console.log("Hoàn tất lấy tour routes.")
+    );
   }, []);
+
+  // Hàm tính thời gian (duration)
+  const calculateDuration = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+    return `${diffDays} ngày`;
+  };
 
   // Search filter
   const filteredTourRoutes = tourRoutes.filter((tr) =>
@@ -50,13 +63,13 @@ export default function TourRouteMainPage() {
   };
 
   const handleShowDetail = (tourRoute) => {
-    navigate(`/admin/tour-routes/detail/${tourRoute.id}`);
+    navigate(`/admin/tour-route/get/${tourRoute.id}`);
   };
 
   const handleDelete = (id) => {
     if (window.confirm("Bạn có chắc muốn xóa tuyến du lịch này?")) {
       fetchDelete(
-        `/api/admin/tour-routes/delete/${id}`,
+        `/api/admin/tour-route/delete/${id}`,
         null,
         () => setTourRoutes((prev) => prev.filter((tr) => tr.id !== id)),
         () => alert("Xóa thất bại!"),
@@ -167,7 +180,6 @@ export default function TourRouteMainPage() {
         />
       </Box>
 
-      {/* Dialog để hiển thị AddTourRoute */}
       <Dialog open={openAddDialog} onClose={handleCloseAddDialog} maxWidth="md" fullWidth>
         <DialogTitle>Thêm tuyến du lịch mới</DialogTitle>
         <DialogContent>

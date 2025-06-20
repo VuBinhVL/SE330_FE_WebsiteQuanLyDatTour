@@ -27,10 +27,10 @@ export default function MainRoutes() {
           <Route path="dashboard" index element={<Dashboard />} />
           <Route path="reports" element={<Report />} />
           <Route path="customers" element={<CustomerMainPage />} />
-           <Route path="tour-routes" element={<TourRouteMainPage />} />
-           <Route path="/admin/tour-routes/detail/:id" element={<DetailTourRoute />} />
-           <Route path="tours" element={<TourMainPage />} />
-           <Route path="/admin/tours/detail/:id" element={<DetailTour />} />
+           <Route path="tour-route" element={<TourRouteMainPage />} />
+           <Route path="/admin/tour-route/get/:id" element={<DetailTourRoute />} />
+           <Route path="tour" element={<TourMainPage />} />
+           <Route path="/admin/tour/get/:id" element={<DetailTour />} />
           <Route
             path="destination-management"
             element={<DestinationMainPage />}

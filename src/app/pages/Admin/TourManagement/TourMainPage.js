@@ -100,7 +100,7 @@ useEffect(() => {
   };
 
   const handleShowDetail = (tour) => {
-    navigate(`/admin/tour/detail/${tour.id}`);
+    navigate(`/admin/tour/get/${tour.id}`);
   };
 
   const handleDelete = (id) => {
@@ -116,9 +116,9 @@ useEffect(() => {
   };
 
   const columns = [
-    { field: "name", headerName: "Tên tuyến du lịch", width: 380, headerAlign: "center" },
+    { field: "name", headerName: "Tên tuyến du lịch", width: 300, headerAlign: "center" },
     { field: "startDate", headerName: "Ngày khởi hành", width: 150, headerAlign: "center" },
-    { field: "departure", headerName: "Điểm xuất phát", width: 150, headerAlign: "center" },
+    { field: "departure", headerName: "Điểm xuất phát", width: 230, headerAlign: "center" },
     { field: "status", headerName: "Trạng thái", width: 120, headerAlign: "center" },
     { field: "price", headerName: "Giá tuyến", width: 120, headerAlign: "center" },
     { field: "quantity", headerName: "Số lượng", width: 100, headerAlign: "center" },
