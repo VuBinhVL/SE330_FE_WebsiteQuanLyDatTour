@@ -13,6 +13,7 @@ import Register from "../pages/Other/Register";
 import ForgetPassword from "../pages/Other/ForgetPassword";
 import Search from "../pages/Customer/Search";
 import CustomerMainPage from "../pages/Admin/CustomerManagement/CustomerMainPage";
+import Account from "../pages/Other/Account";
 import Cart from "../pages/Customer/Cart";
 
 export default function MainRoutes() {
@@ -23,7 +24,11 @@ export default function MainRoutes() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" index element={<Dashboard />} />
           <Route path="reports" element={<Report />} />
+          <Route path="account" element={<Account />} />
+          
+          {/* Nested routes for customer management and destination management */}
           <Route path="customers" element={<CustomerMainPage />} />
+          
           <Route
             path="destination-management"
             element={<DestinationMainPage />}
@@ -36,6 +41,7 @@ export default function MainRoutes() {
           <Route path="search" element={<Search />} />
           <Route path="login" element={<Login />}></Route>
           <Route path="register" element={<Register />}></Route>
+          <Route path="account" element={<Account />}></Route>
           <Route path="forget-password" element={<ForgetPassword />}></Route>
           <Route path="cart" element={<Cart />} />
         </Route>

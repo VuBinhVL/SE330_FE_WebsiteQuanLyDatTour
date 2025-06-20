@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import { AdminTitleContext } from "../../../layouts/adminLayout/AdminLayout/AdminLayout";
 import "./Dashboard.css";
 import CalendarLogo from "../../../assets/icons/admin/DashBoard/calendar-heart-01.svg";
 
@@ -165,6 +166,14 @@ function Calendar({ year, month, tripDays }) {
 }
 
 export default function Dashboard() {
+  const { setTitle, setSubtitle } = useContext(AdminTitleContext);
+  
+    useEffect(() => {
+      setTitle("Trang chủ");
+      setSubtitle("Thông tin tổng quan hệ thống");
+    }, [setTitle, setSubtitle]);
+
+
   const today = new Date();
   const year = today.getFullYear();
   const month = 3; // Tháng 3 (March)
@@ -247,15 +256,15 @@ export default function Dashboard() {
           <button className="fav-places-btn-centered">Xem toàn bộ</button>
         </div>
           <div className="fav-places-grid">
-  {favoritePlaces.map((place, idx) => (
-    <div className="fav-place-img-wrap" key={idx}>
-      <img src={place.image} alt={place.name} />
-      <div className="fav-place-overlay">
-        <span>{place.name}</span>
-      </div>
-    </div>
-  ))}
-</div>
+            {favoritePlaces.map((place, idx) => (
+              <div className="fav-place-img-wrap" key={idx}>
+                <img src={place.image} alt={place.name} />
+                <div className="fav-place-overlay">
+                  <span>{place.name}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

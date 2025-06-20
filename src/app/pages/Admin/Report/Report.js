@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import { AdminTitleContext } from "../../../layouts/adminLayout/AdminLayout/AdminLayout";
 import {
   BarChart,
   Bar,
@@ -56,6 +57,13 @@ function getMonthOfWeek(week, quarter) {
 }
 
 export default function Report() {
+  const { setTitle, setSubtitle } = useContext(AdminTitleContext);
+
+  useEffect(() => {
+    setTitle("Báo cáo doanh thu & số lượng đặt tour");
+    setSubtitle("Xem báo cáo doanh thu và số lượng đặt tour theo quý");
+  }, [setTitle, setSubtitle]);
+
   const [quarter, setQuarter] = useState(1);
   const [year, setYear] = useState(new Date().getFullYear());
   const [data, setData] = useState([]);

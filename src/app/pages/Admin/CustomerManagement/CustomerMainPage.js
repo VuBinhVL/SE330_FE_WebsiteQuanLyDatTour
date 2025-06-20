@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import { AdminTitleContext } from "../../../layouts/adminLayout/AdminLayout/AdminLayout";
 import "./CustomerMainPage.css";
 import search from "../../../assets/icons/customer/header/search.png";
 import { MdOutlineAddBox } from "react-icons/md";
@@ -9,6 +10,15 @@ import DetailCustomer from "../../../components/Admin/CustomerManagement/DetailC
 import { BE_ENDPOINT, fetchGet, fetchDelete } from "../../../lib/httpHandler";
 
 export default function CustomerMainPage() {
+  const { setTitle, setSubtitle } = useContext(AdminTitleContext);
+
+  useEffect(() => {
+    setTitle("Tất cả khách hàng");
+    setSubtitle("Thông tin tất cả khách hàng");
+  }, [setTitle, setSubtitle]);
+
+
+
   const [showAdd, setShowAdd] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   const [customers, setCustomers] = useState([]);

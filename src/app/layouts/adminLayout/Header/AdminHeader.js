@@ -1,14 +1,19 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
+import { AdminTitleContext } from "../AdminLayout/AdminLayout";
 import avatar from "../../../assets/images/admin/header/avatar.jpg";
 import "./AdminHeader.css";
 import { useAuth } from "../../../lib/AuthContext";
+import { useNavigate } from "react-router-dom"; // Thêm dòng này
+
 export default function AdminHeader() {
+  const { title, subtitle } = useContext(AdminTitleContext);
   const { setIsLoggedIn } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
   const dropdownRef = useRef(null);
+  const navigate = useNavigate(); // Thêm dòng này
 
   // Đóng dropdown khi click ra ngoài
   useEffect(() => {
@@ -30,12 +35,18 @@ export default function AdminHeader() {
     window.location.href = "/login"; // Chuyển hướng đến trang đăng nhập
   };
 
+  // Thêm hàm chuyển hướng
+  const handleAccount = () => {
+    navigate("/account");
+    setIsOpen(false);
+  };
+
   return (
     <header className="header-admin">
       {/* Bên trái */}
       <div className="header-left">
-        <h1 className="title">Tất cả điểm tham quan du lịch</h1>
-        <p className="subtitle">Thông tin tất cả điểm tham quan du lịch</p>
+        <h1 className="title">{title}</h1>
+        <p className="subtitle">{subtitle}</p>
       </div>
 
       {/* Bên phải */}
@@ -52,7 +63,7 @@ export default function AdminHeader() {
           {isOpen && (
             <div className="dropdown-menu-custom">
               <ul>
-                <li>Thông tin cá nhân</li>
+                <li onClick={handleAccount}>Thông tin cá nhân</li>
                 <li onClick={handleLogout}>Đăng xuất</li>
               </ul>
             </div>
