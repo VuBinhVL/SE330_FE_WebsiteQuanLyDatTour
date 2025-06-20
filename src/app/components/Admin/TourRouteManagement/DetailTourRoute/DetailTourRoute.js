@@ -34,6 +34,7 @@ import viLocale from "date-fns/locale/vi";
 export default function DetailTourRoute() {
   const { id } = useParams();
   const [tourRoute, setTourRoute] = useState(null);
+  const [itinerary, setItinerary] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [visibleDays, setVisibleDays] = useState([0, 1, 2]);
   const [tempData, setTempData] = useState({});
@@ -41,50 +42,9 @@ export default function DetailTourRoute() {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [selectedDayIndex, setSelectedDayIndex] = useState(null);
   const [openAddAttractionDialog, setOpenAddAttractionDialog] = useState(false);
-  const [itinerary, setItinerary] = useState([
-    {
-      day: "Ngày 1",
-      activities: [
-        { name: "Sân bay Tân Sơn Nhất", tag: "Sân bay" },
-        { name: "Sông Chao Phraya", tag: "Sông suối" },
-        { name: "Khách sạn Bangkok", tag: "Khách sạn" },
-      ],
-    },
-    {
-      day: "Ngày 2",
-      activities: [
-        { name: "Cung điện hoàng gia", tag: "Di tích lịch sử" },
-        { name: "Biển Pattaya", tag: "Bãi biển" },
-        { name: "Làng Nong Nooch", tag: "Làng nghề" },
-        { name: "Khách sạn Bangkok", tag: "Khách sạn" },
-      ],
-    },
-    {
-      day: "Ngày 3",
-      activities: [
-        { name: "Cung điện hoàng gia", tag: "Di tích lịch sử" },
-        { name: "Biển Pattaya", tag: "Bãi biển" },
-        { name: "Làng Nong Nooch", tag: "Làng nghề" },
-        { name: "Khách sạn Bangkok", tag: "Khách sạn" },
-      ],
-    },
-    {
-      day: "Ngày 4",
-      activities: [
-        { name: "Chợ nổi Pattaya", tag: "Chợ" },
-        { name: "China Town", tag: "Khu phố" },
-      ],
-    },
-    {
-      day: "Ngày 5",
-      activities: [
-        { name: "Colosseum Show", tag: "Giải trí" },
-        { name: "Ăn bánh quay sốt", tag: "Ẩm thực" },
-      ],
-    },
-  ]);
 
   useEffect(() => {
+    // Tải thông tin tuyến du lịch
     fetchGet(
       `/api/admin/tour-route/get/${id}`,
       (res) => {
@@ -107,6 +67,46 @@ export default function DetailTourRoute() {
         console.error("Lỗi khi tải thông tin tuyến du lịch:", err);
         setTourRoute(null);
         toast.error("Lỗi khi tải thông tin tuyến du lịch!", { autoClose: 5000 });
+      }
+    );
+
+    // Tải lịch trình theo tourRouteId
+    fetchGet(
+      `/api/admin/tour-route-attraction/tour-route/${id}`,
+      (res) => {
+        const attractions = res.data;
+        // Nhóm dữ liệu theo day
+        const groupedByDay = attractions.reduce((acc, attraction) => {
+          const dayKey = `Ngày ${attraction.day}`;
+          if (!acc[dayKey]) {
+            acc[dayKey] = {
+              day: dayKey,
+              activities: [],
+            };
+          }
+          acc[dayKey].activities.push({
+            id: attraction.id,
+            Tourist_Attraction_Name: attraction.touristAttraction.name,
+            category: attraction.category.name,
+            actionDescription: attraction.actionDescription,
+            orderAction: attraction.orderAction,
+            day: attraction.day,
+          });
+          return acc;
+        }, {});
+
+        // Chuyển thành mảng và sắp xếp theo ngày
+        const itineraryData = Object.values(groupedByDay).sort((a, b) => {
+          const dayA = parseInt(a.day.split(" ")[1]);
+          const dayB = parseInt(b.day.split(" ")[1]);
+          return dayA - dayB;
+        });
+
+        setItinerary(itineraryData);
+      },
+      (err) => {
+        console.error("Lỗi khi tải lịch trình:", err);
+        toast.error("Lỗi khi tải lịch trình!", { autoClose: 5000 });
       }
     );
   }, [id]);
@@ -170,8 +170,8 @@ export default function DetailTourRoute() {
         endLocation: tempData.destination,
         startDate: tempData.startDate ? new Date(tempData.startDate.setHours(0, 0, 0, 0)).toISOString() : null,
         endDate: tempData.endDate ? new Date(tempData.endDate.setHours(23, 59, 59, 999)).toISOString() : null,
-        image: tempData.imagePreview?.startsWith("http") 
-          ? tempData.imagePreview 
+        image: tempData.imagePreview?.startsWith("http")
+          ? tempData.imagePreview
           : BE_ENDPOINT + (tempData.imagePreview || "/api/asset/view-image/placeholder.jpg"),
       };
 
@@ -203,7 +203,6 @@ export default function DetailTourRoute() {
       );
     };
 
-    // Nếu có ảnh mới, upload ảnh trước
     if (tempData.image instanceof File) {
       const formData = new FormData();
       formData.append("image", tempData.image);
@@ -212,7 +211,7 @@ export default function DetailTourRoute() {
         "/api/asset/upload-image",
         formData,
         (res) => {
-          tempData.imagePreview = BE_ENDPOINT + res.data; // Cập nhật URL ảnh đầy đủ
+          tempData.imagePreview = BE_ENDPOINT + res.data;
           updateTourRoute();
         },
         (err) => {
@@ -256,7 +255,7 @@ export default function DetailTourRoute() {
     setItinerary((prevItinerary) => {
       const newItinerary = [...prevItinerary];
       const activities = [...newItinerary[selectedDayIndex].activities];
-      const activityIndex = activities.findIndex((act) => act.name === selectedActivity.name);
+      const activityIndex = activities.findIndex((act) => act.id === selectedActivity.id);
       activities[activityIndex] = updatedActivity;
       newItinerary[selectedDayIndex].activities = activities;
       return newItinerary;
@@ -277,11 +276,19 @@ export default function DetailTourRoute() {
       const newItinerary = [...prevItinerary];
       const dayIndex = newItinerary.findIndex((item) => item.day === selectedDay);
       if (dayIndex !== -1) {
-        newItinerary[dayIndex].activities.push(newActivity);
+        newItinerary[dayIndex].activities.push({
+          ...newActivity,
+          id: Date.now(), // Tạm thời dùng timestamp làm ID
+        });
       } else {
         newItinerary.push({
           day: selectedDay,
-          activities: [newActivity],
+          activities: [{ ...newActivity, id: Date.now() }],
+        });
+        newItinerary.sort((a, b) => {
+          const dayA = parseInt(a.day.split(" ")[1]);
+          const dayB = parseInt(b.day.split(" ")[1]);
+          return dayA - dayB;
         });
       }
       return newItinerary;
@@ -305,38 +312,38 @@ export default function DetailTourRoute() {
           }}
         >
           <Grid item xs={12}>
-              <Box display="flex" alignItems="center" gap={2}>
-                <Box
-                  component="img"
-                  src={
-                    tempData.imagePreview?.startsWith("http")
-                      ? tempData.imagePreview
-                      : BE_ENDPOINT + (tempData.imagePreview || "/api/asset/view-image/placeholder.jpg")
-                  }
-                  alt="Tour Route"
-                  sx={{
-                    width: 100,
-                    height: 100,
-                    borderRadius: "50%",
-                    objectFit: "cover",
-                    border: "1px solid #ccc",
-                  }}
-                  onError={(e) => (e.target.src = "https://via.placeholder.com/36")}
-                />
-                {isEditing && (
-                  <Box>
-                    <Typography variant="body1" mb={1}>Tải ảnh mới</Typography>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      disabled={!isEditing}
-                      sx={{ mb: 2 }}
-                    />
-                  </Box>
-                )}
-              </Box>
-            </Grid>
+            <Box display="flex" alignItems="center" gap={2}>
+              <Box
+                component="img"
+                src={
+                  tempData.imagePreview?.startsWith("http")
+                    ? tempData.imagePreview
+                    : BE_ENDPOINT + (tempData.imagePreview || "/api/asset/view-image/placeholder.jpg")
+                }
+                alt="Tour Route"
+                sx={{
+                  width: 100,
+                  height: 100,
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  border: "1px solid #ccc",
+                }}
+                onError={(e) => (e.target.src = "https://via.placeholder.com/36")}
+              />
+              {isEditing && (
+                <Box>
+                  <Typography variant="body1" mb={1}>Tải ảnh mới</Typography>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    disabled={!isEditing}
+                    sx={{ mb: 2 }}
+                  />
+                </Box>
+              )}
+            </Box>
+          </Grid>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
             <Typography variant="h6">Tên tuyến du lịch</Typography>
             <IconButton onClick={handleToggleEdit}>
@@ -391,7 +398,6 @@ export default function DetailTourRoute() {
                 renderInput={(params) => <TextField {...params} fullWidth />}
               />
             </Grid>
-            
           </Grid>
 
           {isEditing && (
@@ -422,6 +428,7 @@ export default function DetailTourRoute() {
 
           <Grid container spacing={2} flex={1}>
             {visibleDays.map((dayIndex) => {
+              if (dayIndex >= itinerary.length) return null;
               const day = itinerary[dayIndex];
               return (
                 <Grid item xs={12} md={6} key={dayIndex}>
@@ -436,7 +443,7 @@ export default function DetailTourRoute() {
                     </Box>
                     {day.activities.map((activity, i) => (
                       <Box
-                        key={i}
+                        key={activity.id}
                         sx={{
                           display: "flex",
                           flexDirection: "column",
@@ -456,7 +463,7 @@ export default function DetailTourRoute() {
                             borderImage: "linear-gradient(to bottom, red, orange, yellow, green, blue, indigo, violet) 1",
                           }}
                         >
-                          <Typography fontSize="14px">{activity.name}</Typography>
+                          <Typography fontSize="14px">{activity.Tourist_Attraction_Name}</Typography>
                           <Box>
                             <Tooltip title="Sửa">
                               <IconButton
@@ -481,10 +488,13 @@ export default function DetailTourRoute() {
                           mt={1}
                         >
                           <Chip
-                            label={activity.tag}
+                            label={activity.category}
                             size="small"
                             sx={{ backgroundColor: "#4D40CA", borderRadius: 10, color: "#fff" }}
                           />
+                          {/* <Typography fontSize="12px" ml={1}>
+                            {activity.actionDescription}
+                          </Typography> */}
                         </Box>
                       </Box>
                     ))}
@@ -528,6 +538,7 @@ export default function DetailTourRoute() {
               onClose={handleCloseAddAttractionDialog}
               onAdd={handleAddActivity}
               days={itinerary.map((item) => item.day)}
+              tourRouteId={id}
             />
           </DialogContent>
         </Dialog>
