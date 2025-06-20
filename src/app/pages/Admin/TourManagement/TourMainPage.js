@@ -115,9 +115,6 @@ export default function TourMainPage() {
         },
         (err) => {
            console.log("Lỗi khi xóa chuyến du lịch:", err);
-    console.log("err.response:", err.response);
-    console.log("err.response.data:", err.response?.data);
-    console.log("err.response.data.message:", err.response?.data?.message);
           toast.error(err.data?.message || "Xóa thất bại!", {
             autoClose: 5000,
           });

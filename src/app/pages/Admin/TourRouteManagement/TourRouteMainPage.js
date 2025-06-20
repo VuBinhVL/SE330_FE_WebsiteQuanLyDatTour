@@ -8,7 +8,9 @@ import { useNavigate } from "react-router-dom";
 import { BE_ENDPOINT, fetchGet, fetchDelete } from "../../../lib/httpHandler";
 import { DataGrid } from "@mui/x-data-grid";
 import { Box, Dialog, DialogContent, DialogTitle } from "@mui/material";
+import { toast } from "react-toastify"; // Import react-toastify
 import AddTourRoute from "../../../components/Admin/TourRouteManagement/AddTourRoute/AddTourRoute";
+
 
 export default function TourRouteMainPage() {
   const [tourRoutes, setTourRoutes] = useState([]);
@@ -66,18 +68,40 @@ export default function TourRouteMainPage() {
     navigate(`/admin/tour-route/get/${tourRoute.id}`);
   };
 
+  // const handleDelete = (id) => {
+  //   if (window.confirm("Bạn có chắc muốn xóa tuyến du lịch này?")) {
+  //     fetchDelete(
+  //       `/api/admin/tour-route/delete/${id}`,
+  //       null,
+  //       () => setTourRoutes((prev) => prev.filter((tr) => tr.id !== id)),
+  //       () => alert("Xóa thất bại!"),
+  //       () => alert("Có lỗi xảy ra!")
+  //     );
+  //   }
+  // };
   const handleDelete = (id) => {
-    if (window.confirm("Bạn có chắc muốn xóa tuyến du lịch này?")) {
+    if (window.confirm("Bạn có chắc muốn xóa tuyến đi này?")) {
       fetchDelete(
         `/api/admin/tour-route/delete/${id}`,
         null,
-        () => setTourRoutes((prev) => prev.filter((tr) => tr.id !== id)),
-        () => alert("Xóa thất bại!"),
-        () => alert("Có lỗi xảy ra!")
+        () => {
+          setTourRoutes((prev) => prev.filter((tour_route) => tour_route.id !== id));
+          toast.success("Xóa tuyến đi thành công!", { autoClose: 3000 });
+        },
+        (err) => {
+           console.log("Lỗi khi xóa tuyến đi:", err);
+          toast.error(err.data?.message || "Xóa thất bại!", {
+            autoClose: 5000,
+          });
+        },
+        () => {
+          toast.error("Đã xảy ra lỗi mạng khi xóa tuyến đi!", {
+            autoClose: 5000,
+          });
+        }
       );
     }
   };
-
   const columns = [
     {
       field: "image",
