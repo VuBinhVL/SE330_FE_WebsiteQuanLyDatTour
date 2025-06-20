@@ -11,29 +11,81 @@ import { Box, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import AddTour from "../../../components/Admin/TourManagement/AddTour/AddTour";
 
 export default function TourMainPage() {
-  const [tours, setTours] = useState([
-    {
-      id: 1,
-      name: "Thái Lan: Bangkok - Pattaya",
-      status: "Hoạt động",
-      departure: "Đà Nẵng",
-      startDate: "01/01/2026",
-      price: "5,000,000 VND",
-      quantity: 30,
-    },
-  ]);
+  const [tours, setTours] = useState([]);
   const [searchValue, setSearchValue] = useState("");
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // fetchGet(
-    //   "/api/admin/tour/get-all",
-    //   (res) => setTours(res.data || []),
-    //   () => setTours([]),
-    //   () => setTours([])
-    // );
-  }, []);
+useEffect(() => {
+  fetchGet(
+    "/api/admin/tour/get-all",
+    async (res) => {
+      console.log("Danh sách tour:", res);
+      try {
+        const tourRouteIds = [...new Set(res.data.map((tour) => tour.tourRouteId))];
+        const tourRoutePromises = tourRouteIds.map((id) =>
+          new Promise((resolve, reject) => {
+            fetchGet(
+              `/api/admin/tour-route/get/${id}`,
+              (routeRes) => {
+                console.log("Dữ liệu tuyến:", routeRes);
+                resolve({
+                  id: routeRes.data?.id || id,
+                  name: routeRes.data?.routeName || `Tuyến du lịch ${id}`,
+                });
+              },
+              (error) => {
+                console.error(`Lỗi tour route ${id}:`, error);
+                resolve({ id, name: `Tuyến du lịch ${id}` }); // Fallback
+              },
+              () => console.log(`Hoàn tất tour route ${id}`)
+            );
+          })
+        );
+        const tourRoutes = await Promise.all(tourRoutePromises);
+        console.log("tourRoutes:", tourRoutes);
+
+        const tourRouteMap = tourRoutes.reduce((acc, route) => {
+          if (route && route.id) {
+            acc[route.id] = route.name;
+            console.log("map:", route.name);
+          }
+          return acc;
+        }, {});
+        console.log("tourRouteMap:", tourRouteMap);
+
+        const mappedTours = res.data.map((tour) => ({
+          id: tour.id,
+          name: tourRouteMap[tour.tourRouteId] || `Chuyến du lịch ${tour.id}`,
+          startDate: new Date(tour.depatureDate).toLocaleDateString("vi-VN"),
+          departure: tour.pickUpLocation,
+          status: tour.status === 0 ? "Hoạt động" : "Ngừng hoạt động",
+          price: tour.price.toLocaleString("vi-VN") + " VND",
+          quantity: tour.totalSeats - tour.bookedSeats,
+        }));
+
+        setTours(mappedTours || []);
+      } catch (error) {
+        console.error("Lỗi xử lý tuyến:", error);
+        const mappedTours = res.data.map((tour) => ({
+          id: tour.id,
+          name: `Chuyến du lịch ${tour.id}`,
+          startDate: new Date(tour.depatureDate).toLocaleDateString("vi-VN"),
+          departure: tour.pickUpLocation,
+          status: tour.status === 0 ? "Hoạt động" : "Ngừng hoạt động",
+          price: tour.price.toLocaleString("vi-VN") + " VND",
+          quantity: tour.totalSeats - tour.bookedSeats,
+        }));
+        setTours(mappedTours || []);
+      }
+    },
+    (err) => {
+      console.error("Lỗi lấy tour:", err);
+      setTours([]);
+    },
+    () => console.log("Hoàn tất lấy tour.")
+  );
+}, []);
 
   const filteredTours = tours.filter((tour) =>
     tour.name?.toLowerCase().includes(searchValue.toLowerCase())
@@ -48,13 +100,13 @@ export default function TourMainPage() {
   };
 
   const handleShowDetail = (tour) => {
-    navigate(`/admin/tours/detail/${tour.id}`);
+    navigate(`/admin/tour/detail/${tour.id}`);
   };
 
   const handleDelete = (id) => {
     if (window.confirm("Bạn có chắc muốn xóa chuyến đi này?")) {
       fetchDelete(
-        `/api/admin/tours/delete/${id}`,
+        `/api/admin/tour/delete/${id}`,
         null,
         () => setTours((prev) => prev.filter((tour) => tour.id !== id)),
         () => alert("Xóa thất bại!"),
