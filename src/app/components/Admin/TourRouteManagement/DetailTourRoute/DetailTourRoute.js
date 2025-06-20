@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { fetchGet, fetchPut } from "../../../../lib/httpHandler";
+import { fetchGet, fetchPut, fetchUpload, BE_ENDPOINT } from "../../../../lib/httpHandler";
 import {
   Box,
   Typography,
@@ -16,6 +16,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Input,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -94,6 +95,10 @@ export default function DetailTourRoute() {
           destination: res.data.endLocation,
           startDate: res.data.startDate ? new Date(res.data.startDate) : null,
           endDate: res.data.endDate ? new Date(res.data.endDate) : null,
+          image: res.data.image || "https://via.placeholder.com/36",
+          imagePreview: res.data.image?.startsWith("http")
+            ? res.data.image
+            : BE_ENDPOINT + (res.data.image || "/api/asset/view-image/placeholder.jpg"),
         };
         setTourRoute(tourRouteData);
         setTempData(tourRouteData);
@@ -106,11 +111,22 @@ export default function DetailTourRoute() {
     );
   }, [id]);
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setTempData({
+        ...tempData,
+        image: file,
+        imagePreview: URL.createObjectURL(file),
+      });
+    }
+  };
+
   const handleToggleEdit = () => {
     setIsEditing(true);
   };
 
-  const handleCancelEditCancel = () => {
+  const handleCancelEdit = () => {
     setTempData(tourRoute);
     setIsEditing(false);
   };
@@ -147,41 +163,71 @@ export default function DetailTourRoute() {
       return;
     }
 
-    const tourRouteDTO = {
-      routeName: tempData.name,
-      startLocation: tempData.departure,
-      endLocation: tempData.destination,
-      startDate: tempData.startDate ? new Date(tempData.startDate.setHours(0, 0, 0, 0)).toISOString() : null,
-      endDate: tempData.endDate ? new Date(tempData.endDate.setHours(23, 59, 59, 999)).toISOString() : null,
+    const updateTourRoute = () => {
+      const tourRouteDTO = {
+        routeName: tempData.name,
+        startLocation: tempData.departure,
+        endLocation: tempData.destination,
+        startDate: tempData.startDate ? new Date(tempData.startDate.setHours(0, 0, 0, 0)).toISOString() : null,
+        endDate: tempData.endDate ? new Date(tempData.endDate.setHours(23, 59, 59, 999)).toISOString() : null,
+        image: tempData.imagePreview?.startsWith("http") 
+          ? tempData.imagePreview 
+          : BE_ENDPOINT + (tempData.imagePreview || "/api/asset/view-image/placeholder.jpg"),
+      };
+
+      fetchPut(
+        `/api/admin/tour-route/update/${id}`,
+        tourRouteDTO,
+        (res) => {
+          const updatedTourRoute = {
+            id: res.data.id,
+            name: res.data.routeName,
+            departure: res.data.startLocation,
+            destination: res.data.endLocation,
+            startDate: res.data.startDate ? new Date(res.data.startDate) : null,
+            endDate: res.data.endDate ? new Date(res.data.endDate) : null,
+            image: res.data.image || "https://via.placeholder.com/36",
+            imagePreview: res.data.image?.startsWith("http")
+              ? res.data.image
+              : BE_ENDPOINT + (res.data.image || "/api/asset/view-image/placeholder.jpg"),
+          };
+          setTourRoute(updatedTourRoute);
+          setTempData(updatedTourRoute);
+          setIsEditing(false);
+          toast.success(res.message || "Cập nhật tuyến du lịch thành công!", { autoClose: 3000 });
+        },
+        (err) => {
+          console.error("Lỗi cập nhật tuyến du lịch:", err);
+          toast.error(err.response?.data?.message || "Đã có lỗi xảy ra khi cập nhật tuyến du lịch", { autoClose: 5000 });
+        }
+      );
     };
 
-    fetchPut(
-      `/api/admin/tour-route/update/${id}`,
-      tourRouteDTO,
-      (res) => {
-        const updatedTourRoute = {
-          id: res.data.id,
-          name: res.data.routeName,
-          departure: res.data.startLocation,
-          destination: res.data.endLocation,
-          startDate: res.data.startDate ? new Date(res.data.startDate) : null,
-          endDate: res.data.endDate ? new Date(res.data.endDate) : null,
-        };
-        setTourRoute(updatedTourRoute);
-        setTempData(updatedTourRoute);
-        setIsEditing(false);
-        toast.success(res.message || "Cập nhật tuyến du lịch thành công!", { autoClose: 3000 });
-      },
-      (err) => {
-        console.error("Lỗi cập nhật tuyến du lịch:", err);
-        toast.error(err.response?.data?.message || "Đã có lỗi xảy ra khi cập nhật tuyến du lịch", { autoClose: 5000 });
-      }
-    );
+    // Nếu có ảnh mới, upload ảnh trước
+    if (tempData.image instanceof File) {
+      const formData = new FormData();
+      formData.append("image", tempData.image);
+
+      fetchUpload(
+        "/api/asset/upload-image",
+        formData,
+        (res) => {
+          tempData.imagePreview = BE_ENDPOINT + res.data; // Cập nhật URL ảnh đầy đủ
+          updateTourRoute();
+        },
+        (err) => {
+          console.error("Lỗi khi upload ảnh:", err);
+          toast.error(err.response?.data?.message || "Đã có lỗi xảy ra khi upload ảnh", { autoClose: 5000 });
+        },
+        () => {
+          toast.error("Đã xảy ra lỗi mạng khi upload ảnh!", { autoClose: 5000 });
+        }
+      );
+    } else {
+      updateTourRoute();
+    }
   };
-  const handleCancelEdit = () => {
-  setTempData(tourRoute);
-  setIsEditing(false);
-};
+
   const handleScrollLeft = () => {
     if (visibleDays[0] > 0) {
       setVisibleDays(visibleDays.map((i) => i - 1));
@@ -199,7 +245,6 @@ export default function DetailTourRoute() {
     setSelectedActivity(activity);
     setOpenAttractionDialog(true);
   };
-  
 
   const handleCloseAttractionDialog = () => {
     setOpenAttractionDialog(false);
@@ -259,6 +304,39 @@ export default function DetailTourRoute() {
             position: "relative",
           }}
         >
+          <Grid item xs={12}>
+              <Box display="flex" alignItems="center" gap={2}>
+                <Box
+                  component="img"
+                  src={
+                    tempData.imagePreview?.startsWith("http")
+                      ? tempData.imagePreview
+                      : BE_ENDPOINT + (tempData.imagePreview || "/api/asset/view-image/placeholder.jpg")
+                  }
+                  alt="Tour Route"
+                  sx={{
+                    width: 100,
+                    height: 100,
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    border: "1px solid #ccc",
+                  }}
+                  onError={(e) => (e.target.src = "https://via.placeholder.com/36")}
+                />
+                {isEditing && (
+                  <Box>
+                    <Typography variant="body1" mb={1}>Tải ảnh mới</Typography>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      disabled={!isEditing}
+                      sx={{ mb: 2 }}
+                    />
+                  </Box>
+                )}
+              </Box>
+            </Grid>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
             <Typography variant="h6">Tên tuyến du lịch</Typography>
             <IconButton onClick={handleToggleEdit}>
@@ -313,12 +391,13 @@ export default function DetailTourRoute() {
                 renderInput={(params) => <TextField {...params} fullWidth />}
               />
             </Grid>
+            
           </Grid>
 
           {isEditing && (
             <Box display="flex" justifyContent="flex-end" gap={1} mt={2}>
               <Button variant="outlined" onClick={handleCancelEdit}>
-                Huỷ
+                Hủy
               </Button>
               <Button variant="contained" onClick={handleConfirmEdit}>
                 Xác nhận

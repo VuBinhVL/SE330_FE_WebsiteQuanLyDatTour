@@ -115,8 +115,8 @@ export default function TourRouteMainPage() {
       headerAlign: "center",
     },
     { field: "name", headerName: "Tên tuyến du lịch", width: 350, headerAlign: "center" },
-    { field: "status", headerName: "Tình trạng", width: 120, headerAlign: "center" },
-    { field: "departure", headerName: "Khởi hành", width: 150, headerAlign: "center" },
+    { field: "status", headerName: "Tình trạng", width: 180, headerAlign: "center" },
+    { field: "departure", headerName: "Khởi hành", width: 200, headerAlign: "center" },
     { field: "duration", headerName: "Thời gian", width: 120, headerAlign: "center" },
     {
       field: "view",
@@ -173,7 +173,7 @@ export default function TourRouteMainPage() {
         <DataGrid
           rows={filteredTourRoutes}
           columns={columns}
-          pageSize={5}
+          pageSize={10}
           rowsPerPageOptions={[5]}
           disableSelectionOnClick
           getRowId={(row) => row.id}
