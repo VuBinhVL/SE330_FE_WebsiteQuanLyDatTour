@@ -13,10 +13,13 @@ import Register from "../pages/Other/Register";
 import ForgetPassword from "../pages/Other/ForgetPassword";
 import Search from "../pages/Customer/Search";
 import CustomerMainPage from "../pages/Admin/CustomerManagement/CustomerMainPage";
+import TourRouteMainPage from "../pages/Admin/TourRouteManagement/TourRouteMainPage";
+import DetailTourRoute from "../components/Admin/TourRouteManagement/DetailTourRoute/DetailTourRoute";
+import TourMainPage from "../pages/Admin/TourManagement/TourMainPage";
+import DetailTour from "../components/Admin/TourManagement/DetailTour/DetailTour";
 import Account from "../pages/Other/Account";
 import Cart from "../pages/Customer/Cart";
 import DetailCustomerPage from "../components/Admin/CustomerManagement/DetailCustomerPage/DetailCustomerPage";
-
 
 export default function MainRoutes() {
   return (
@@ -27,11 +30,18 @@ export default function MainRoutes() {
           <Route path="dashboard" index element={<Dashboard />} />
           <Route path="reports" element={<Report />} />
           <Route path="account" element={<Account />} />
-          
+
           {/* Nested routes for customer management and destination management */}
           <Route path="customers" element={<CustomerMainPage />} />
+          <Route path="tour-route" element={<TourRouteMainPage />} />
+          <Route
+            path="/admin/tour-route/get/:id"
+            element={<DetailTourRoute />}
+          />
+          <Route path="tour" element={<TourMainPage />} />
+          <Route path="/admin/tour/get/:id" element={<DetailTour />} />
           <Route path="customers/:id" element={<DetailCustomerPage />} />
-          
+
           <Route
             path="destination-management"
             element={<DestinationMainPage />}
