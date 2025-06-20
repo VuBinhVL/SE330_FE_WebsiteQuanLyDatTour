@@ -14,7 +14,12 @@ const getHeaders = () => {
 
 const handleResponse = async (res, onSuccess, onFail) => {
   const data = await res.json();
-  res.ok ? onSuccess(data) : onFail(data);
+  if (res.ok) {
+    onSuccess(data);
+  } else {
+    // Truyền cả response và data vào onFail
+    onFail({ response: res, data });
+  }
 };
 
 const request = async (

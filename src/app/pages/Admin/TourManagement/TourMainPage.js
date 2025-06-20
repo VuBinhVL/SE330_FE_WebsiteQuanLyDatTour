@@ -9,6 +9,7 @@ import { BE_ENDPOINT, fetchGet, fetchDelete } from "../../../lib/httpHandler";
 import { DataGrid } from "@mui/x-data-grid";
 import { Box, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import AddTour from "../../../components/Admin/TourManagement/AddTour/AddTour";
+import { toast } from "react-toastify"; // Import react-toastify
 
 export default function TourMainPage() {
   const [tours, setTours] = useState([]);
@@ -16,76 +17,76 @@ export default function TourMainPage() {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const navigate = useNavigate();
 
-useEffect(() => {
-  fetchGet(
-    "/api/admin/tour/get-all",
-    async (res) => {
-      console.log("Danh sách tour:", res);
-      try {
-        const tourRouteIds = [...new Set(res.data.map((tour) => tour.tourRouteId))];
-        const tourRoutePromises = tourRouteIds.map((id) =>
-          new Promise((resolve, reject) => {
-            fetchGet(
-              `/api/admin/tour-route/get/${id}`,
-              (routeRes) => {
-                console.log("Dữ liệu tuyến:", routeRes);
-                resolve({
-                  id: routeRes.data?.id || id,
-                  name: routeRes.data?.routeName || `Tuyến du lịch ${id}`,
-                });
-              },
-              (error) => {
-                console.error(`Lỗi tour route ${id}:`, error);
-                resolve({ id, name: `Tuyến du lịch ${id}` }); // Fallback
-              },
-              () => console.log(`Hoàn tất tour route ${id}`)
-            );
-          })
-        );
-        const tourRoutes = await Promise.all(tourRoutePromises);
-        console.log("tourRoutes:", tourRoutes);
+  useEffect(() => {
+    fetchGet(
+      "/api/admin/tour/get-all",
+      async (res) => {
+        console.log("Danh sách tour:", res);
+        try {
+          const tourRouteIds = [...new Set(res.data.map((tour) => tour.tourRouteId))];
+          const tourRoutePromises = tourRouteIds.map((id) =>
+            new Promise((resolve, reject) => {
+              fetchGet(
+                `/api/admin/tour-route/get/${id}`,
+                (routeRes) => {
+                  console.log("Dữ liệu tuyến:", routeRes);
+                  resolve({
+                    id: routeRes.data?.id || id,
+                    name: routeRes.data?.routeName || `Tuyến du lịch ${id}`,
+                  });
+                },
+                (error) => {
+                  console.error(`Lỗi tour route ${id}:`, error);
+                  resolve({ id, name: `Tuyến du lịch ${id}` }); // Fallback
+                },
+                () => console.log(`Hoàn tất tour route ${id}`)
+              );
+            })
+          );
+          const tourRoutes = await Promise.all(tourRoutePromises);
+          console.log("tourRoutes:", tourRoutes);
 
-        const tourRouteMap = tourRoutes.reduce((acc, route) => {
-          if (route && route.id) {
-            acc[route.id] = route.name;
-            console.log("map:", route.name);
-          }
-          return acc;
-        }, {});
-        console.log("tourRouteMap:", tourRouteMap);
+          const tourRouteMap = tourRoutes.reduce((acc, route) => {
+            if (route && route.id) {
+              acc[route.id] = route.name;
+              console.log("map:", route.name);
+            }
+            return acc;
+          }, {});
+          console.log("tourRouteMap:", tourRouteMap);
 
-        const mappedTours = res.data.map((tour) => ({
-          id: tour.id,
-          name: tourRouteMap[tour.tourRouteId] || `Chuyến du lịch ${tour.id}`,
-          startDate: new Date(tour.depatureDate).toLocaleDateString("vi-VN"),
-          departure: tour.pickUpLocation,
-          status: tour.status === 0 ? "Hoạt động" : "Ngừng hoạt động",
-          price: tour.price.toLocaleString("vi-VN") + " VND",
-          quantity: tour.totalSeats - tour.bookedSeats,
-        }));
+          const mappedTours = res.data.map((tour) => ({
+            id: tour.id,
+            name: tourRouteMap[tour.tourRouteId] || `Chuyến du lịch ${tour.id}`,
+            startDate: new Date(tour.depatureDate).toLocaleDateString("vi-VN"),
+            departure: tour.pickUpLocation,
+            status: tour.status === 0 ? "Hoạt động" : "Ngừng hoạt động",
+            price: tour.price.toLocaleString("vi-VN") + " VND",
+            quantity: tour.totalSeats - tour.bookedSeats,
+          }));
 
-        setTours(mappedTours || []);
-      } catch (error) {
-        console.error("Lỗi xử lý tuyến:", error);
-        const mappedTours = res.data.map((tour) => ({
-          id: tour.id,
-          name: `Chuyến du lịch ${tour.id}`,
-          startDate: new Date(tour.depatureDate).toLocaleDateString("vi-VN"),
-          departure: tour.pickUpLocation,
-          status: tour.status === 0 ? "Hoạt động" : "Ngừng hoạt động",
-          price: tour.price.toLocaleString("vi-VN") + " VND",
-          quantity: tour.totalSeats - tour.bookedSeats,
-        }));
-        setTours(mappedTours || []);
-      }
-    },
-    (err) => {
-      console.error("Lỗi lấy tour:", err);
-      setTours([]);
-    },
-    () => console.log("Hoàn tất lấy tour.")
-  );
-}, []);
+          setTours(mappedTours || []);
+        } catch (error) {
+          console.error("Lỗi xử lý tuyến:", error);
+          const mappedTours = res.data.map((tour) => ({
+            id: tour.id,
+            name: `Chuyến du lịch ${tour.id}`,
+            startDate: new Date(tour.depatureDate).toLocaleDateString("vi-VN"),
+            departure: tour.pickUpLocation,
+            status: tour.status === 0 ? "Hoạt động" : "Ngừng hoạt động",
+            price: tour.price.toLocaleString("vi-VN") + " VND",
+            quantity: tour.totalSeats - tour.bookedSeats,
+          }));
+          setTours(mappedTours || []);
+        }
+      },
+      (err) => {
+        console.error("Lỗi lấy tour:", err);
+        setTours([]);
+      },
+      () => console.log("Hoàn tất lấy tour.")
+    );
+  }, []);
 
   const filteredTours = tours.filter((tour) =>
     tour.name?.toLowerCase().includes(searchValue.toLowerCase())
@@ -108,9 +109,24 @@ useEffect(() => {
       fetchDelete(
         `/api/admin/tour/delete/${id}`,
         null,
-        () => setTours((prev) => prev.filter((tour) => tour.id !== id)),
-        () => alert("Xóa thất bại!"),
-        () => alert("Có lỗi xảy ra!")
+        () => {
+          setTours((prev) => prev.filter((tour) => tour.id !== id));
+          toast.success("Xóa chuyến du lịch thành công!", { autoClose: 3000 });
+        },
+        (err) => {
+           console.log("Lỗi khi xóa chuyến du lịch:", err);
+    console.log("err.response:", err.response);
+    console.log("err.response.data:", err.response?.data);
+    console.log("err.response.data.message:", err.response?.data?.message);
+          toast.error(err.data?.message || "Xóa thất bại!", {
+            autoClose: 5000,
+          });
+        },
+        () => {
+          toast.error("Đã xảy ra lỗi mạng khi xóa chuyến du lịch!", {
+            autoClose: 5000,
+          });
+        }
       );
     }
   };
