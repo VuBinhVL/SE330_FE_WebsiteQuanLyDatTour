@@ -13,6 +13,7 @@ import Register from "../pages/Other/Register";
 import ForgetPassword from "../pages/Other/ForgetPassword";
 import Search from "../pages/Customer/Search";
 import CustomerMainPage from "../pages/Admin/CustomerManagement/CustomerMainPage";
+import Cart from "../pages/Customer/Cart";
 
 export default function MainRoutes() {
   return (
@@ -36,6 +37,7 @@ export default function MainRoutes() {
           <Route path="login" element={<Login />}></Route>
           <Route path="register" element={<Register />}></Route>
           <Route path="forget-password" element={<ForgetPassword />}></Route>
+          <Route path="cart" element={<Cart />} />
         </Route>
       </Routes>
     </BrowserRouter>

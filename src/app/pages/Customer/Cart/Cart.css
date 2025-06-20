@@ -1,0 +1,256 @@
+.cart-container {
+  display: flex;
+  background: #f9f9f9;
+  min-height: 100vh;
+}
+
+.cart-main {
+  flex: 1;
+  padding: 30px;
+  background-color: #fff;
+  border: 1px solid #b3b0b0;
+  border-radius: 9px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  margin-left: 9px;
+}
+
+.cart-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #c34141;
+  margin-bottom: 30px;
+}
+
+.cart-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  padding: 16px 24px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  border: 1px solid #ddd;
+  font-size: 15px;
+}
+
+.cart-controls .left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  color: #d33b3b;
+}
+
+.cart-controls .left input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+.cart-controls .delete-all {
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  background: #fff;
+  padding: 6px 14px;
+  color: #333;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.cart-controls .delete-all:hover {
+  background: #f3f3f3;
+}
+
+.cart-controls .right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-weight: bold;
+  font-size: 15px;
+  color: #c34141;
+}
+
+.cart-controls .order-btn {
+  background: #5b3df3;
+  color: white;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background 0.2s;
+}
+
+.cart-controls .order-btn:hover {
+  background: #4a2dd9;
+}
+
+.cart-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cart-item {
+  display: flex;
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e3e3e3;
+}
+
+.item-img {
+  position: relative;
+}
+
+.item-img img {
+  width: 240px;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 14px 0 0 14px;
+}
+
+.item-check {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 18px;
+  height: 18px;
+  accent-color: #c34141;
+}
+
+.item-info {
+  flex: 1;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.item-header h3 {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.delete-icon {
+  color: #999;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.item-details {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  gap: 6px;
+  color: #333;
+}
+
+.detail-row {
+  display: flex;
+  gap: 200px;
+  align-items: center;
+}
+.detail-row span {
+  font-weight: normal;
+}
+.detail-row p {
+  display: flex;
+  align-items: center;
+  min-width: 200px;
+  gap: 6px;
+  margin: 0;
+  font-weight: 700;
+}
+
+.detail-row:last-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info-btn {
+  background: #5b3df3;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.item-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.item-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.item-footer label {
+  font-size: 14px;
+}
+
+.quantity {
+  display: flex;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.quantity button {
+  padding: 6px 12px;
+  background: #f0f0f0;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.quantity input {
+  width: 36px;
+  text-align: center;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+.item-price {
+  font-size: 16px;
+  font-weight: bold;
+  color: #c34141;
+}
+
+.item-footer .ticket-label {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.icon {
+  font-size: 20px;
+}
+
+.item-footer-right label {
+  font-weight: 600;
+}
