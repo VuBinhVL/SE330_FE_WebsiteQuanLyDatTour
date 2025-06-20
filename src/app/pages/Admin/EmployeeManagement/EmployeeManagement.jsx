@@ -133,7 +133,7 @@ export default function EmployeeManagement() {
           ) : (
             filteredEmployees.map((emp) => (
               <tr key={emp.id}>
-                <td>NV{emp.id}</td>
+                <td>{emp.id}</td>
                 <td>{emp.fullname}</td>
                 <td>{emp.sex ? "Nam" : "Nữ"}</td>
                 <td>{emp.phoneNumber}</td>
