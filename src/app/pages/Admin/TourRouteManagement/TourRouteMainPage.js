@@ -8,14 +8,14 @@ import { useNavigate } from "react-router-dom";
 import { BE_ENDPOINT, fetchGet, fetchDelete } from "../../../lib/httpHandler";
 import { DataGrid } from "@mui/x-data-grid";
 import { Box, Dialog, DialogContent, DialogTitle } from "@mui/material";
-import { toast } from "react-toastify"; // Import react-toastify
+import { toast } from "react-toastify";
 import AddTourRoute from "../../../components/Admin/TourRouteManagement/AddTourRoute/AddTourRoute";
-
 
 export default function TourRouteMainPage() {
   const [tourRoutes, setTourRoutes] = useState([]);
   const [searchValue, setSearchValue] = useState("");
   const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0); // Thêm state để trigger gọi lại API
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,35 +23,37 @@ export default function TourRouteMainPage() {
       "/api/admin/tour-route/get-all",
       (res) => {
         console.log("Dữ liệu tour routes:", res.data);
-        // Ánh xạ dữ liệu API
         const mappedTourRoutes = res.data.map((tr) => ({
           id: tr.id,
-          name: tr.routeName, // Đổi routeName thành name
+          name: tr.routeName,
           image: tr.image,
-          departure: tr.startLocation, // Đổi startLocation thành departure
-          status: "Hoạt động", // Giả định trạng thái, thay đổi nếu API cung cấp
-          duration: calculateDuration(tr.startDate, tr.endDate), // Tính thời gian
-          price: "Liên hệ", // Giả định giá, thay đổi nếu API cung cấp
+          departure: tr.startLocation,
+          status: "Hoạt động",
+          duration: calculateDuration(tr.startDate, tr.endDate),
+          price: "Liên hệ",
         }));
         setTourRoutes(mappedTourRoutes || []);
       },
       (err) => {
         console.error("Lỗi lấy tour routes:", err);
         setTourRoutes([]);
+        toast.error(err.response?.data?.message || "Lỗi khi lấy danh sách tuyến du lịch", {
+          autoClose: 5000,
+        });
       },
       () => console.log("Hoàn tất lấy tour routes.")
     );
-  }, []);
+  }, [refreshTrigger]); // Thêm refreshTrigger vào dependency array
 
-  // Hàm tính thời gian (duration)
   const calculateDuration = (startDate, endDate) => {
+    if (!startDate || !endDate) return "N/A";
     const start = new Date(startDate);
     const end = new Date(endDate);
+    if (isNaN(start) || isNaN(end)) return "N/A";
     const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-    return `${diffDays} ngày`;
+    return diffDays > 0 ? `${diffDays} ngày` : "N/A";
   };
 
-  // Search filter
   const filteredTourRoutes = tourRoutes.filter((tr) =>
     tr.name?.toLowerCase().includes(searchValue.toLowerCase())
   );
@@ -62,46 +64,37 @@ export default function TourRouteMainPage() {
 
   const handleCloseAddDialog = () => {
     setOpenAddDialog(false);
+    setRefreshTrigger((prev) => prev + 1); // Trigger gọi lại API khi đóng dialog
   };
 
   const handleShowDetail = (tourRoute) => {
     navigate(`/admin/tour-route/get/${tourRoute.id}`);
   };
 
-  // const handleDelete = (id) => {
-  //   if (window.confirm("Bạn có chắc muốn xóa tuyến du lịch này?")) {
-  //     fetchDelete(
-  //       `/api/admin/tour-route/delete/${id}`,
-  //       null,
-  //       () => setTourRoutes((prev) => prev.filter((tr) => tr.id !== id)),
-  //       () => alert("Xóa thất bại!"),
-  //       () => alert("Có lỗi xảy ra!")
-  //     );
-  //   }
-  // };
   const handleDelete = (id) => {
-    if (window.confirm("Bạn có chắc muốn xóa tuyến đi này?")) {
+    if (window.confirm("Bạn có chắc muốn xóa tuyến du lịch này?")) {
       fetchDelete(
         `/api/admin/tour-route/delete/${id}`,
         null,
         () => {
           setTourRoutes((prev) => prev.filter((tour_route) => tour_route.id !== id));
-          toast.success("Xóa tuyến đi thành công!", { autoClose: 3000 });
+          toast.success("Xóa tuyến du lịch thành công!", { autoClose: 3000 });
         },
         (err) => {
-           console.log("Lỗi khi xóa tuyến đi:", err);
-          toast.error(err.data?.message || "Xóa thất bại!", {
+          console.error("Lỗi khi xóa tuyến du lịch:", err);
+          toast.error(err.response?.data?.message || "Xóa thất bại!", {
             autoClose: 5000,
           });
         },
         () => {
-          toast.error("Đã xảy ra lỗi mạng khi xóa tuyến đi!", {
+          toast.error("Đã xảy ra lỗi mạng khi xóa tuyến du lịch!", {
             autoClose: 5000,
           });
         }
       );
     }
   };
+
   const columns = [
     {
       field: "image",
@@ -116,6 +109,7 @@ export default function TourRouteMainPage() {
           }
           alt="tourroute"
           style={{ width: 36, height: 36, borderRadius: "50%" }}
+          onError={(e) => (e.target.src = "https://via.placeholder.com/36")}
         />
       ),
       headerAlign: "center",
@@ -124,7 +118,6 @@ export default function TourRouteMainPage() {
     { field: "status", headerName: "Tình trạng", width: 120, headerAlign: "center" },
     { field: "departure", headerName: "Khởi hành", width: 150, headerAlign: "center" },
     { field: "duration", headerName: "Thời gian", width: 120, headerAlign: "center" },
-    { field: "price", headerName: "Giá tuyến", width: 120, headerAlign: "center" },
     {
       field: "view",
       headerName: "Xem",
