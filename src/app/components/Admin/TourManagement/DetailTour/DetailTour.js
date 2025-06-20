@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -19,11 +19,11 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import { fetchGet } from "../../../../lib/httpHandler";
 import AddTourBooking from "../AddTourBooking/AddTourBooking";
 
 export default function DetailTour() {
   const { id } = useParams();
-  const location = useLocation();
   const [tour, setTour] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [tempData, setTempData] = useState({});
@@ -48,21 +48,64 @@ export default function DetailTour() {
   const [openAddBookingDialog, setOpenAddBookingDialog] = useState(false);
 
   useEffect(() => {
-    const tourData = location.state?.tour || {
-      name: "Thái Lan: Bangkok - Pattaya",
-      tourId: `TOUR${id.padStart(3, "0")}`,
-      startDate: "01/01/2026",
-      endDate: "05/01/2026",
-      departureTime: "07:00",
-      departure: "Đà Nẵng",
-      price: "5,000,000 VND",
-      soldSeats: 10,
-      maxSeats: 30,
-      status: "Hoạt động",
-    };
-    setTour(tourData);
-    setTempData(tourData);
-  }, [id, location.state]);
+    // Lấy thông tin tour
+    fetchGet(
+      `/api/admin/tour/get/${id}`,
+      async (res) => {
+        console.log("Dữ liệu tour:", res.data);
+        try {
+          // Lấy thông tin tuyến du lịch
+          const tourRouteId = res.data.tourRouteId;
+          fetchGet(
+            `/api/admin/tour-route/get/${tourRouteId}`,
+            (routeRes) => {
+              const tourData = {
+                id: res.data.id,
+                tourId: res.data.id,
+                // tourId: `TOUR${String(res.data.id).padStart(3, "0")}`,
+                name: routeRes.data?.routeName || `Tuyến du lịch ${tourRouteId}`,
+                startDate: new Date(res.data.depatureDate).toLocaleDateString("vi-VN"),
+                endDate: new Date(res.data.endDate || res.data.depatureDate).toLocaleDateString("vi-VN"),
+                departureTime: res.data.departureTime || "07:00", // Giả định nếu API không cung cấp
+                departure: res.data.pickUpLocation,
+                price: res.data.price.toLocaleString("vi-VN") + " VND",
+                soldSeats: res.data.bookedSeats || 0,
+                maxSeats: res.data.totalSeats || 30,
+                status: res.data.status === 0 ? "Hoạt động" : "Ngừng hoạt động",
+              };
+              setTour(tourData);
+              setTempData(tourData);
+            },
+            (err) => {
+              console.error("Lỗi lấy tour route:", err);
+              // Fallback nếu không lấy được tour route
+              const tourData = {
+                id: res.data.id,
+                tourId: `TOUR${String(res.data.id).padStart(3, "0")}`,
+                name: `Chuyến du lịch ${res.data.id}`,
+                startDate: new Date(res.data.depatureDate).toLocaleDateString("vi-VN"),
+                endDate: new Date(res.data.endDate || res.data.depatureDate).toLocaleDateString("vi-VN"),
+                departureTime: res.data.departureTime || "07:00",
+                departure: res.data.pickUpLocation,
+                price: res.data.price.toLocaleString("vi-VN") + " VND",
+                soldSeats: res.data.bookedSeats || 0,
+                maxSeats: res.data.totalSeats || 30,
+                status: res.data.status === 0 ? "Hoạt động" : "Ngừng hoạt động",
+              };
+              setTour(tourData);
+              setTempData(tourData);
+            }
+          );
+        } catch (error) {
+          console.error("Lỗi xử lý dữ liệu tour:", error);
+        }
+      },
+      (err) => {
+        console.error("Lỗi lấy tour:", err);
+        setTour(null);
+      }
+    );
+  }, [id]);
 
   const handleToggleEdit = () => {
     setIsEditing(true);
@@ -76,6 +119,8 @@ export default function DetailTour() {
   const handleConfirmEdit = () => {
     setTour(tempData);
     setIsEditing(false);
+    // TODO: Gọi API để cập nhật tour nếu cần
+    // fetchPut(`/api/admin/tour/update/${id}`, tempData, ...)
   };
 
   const handleAddBooking = () => {
@@ -89,6 +134,8 @@ export default function DetailTour() {
   const handleSaveBooking = (newBooking) => {
     setBookings((prev) => [...prev, newBooking]);
     handleCloseAddBookingDialog();
+    // TODO: Gọi API để lưu booking nếu cần
+    // fetchPost(`/api/admin/tour/bookings`, newBooking, ...)
   };
 
   if (!tour) return <div>Loading...</div>;
@@ -147,6 +194,7 @@ export default function DetailTour() {
               value={tempData.departure || ""}
               onChange={(e) => setTempData({ ...tempData, departure: e.target.value })}
               disabled={!isEditing}
+              sx={{minWidth: 300}}
             />
           </Grid>
           <Grid item xs={6}>
@@ -164,6 +212,7 @@ export default function DetailTour() {
               fullWidth
               value={tempData.soldSeats || ""}
               disabled
+              sx={{maxWidth: 150}}
             />
           </Grid>
           <Grid item xs={6}>
@@ -173,6 +222,7 @@ export default function DetailTour() {
               value={tempData.maxSeats || ""}
               onChange={(e) => setTempData({ ...tempData, maxSeats: e.target.value })}
               disabled={!isEditing}
+              sx={{maxWidth: 150}}
             />
           </Grid>
           <Grid item xs={6}>
@@ -182,6 +232,7 @@ export default function DetailTour() {
               value={tempData.status || ""}
               onChange={(e) => setTempData({ ...tempData, status: e.target.value })}
               disabled={!isEditing}
+              sx={{maxWidth: 150}}
             />
           </Grid>
         </Grid>
