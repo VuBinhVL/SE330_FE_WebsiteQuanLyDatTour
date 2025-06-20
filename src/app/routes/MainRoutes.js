@@ -13,8 +13,12 @@ import Register from "../pages/Other/Register";
 import ForgetPassword from "../pages/Other/ForgetPassword";
 import Search from "../pages/Customer/Search";
 import CustomerMainPage from "../pages/Admin/CustomerManagement/CustomerMainPage";
+
 import Account from "../pages/Other/Account";
 import Cart from "../pages/Customer/Cart";
+
+import Cart from "../pages/Customer/Cart";
+
 
 export default function MainRoutes() {
   return (
