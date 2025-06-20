@@ -1,26 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./TourBookingManagement.css";
 import { ReactComponent as ViewIcon } from "../../../assets/icons/admin/Frame 23.svg";
 import { ReactComponent as DeleteIcon } from "../../../assets/icons/admin/Frame 24.svg";
-
-const initialBookings = Array.from({ length: 11 }, (_, i) => ({
-  id: i + 1,
-  customerName: `Nguyễn Văn ${i + 1}`,
-  phone: `09012345${i}`,
-  email: `user${i}@example.com`,
-  tourName: "Thái Lan: Bangkok - Pattaya (Làng Nong Nooch)",
-  tourCode: `TL2025-${i + 1}`,
-  bookingDate: "17/04/2025",
-  departureDate: "20/04/2025",
-  returnDate: "24/04/2025",
-  departureTime: "08:00",
-  departureLocation: "Sân bay Tân Sơn Nhất",
-  totalAmount: 8190000 * 3,
-  paidAmount: i % 3 === 0 ? 8190000 * 3 : i % 3 === 1 ? 0 : 4095000,
-  seats: 3,
-  status: i % 3 === 0 ? "Đã thanh toán" : i % 3 === 1 ? "Đang chờ" : "Đã hủy",
-}));
+import { fetchGet } from "../../../lib/httpHandler";
+import "./TourBookingManagement.css";
 
 const getStatusClass = (status) => {
   switch (status) {
@@ -36,9 +19,22 @@ const getStatusClass = (status) => {
 };
 
 export default function TourBookingManagement() {
-  const [bookings, setBookings] = useState(initialBookings);
+  const [bookings, setBookings] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
+  const fetchBookings = () => {
+    fetchGet(
+      "/api/admin/tour-booking",
+      (res) => setBookings(res.data || []),
+      () => setBookings([]),
+      () => alert("Có lỗi xảy ra khi tải danh sách đơn đặt tour!")
+    );
+  };
 
   const handleView = (booking) => {
     navigate(`/admin/tour-bookings/detail-booking/${booking.id}`, {
@@ -46,10 +42,19 @@ export default function TourBookingManagement() {
     });
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     const confirm = window.confirm("Bạn có chắc muốn xóa đơn đặt tour này?");
     if (confirm) {
-      setBookings((prev) => prev.filter((b) => b.id !== id));
+      try {
+        const res = await fetch(`/api/admin/tour-booking/${id}`, {
+          method: "DELETE",
+        });
+        if (!res.ok) throw new Error();
+        setBookings((prev) => prev.filter((b) => b.id !== id));
+      } catch (error) {
+        console.error("Lỗi khi xóa booking:", error);
+        alert("Xóa thất bại!");
+      }
     }
   };
 
@@ -58,7 +63,8 @@ export default function TourBookingManagement() {
   };
 
   const filteredBookings = bookings.filter((b) =>
-    `${b.customerName} ${b.tourName} ${b.phone} ${b.email}`
+    `${b.seatsBooked} ${b.totalPrice} ${b.id}`
+      .toString()
       .toLowerCase()
       .includes(searchTerm)
   );
@@ -69,7 +75,7 @@ export default function TourBookingManagement() {
         <div className="search-container">
           <input
             type="text"
-            placeholder="Tìm kiếm theo tên, tour, SĐT, email..."
+            placeholder="Tìm kiếm theo mã, số chỗ, giá..."
             className="search-input"
             value={searchTerm}
             onChange={handleSearchChange}
@@ -80,12 +86,10 @@ export default function TourBookingManagement() {
       <table className="booking-table">
         <thead>
           <tr>
-            <th>Tên khách hàng</th>
-            <th>Tổng tiền</th>
-            <th>Tên tuyến du lịch</th>
-            <th>Ngày đặt</th>
+            <th>ID</th>
             <th>Số chỗ đặt</th>
-            <th>Trạng thái</th>
+            <th>Tổng tiền</th>
+            <th>Ngày tạo</th>
             <th>View</th>
             <th>Delete</th>
           </tr>
@@ -93,21 +97,15 @@ export default function TourBookingManagement() {
         <tbody>
           {filteredBookings.map((booking) => (
             <tr key={booking.id}>
-              <td>{booking.customerName}</td>
+              <td>{booking.id}</td>
+              <td>{booking.seatsBooked}</td>
               <td>
                 {new Intl.NumberFormat("vi-VN", {
                   style: "currency",
                   currency: "VND",
-                }).format(booking.totalAmount)}
+                }).format(booking.totalPrice)}
               </td>
-              <td>{booking.tourName}</td>
-              <td>{booking.bookingDate}</td>
-              <td>{booking.seats}</td>
-              <td>
-                <span className={`status ${getStatusClass(booking.status)}`}>
-                  {booking.status}
-                </span>
-              </td>
+              <td>{booking.createdAt?.split("T")[0]}</td>
               <td>
                 <button className="view-btn" onClick={() => handleView(booking)}>
                   <ViewIcon className="icon-svg" />
@@ -122,7 +120,7 @@ export default function TourBookingManagement() {
           ))}
           {filteredBookings.length === 0 && (
             <tr>
-              <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
+              <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
                 Không tìm thấy đơn đặt tour phù hợp.
               </td>
             </tr>
