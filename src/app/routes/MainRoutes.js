@@ -15,6 +15,8 @@ import Search from "../pages/Customer/Search";
 import CustomerMainPage from "../pages/Admin/CustomerManagement/CustomerMainPage";
 import Account from "../pages/Other/Account";
 import Cart from "../pages/Customer/Cart";
+import DetailCustomerPage from "../components/Admin/CustomerManagement/DetailCustomerPage/DetailCustomerPage";
+
 
 export default function MainRoutes() {
   return (
@@ -28,6 +30,7 @@ export default function MainRoutes() {
           
           {/* Nested routes for customer management and destination management */}
           <Route path="customers" element={<CustomerMainPage />} />
+          <Route path="customers/:id" element={<DetailCustomerPage />} />
           
           <Route
             path="destination-management"

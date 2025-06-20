@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { AdminTitleContext } from "../../../layouts/adminLayout/AdminLayout/AdminLayout";
 import "./CustomerMainPage.css";
 import search from "../../../assets/icons/customer/header/search.png";
@@ -6,23 +7,19 @@ import { MdOutlineAddBox } from "react-icons/md";
 import { GoTrash } from "react-icons/go";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import AddCustomer from "../../../components/Admin/CustomerManagement/AddCustomer/AddCustomer";
-import DetailCustomer from "../../../components/Admin/CustomerManagement/DetailCustomer/DetailCustomer";
 import { BE_ENDPOINT, fetchGet, fetchDelete } from "../../../lib/httpHandler";
 
 export default function CustomerMainPage() {
   const { setTitle, setSubtitle } = useContext(AdminTitleContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setTitle("Tất cả khách hàng");
     setSubtitle("Thông tin tất cả khách hàng");
   }, [setTitle, setSubtitle]);
 
-
-
   const [showAdd, setShowAdd] = useState(false);
-  const [showDetail, setShowDetail] = useState(false);
   const [customers, setCustomers] = useState([]);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [searchValue, setSearchValue] = useState("");
 
   // Fetch all customers
@@ -36,31 +33,19 @@ export default function CustomerMainPage() {
   }, []);
 
   // Search filter
-  const filteredCustomers = customers.filter(
-    (c) =>
-      c.fullname?.toLowerCase().includes(searchValue.toLowerCase()) ||
-      c.email?.toLowerCase().includes(searchValue.toLowerCase()) ||
-      c.phoneNumber?.includes(searchValue)
-  );
+  const filteredCustomers = customers
+    .filter(
+      (c) =>
+        c.fullname?.toLowerCase().includes(searchValue.toLowerCase()) ||
+        c.email?.toLowerCase().includes(searchValue.toLowerCase()) ||
+        c.phoneNumber?.includes(searchValue)
+    );
 
   const handleShowAdd = () => setShowAdd(!showAdd);
 
   const handleShowDetail = (customer) => {
-    setSelectedCustomer(customer);
-    setShowDetail(true);
+    navigate(`/admin/customers/${customer.id}`);
   };
-
-  const handleCloseDetail = () => {
-    setSelectedCustomer(null);
-    setShowDetail(false);
-  };
-
-  const handleUpdateCustomer = (updatedCus) => {
-  setCustomers((prev) =>
-    prev.map((cus) => (cus.id === updatedCus.id ? updatedCus : cus))
-  );
-  handleCloseDetail();
-};
 
   const handleDelete = (id) => {
     if (window.confirm("Bạn có chắc muốn xóa khách hàng này?")) {
@@ -155,23 +140,13 @@ export default function CustomerMainPage() {
           )}
         </tbody>
       </table>
-{/* Popup thêm khách hàng */}
+      {/* Popup thêm khách hàng */}
       {showAdd && (
         <AddCustomer
           onCloseAddForm={handleShowAdd}
           onAdded={(newCus) => setCustomers((prev) => [...prev, newCus])}
         />
       )}
-
-         {/* Popup chi tiết khách hàng */}
-    {showDetail && selectedCustomer && (
-  <DetailCustomer
-    customer={selectedCustomer}
-    onCloseAddForm={handleCloseDetail}
-    onUpdated={handleUpdateCustomer}
-  />
-)}
-
     </div>
   );
 }
