@@ -1,0 +1,120 @@
+.container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: transparent;
+  border-radius: 8px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.search-container {
+  margin: 0;
+}
+
+.search-input {
+  padding: 8px 12px;
+  width: 280px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+/* Table Styling */
+/* Bảng đơn hàng */
+.order-table {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+  background-color: #fff;
+  overflow: hidden;
+}
+
+/* Bo góc bảng */
+.order-table thead tr:first-child th:first-child {
+  border-top-left-radius: 10px;
+}
+
+.order-table thead tr:first-child th:last-child {
+  border-top-right-radius: 10px;
+}
+
+.order-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 10px;
+}
+
+.order-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 10px;
+}
+
+/* Tiêu đề bảng */
+.order-table th {
+  text-align: left;
+  padding: 12px;
+  background-color: #f2f2f2;
+  color: #333;
+  font-weight: 600;
+  border-bottom: 1px solid #ccc;
+}
+
+/* Dòng dữ liệu */
+.order-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+/* Dòng cuối cùng không có viền dưới */
+.order-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+
+/* Status Styling */
+.status {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.status-paid {
+  color: #28a745;
+  background-color: #e8f5e9;
+}
+
+.status-pending {
+  color: #ffc107;
+  background-color: #fff8e1;
+}
+
+.status-cancelled {
+  color: #dc3545;
+  background-color: #fdecea;
+}
+
+/* Buttons */
+.view-btn,
+.delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.icon-svg {
+  width: 20px;
+  height: 20px;
+}

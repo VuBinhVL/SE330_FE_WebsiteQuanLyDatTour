@@ -1,0 +1,204 @@
+/* Popup overlay */
+.popup-overlay-emp {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Popup container */
+.popup-overlay-emp .popup {
+  width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Close button */
+.popup-overlay-emp .close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+  transition: color 0.3s;
+}
+
+.popup-overlay-emp .close-btn:hover {
+  color: #333;
+}
+
+/* Header */
+.popup-overlay-emp .popup-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.popup-overlay-emp .popup-header h2 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #444;
+  margin: 0;
+}
+
+/* Edit button */
+.popup-overlay-emp .edit-btn {
+  background: none;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+  border-radius: 4px;
+}
+
+.popup-overlay-emp .edit-btn .icon-svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Popup body */
+.popup-overlay-emp .popup-body {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+/* Avatar section */
+.popup-overlay-emp .avatar-emp {
+  flex: 0 0 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup-overlay-emp .avatar-placeholder {
+  width: 100px;
+  height: 100px;
+  background-color: #f9f9f9;
+  border: 2px solid #ddd;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.popup-overlay-emp .avatar-placeholder:hover {
+  background-color: #f0f0f0;
+  border-color: #aaa;
+}
+
+.popup-overlay-emp .avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* Form */
+.popup-overlay-emp form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  
+}
+
+.popup-overlay-emp label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.popup-overlay-emp input,
+.popup-overlay-emp select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+  margin-bottom: 10px;
+}
+
+.popup-overlay-emp input:focus,
+.popup-overlay-emp select:focus {
+  border-color: #888;
+  outline: none;
+}
+
+/* Row for multiple fields */
+.popup-overlay-emp .row {
+  display: flex;
+  gap: 20px;
+}
+
+.popup-overlay-emp .row > div {
+  flex: 1;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Actions */
+.popup-overlay-emp .actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.popup-overlay-emp .actions .cancel-btn,
+.popup-overlay-emp .actions .confirm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  height: 40px;
+  line-height: normal;
+}
+
+.popup-overlay-emp .actions .cancel-btn {
+  background-color: #f8d7da;
+  color: #d9534f;
+}
+
+.popup-overlay-emp .actions .cancel-btn:hover {
+  background-color: #f1b0b7;
+}
+
+.popup-overlay-emp .actions .confirm-btn {
+  background-color: #d4edda;
+  color: #28a745;
+}
+
+.popup-overlay-emp .actions .confirm-btn:hover {
+  background-color: #c3e6cb;
+}

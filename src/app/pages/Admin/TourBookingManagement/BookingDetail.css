@@ -1,0 +1,148 @@
+.booking-detail-container {
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  max-width: 1000px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.tour-info-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  
+}
+
+.tour-title {
+  font-weight: bold;
+  font-size: 20px;
+  margin-bottom: 1rem;
+  color: #333;
+  text-align: center;
+}
+
+.grid-form {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Bố cục 3 cột */
+  gap: 1.5rem; /* Khoảng cách giữa các ô */
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+  color: #555;
+}
+
+.form-group label {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.form-group input {
+  padding: 0.75rem;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+/* Tổng thể bảng danh sách hành khách */
+.passenger-table {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+  background-color: #fff;
+  overflow: hidden;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Bo góc cho các góc bảng */
+.passenger-table thead tr:first-child th:first-child {
+  border-top-left-radius: 10px;
+}
+
+.passenger-table thead tr:first-child th:last-child {
+  border-top-right-radius: 10px;
+}
+
+.passenger-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 10px;
+}
+
+.passenger-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 10px;
+}
+
+/* Tiêu đề bảng */
+.passenger-table th {
+  text-align: left;
+  padding: 12px;
+  background-color: #f2f2f2;
+  color: #333;
+  font-weight: 600;
+  border-bottom: 1px solid #ccc;
+  text-align: center; /* Giữ trung tâm nếu cần */
+}
+
+/* Dòng dữ liệu */
+.passenger-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+}
+
+/* Dòng cuối cùng không có border dưới */
+.passenger-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Nút Edit */
+.edit-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #5b4cf0;
+}
+
+.edit-btn:hover {
+  color: #4a3bd0;
+}
+
+.footer-btns {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+.invoice-btn {
+  background-color: #5b4cf0;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 16px;
+  margin-left: auto;
+}
+
+.invoice-btn:hover {
+  background-color: #4a3bd0;
+}

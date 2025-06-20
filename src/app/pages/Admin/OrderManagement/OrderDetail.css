@@ -1,0 +1,139 @@
+.order-detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.customer-info {
+  margin-bottom: 20px;
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.order-payment-container {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.order-info, .payment-method {
+  flex: 1;
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.grid-form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.form-group label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.payment-method {
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.payment-method h3 {
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.payment-option {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.payment-option:hover {
+  background: #f9f9f9;
+  border-color: #bbb;
+}
+
+.payment-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1; /* Chiếm toàn bộ không gian bên trái */
+}
+
+.payment-option .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.payment-option .icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.payment-option input[type="radio"] {
+  margin-left: auto;
+  cursor: pointer;
+}
+
+.confirm-btn-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px; /* giữ khoảng cách như cũ */
+}
+
+
+.payment-method .confirm-btn {
+  margin-top: 16px;
+  padding: 12px 20px;
+  background-color: #5a5af1;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.payment-method .confirm-btn:hover {
+  background-color: #4848d1;
+}
+
+.cancel-btn {
+  padding: 10px 20px;
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}

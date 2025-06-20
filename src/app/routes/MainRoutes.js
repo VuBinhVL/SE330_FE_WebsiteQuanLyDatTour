@@ -13,6 +13,11 @@ import Register from "../pages/Other/Register";
 import ForgetPassword from "../pages/Other/ForgetPassword";
 import Search from "../pages/Customer/Search";
 import CustomerMainPage from "../pages/Admin/CustomerManagement/CustomerMainPage";
+import EmployeeManagement from "../pages/Admin/EmployeeManagement/EmployeeManagement";
+import TourBookingManagement from "../pages/Admin/TourBookingManagement/TourBookingManagement";
+import BookingDetail from "../pages/Admin/TourBookingManagement/BookingDetail";
+import OrderManagement from "../pages/Admin/OrderManagement/OrderManagement";
+import OrderDetail from "../pages/Admin/OrderManagement/OrderDetail";
 import TourRouteMainPage from "../pages/Admin/TourRouteManagement/TourRouteMainPage";
 import DetailTourRoute from "../components/Admin/TourRouteManagement/DetailTourRoute/DetailTourRoute";
 import TourMainPage from "../pages/Admin/TourManagement/TourMainPage";
@@ -46,6 +51,19 @@ export default function MainRoutes() {
             path="destination-management"
             element={<DestinationMainPage />}
           ></Route>
+          <Route path="staff" element={<EmployeeManagement />}></Route>
+
+          <Route
+            path="tour-bookings"
+            element={<TourBookingManagement />}
+          ></Route>
+          <Route
+            path="tour-bookings/detail-booking/:id"
+            element={<BookingDetail />}
+          ></Route>
+
+          <Route path="invoices" element={<OrderManagement />}></Route>
+          <Route path="invoices/detail/:id" element={<OrderDetail />}></Route>
         </Route>
 
         {/* Customer */}
