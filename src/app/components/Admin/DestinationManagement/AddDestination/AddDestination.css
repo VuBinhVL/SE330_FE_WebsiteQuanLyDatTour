@@ -59,7 +59,20 @@
   margin-right: 20px;
 }
 
-.image-slot {
+.des-add-form .btn-remove-img {
+  position: absolute;
+  top: -4px;
+  right: 2px;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  font-weight: bold;
+  width: 10px;
+  height: 10px;
+  cursor: pointer;
+}
+
+.des-add-form .image-slot {
   background: #e0e0e0;
   border-radius: 8px;
   display: flex;
@@ -69,16 +82,18 @@
   overflow: hidden;
 }
 
-.upload-icon {
+.des-add-form .upload-icon {
   font-size: 24px;
   cursor: pointer;
   color: #555;
 }
 
-.preview-img {
+.des-add-form .preview-img {
   width: 100%;
-  height: 100%;
+  min-height: 99px;
+  cursor: pointer;
   object-fit: cover;
+  border-radius: 8px;
 }
 
 /* Phần nhập */
