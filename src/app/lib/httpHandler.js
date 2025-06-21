@@ -14,10 +14,10 @@ const getHeaders = () => {
 
 const handleResponse = async (res, onSuccess, onFail) => {
   const data = await res.json();
+  console.log("Response từ server:", { status: res.status, data });
   if (res.ok) {
     onSuccess(data);
   } else {
-    // Truyền cả response và data vào onFail
     onFail({ response: res, data });
   }
 };
@@ -32,12 +32,14 @@ const request = async (
   isUpload = false
 ) => {
   try {
+    const fullUrl = BE_ENDPOINT + uri;
+    console.log(`Gửi ${method} request:`, { fullUrl, data });
     const config = {
       method,
       headers: isUpload ? undefined : getHeaders(),
       body: data ? (isUpload ? data : JSON.stringify(data)) : undefined,
     };
-    const res = await fetch(BE_ENDPOINT + uri, config);
+    const res = await fetch(fullUrl, config);
     await handleResponse(res, onSuccess, onFail);
   } catch (err) {
     console.error("HTTP error:", err);
@@ -55,8 +57,8 @@ const fetchPost = (uri, data, onSuccess, onFail, onException) =>
 const fetchPut = (uri, data, onSuccess, onFail, onException) =>
   request("PUT", uri, data, onSuccess, onFail, onException);
 
-const fetchDelete = (uri, data, onSuccess, onFail, onException) =>
-  request("DELETE", uri, data, onSuccess, onFail, onException);
+const fetchDelete = (uri, onSuccess, onFail, onException) =>
+  request("DELETE", uri, null, onSuccess, onFail, onException);
 
 const fetchUpload = (uri, formData, onSuccess, onFail, onException) =>
   request("POST", uri, formData, onSuccess, onFail, onException, true);

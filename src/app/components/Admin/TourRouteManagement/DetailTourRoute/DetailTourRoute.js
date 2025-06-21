@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { fetchGet, fetchPut, fetchUpload, BE_ENDPOINT } from "../../../../lib/httpHandler";
+import { fetchGet, fetchPut, fetchUpload, fetchDelete, BE_ENDPOINT } from "../../../../lib/httpHandler";
 import {
   Box,
   Typography,
@@ -246,6 +246,35 @@ export default function DetailTourRoute() {
     setOpenAttractionDialog(true);
   };
 
+  const handleDeleteActivity = (dayIndex, activityId) => {
+    if (!window.confirm("Bạn có chắc chắn muốn xóa hoạt động này?")) {
+      return;
+    }
+
+    fetchDelete(
+      `/api/admin/tour-route-attraction/delete/${activityId}`,
+      (res) => {
+        // Cập nhật state itinerary để xóa hoạt động
+        setItinerary((prevItinerary) => {
+          const newItinerary = [...prevItinerary];
+          const activities = [...newItinerary[dayIndex].activities];
+          const updatedActivities = activities.filter((act) => act.id !== activityId);
+          newItinerary[dayIndex].activities = updatedActivities;
+          // Loại bỏ ngày nếu không còn hoạt động
+          return newItinerary.filter((day) => day.activities.length > 0);
+        });
+        toast.success(res.message || "Xóa hoạt động thành công!", { autoClose: 3000 });
+      },
+      (err) => {
+        console.error("Lỗi khi xóa hoạt động:", err);
+        toast.error(err.message || "Lỗi khi xóa hoạt động!", { autoClose: 5000 });
+      },
+      () => {
+        console.log("Xóa hoạt động hoàn tất");
+      }
+    );
+  };
+
   const handleCloseAttractionDialog = () => {
     setOpenAttractionDialog(false);
     setSelectedActivity(null);
@@ -477,8 +506,12 @@ export default function DetailTourRoute() {
                                 <ModeEditOutlineIcon fontSize="inherit" />
                               </IconButton>
                             </Tooltip>
-                            <Tooltip title="Xoá hoạt động">
-                              <IconButton size="small" color="error">
+                            <Tooltip title="Xóa hoạt động">
+                              <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => handleDeleteActivity(dayIndex, activity.id)}
+                              >
                                 <DeleteIcon fontSize="inherit" />
                               </IconButton>
                             </Tooltip>
@@ -523,6 +556,7 @@ export default function DetailTourRoute() {
               onClose={handleCloseAttractionDialog}
               onSave={handleSaveActivity}
               tourRouteId={id}
+              itinerary={itinerary}
             />
           </DialogContent>
         </Dialog>
