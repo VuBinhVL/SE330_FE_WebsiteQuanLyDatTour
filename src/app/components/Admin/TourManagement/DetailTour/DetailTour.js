@@ -37,27 +37,11 @@ export default function DetailTour() {
   const [tour, setTour] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [tempData, setTempData] = useState({});
-  const [bookings, setBookings] = useState([
-    {
-      id: "BK001",
-      fullName: "Nguyễn Văn A",
-      gender: "Nam",
-      phone: "0901234567",
-      email: "vana@example.com",
-      booker: "Nguyễn Văn A",
-    },
-    {
-      id: "BK002",
-      fullName: "Trần Thị B",
-      gender: "Nữ",
-      phone: "0912345678",
-      email: "thib@example.com",
-      booker: "Trần Thị B",
-    },
-  ]);
+  const [bookings, setBookings] = useState([]);
   const [openAddBookingDialog, setOpenAddBookingDialog] = useState(false);
 
   useEffect(() => {
+    // Lấy thông tin tour
     fetchGet(
       `/api/admin/tour/get/${id}`,
       async (res) => {
@@ -83,7 +67,7 @@ export default function DetailTour() {
                 endDate: res.data.returnDate ? new Date(res.data.returnDate) : null,
                 pickUpTime: pickUpTime,
                 departure: res.data.pickUpLocation,
-                price: res.data.price, // Lưu dưới dạng số
+                price: res.data.price,
                 bookedSeats: res.data.bookedSeats || 0,
                 maxSeats: res.data.totalSeats || 30,
                 status: res.data.status === 0 ? "Đang mở" : res.data.status === 1 ? "Đang chờ" : "Đã hủy",
@@ -109,7 +93,7 @@ export default function DetailTour() {
                 endDate: res.data.returnDate ? new Date(res.data.returnDate) : null,
                 pickUpTime: pickUpTime,
                 departure: res.data.pickUpLocation,
-                price: res.data.price, // Lưu dưới dạng số Lah số
+                price: res.data.price,
                 bookedSeats: res.data.bookedSeats || 0,
                 maxSeats: res.data.totalSeats || 30,
                 status: res.data.status === 0 ? "Đang mở" : res.data.status === 1 ? "Đang chờ" : "Đã hủy",
@@ -126,6 +110,27 @@ export default function DetailTour() {
         console.error("Lỗi lấy tour:", err);
         setTour(null);
         toast.error("Lỗi khi tải thông tin tour!", { autoClose: 5000 });
+      }
+    );
+
+    // Lấy danh sách hành khách
+    fetchGet(
+      `/api/admin/tour/get-list-tour-booking/${id}`,
+      (res) => {
+        console.log("Dữ liệu bookings:", res.data);
+        setBookings(res.data.map((item) => ({
+          id: item.tourBookingId,
+          fullName: item.userMemberFullname,
+          gender: item.userMemberSex ? "Nam" : "Nữ",
+          phone: item.userMemberPhoneNumber,
+          email: item.userMemberEmail,
+          booker: item.userFullname,
+        })));
+      },
+      (err) => {
+        console.error("Lỗi lấy danh sách hành khách:", err);
+        toast.error("Lỗi khi tải danh sách hành khách!", { autoClose: 5000 });
+        setBookings([]);
       }
     );
   }, [id]);
@@ -205,7 +210,7 @@ export default function DetailTour() {
       returnDate: endDateWithTime,
       pickUpTime: pickUpDateTime,
       pickUpLocation: tempData.departure,
-      price: tempData.price, // Gửi giá trị số
+      price: tempData.price,
       totalSeats: parseInt(tempData.maxSeats, 10),
       bookedSeats: parseInt(tempData.bookedSeats, 10),
       status: tempData.status === "Đang mở" ? 0 : tempData.status === "Đang chờ" ? 1 : 2,
@@ -234,7 +239,7 @@ export default function DetailTour() {
           endDate: res.data?.returnDate ? new Date(res.data.returnDate) : tempData.endDate,
           pickUpTime: pickUpTime,
           departure: res.data?.pickUpLocation || tempData.departure,
-          price: res.data?.price || tempData.price, // Lưu dưới dạng số
+          price: res.data?.price || tempData.price,
           bookedSeats: res.data?.bookedSeats || tempData.bookedSeats,
           maxSeats: res.data?.totalSeats || tempData.maxSeats,
           status: res.data?.status === 0 ? "Đang mở" : res.data?.status === 1 ? "Đang chờ" : "Đã hủy",
@@ -271,9 +276,8 @@ export default function DetailTour() {
     toast.success("Thêm phiếu đặt chỗ thành công!", { autoClose: 3000 });
   };
 
-  // Hàm xử lý nhập giá trị giá
   const handlePriceChange = (e) => {
-    const value = e.target.value.replace(/[^0-9]/g, ""); // Chỉ lấy số
+    const value = e.target.value.replace(/[^0-9]/g, "");
     const numericValue = value ? parseFloat(value) : 0;
     setTempData({ ...tempData, price: isNaN(numericValue) ? 0 : numericValue });
   };
@@ -418,16 +422,24 @@ export default function DetailTour() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {bookings.map((booking) => (
-                <TableRow key={booking.id}>
-                  <TableCell>{booking.id}</TableCell>
-                  <TableCell>{booking.fullName}</TableCell>
-                  <TableCell>{booking.gender}</TableCell>
-                  <TableCell>{booking.phone}</TableCell>
-                  <TableCell>{booking.email}</TableCell>
-                  <TableCell>{booking.booker}</TableCell>
+              {bookings.length > 0 ? (
+                bookings.map((booking) => (
+                  <TableRow key={booking.id}>
+                    <TableCell>{`PH${String(booking.id).padStart(3, "0")}`}</TableCell>
+                    <TableCell>{booking.fullName}</TableCell>
+                    <TableCell>{booking.gender}</TableCell>
+                    <TableCell>{booking.phone}</TableCell>
+                    <TableCell>{booking.email}</TableCell>
+                    <TableCell>{booking.booker}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6} align="center">
+                    Không có dữ liệu hành khách
+                  </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </TableContainer>
