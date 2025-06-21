@@ -42,6 +42,7 @@ export default function DetailTourRoute() {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [selectedDayIndex, setSelectedDayIndex] = useState(null);
   const [openAddAttractionDialog, setOpenAddAttractionDialog] = useState(false);
+  const [isItineraryLoading, setIsItineraryLoading] = useState(true);
 
   useEffect(() => {
     // Tải thông tin tuyến du lịch
@@ -75,7 +76,6 @@ export default function DetailTourRoute() {
       `/api/admin/tour-route-attraction/tour-route/${id}`,
       (res) => {
         const attractions = res.data;
-        // Nhóm dữ liệu theo day
         const groupedByDay = attractions.reduce((acc, attraction) => {
           const dayKey = `Ngày ${attraction.day}`;
           if (!acc[dayKey]) {
@@ -95,7 +95,6 @@ export default function DetailTourRoute() {
           return acc;
         }, {});
 
-        // Chuyển thành mảng và sắp xếp theo ngày
         const itineraryData = Object.values(groupedByDay).sort((a, b) => {
           const dayA = parseInt(a.day.split(" ")[1]);
           const dayB = parseInt(b.day.split(" ")[1]);
@@ -103,10 +102,12 @@ export default function DetailTourRoute() {
         });
 
         setItinerary(itineraryData);
+        setIsItineraryLoading(false);
       },
       (err) => {
         console.error("Lỗi khi tải lịch trình:", err);
         toast.error("Lỗi khi tải lịch trình!", { autoClose: 5000 });
+        setIsItineraryLoading(false);
       }
     );
   }, [id]);
@@ -264,6 +265,10 @@ export default function DetailTourRoute() {
   };
 
   const handleOpenAddAttractionDialog = () => {
+    if (isItineraryLoading) {
+      toast.warn("Vui lòng đợi dữ liệu lịch trình tải xong!");
+      return;
+    }
     setOpenAddAttractionDialog(true);
   };
 
@@ -276,14 +281,11 @@ export default function DetailTourRoute() {
       const newItinerary = [...prevItinerary];
       const dayIndex = newItinerary.findIndex((item) => item.day === selectedDay);
       if (dayIndex !== -1) {
-        newItinerary[dayIndex].activities.push({
-          ...newActivity,
-          id: Date.now(), // Tạm thời dùng timestamp làm ID
-        });
+        newItinerary[dayIndex].activities.push(newActivity);
       } else {
         newItinerary.push({
           day: selectedDay,
-          activities: [{ ...newActivity, id: Date.now() }],
+          activities: [newActivity],
         });
         newItinerary.sort((a, b) => {
           const dayA = parseInt(a.day.split(" ")[1]);
@@ -296,12 +298,13 @@ export default function DetailTourRoute() {
     handleCloseAddAttractionDialog();
   };
 
-  if (!tourRoute) return <div>Loading...</div>;
+  if (!tourRoute) return <Typography>Đang tải...</Typography>;
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={viLocale}>
       <Box sx={{ p: 3, maxWidth: "1200px", mx: "auto" }}>
         <ToastContainer />
+        {isItineraryLoading && <Typography>Đang tải lịch trình...</Typography>}
         <Box
           sx={{
             border: "1px solid #ccc",
@@ -320,7 +323,7 @@ export default function DetailTourRoute() {
                     ? tempData.imagePreview
                     : BE_ENDPOINT + (tempData.imagePreview || "/api/asset/view-image/placeholder.jpg")
                 }
-                alt="Tour Route"
+                alt="Tuyến du lịch"
                 sx={{
                   width: 100,
                   height: 100,
@@ -492,9 +495,6 @@ export default function DetailTourRoute() {
                             size="small"
                             sx={{ backgroundColor: "#4D40CA", borderRadius: 10, color: "#fff" }}
                           />
-                          {/* <Typography fontSize="12px" ml={1}>
-                            {activity.actionDescription}
-                          </Typography> */}
                         </Box>
                       </Box>
                     ))}
@@ -522,6 +522,7 @@ export default function DetailTourRoute() {
               day={itinerary[selectedDayIndex]?.day}
               onClose={handleCloseAttractionDialog}
               onSave={handleSaveActivity}
+              tourRouteId={id}
             />
           </DialogContent>
         </Dialog>
@@ -538,6 +539,7 @@ export default function DetailTourRoute() {
               onClose={handleCloseAddAttractionDialog}
               onAdd={handleAddActivity}
               days={itinerary.map((item) => item.day)}
+              itinerary={itinerary}
               tourRouteId={id}
             />
           </DialogContent>
