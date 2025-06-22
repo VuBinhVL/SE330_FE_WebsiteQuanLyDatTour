@@ -30,12 +30,6 @@ const banners = [
       "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80",
     alt: "Banner 2",
   },
-  {
-    id: 3,
-    image:
-      "https://images.unsplash.com/photo-1519046904884-5315520d7548?auto=format&fit=crop&w=1920&q=80",
-    alt: "Banner 3",
-  },
 ];
 
 // Dữ liệu giả cho popular choices
@@ -183,6 +177,9 @@ export default function Banner() {
                 height: "48px",
                 fontSize: "16px",
               },
+              "& .MuiInputBase-input::placeholder": {
+                fontSize: "14px", // Giảm font-size của placeholder để vừa
+              },
             }}
           />
           <TextField
@@ -219,7 +216,8 @@ export default function Banner() {
             startIcon={<SearchIcon />}
             sx={{
               height: "48px",
-              fontSize: "16px",
+              fontSize: "14px", // Giảm font-size của nút Tìm kiếm
+              padding: "0 10px", // Giảm padding để nút nhỏ hơn
             }}
           >
             Tìm kiếm
@@ -235,31 +233,20 @@ export default function Banner() {
             <div key={item.id} className="popular-choice-item">
               <div className="image-wrapper">
                 <img src={item.image} alt={item.name} className="item-image" />
-                {/* <IconButton
-                  className="favorite-icon"
-                  onClick={() => toggleFavorite(item.id)}
-                >
-                  {favorites[item.id] ? (
-                    <FavoriteIcon className="favorite-icon-filled" />
-                  ) : (
-                    <FavoriteBorderIcon />
-                  )}
-                </IconButton> */}
                 <IconButton
-                onClick={() => toggleFavorite(item.id)}
-                style={{
-                  position: "absolute",
-                  top: "8px",
-                  left: "8px",
-                  backgroundColor: "transparent",
-                  color: "#FF0000",
-                  padding: "4px",
-                  zIndex: 100,
-                }}
-              >
-                {favorites[item.id] ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-              </IconButton>
-
+                  onClick={() => toggleFavorite(item.id)}
+                  style={{
+                    position: "absolute",
+                    top: "8px",
+                    left: "8px",
+                    backgroundColor: "transparent",
+                    color: "#FF0000",
+                    padding: "4px",
+                    zIndex: 100,
+                  }}
+                >
+                  {favorites[item.id] ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                </IconButton>
               </div>
               <h3 className="item-name">{item.name}</h3>
               <div className="item-dates">

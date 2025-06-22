@@ -91,7 +91,7 @@
 
 .overlay-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 0.8fr; /* Tăng tỷ lệ cột đầu, giảm cột nút Tìm kiếm */
   gap: 16px;
 }
 
@@ -162,24 +162,8 @@
   margin: auto 10px;
 }
 
-.banner-container .image-wrapper {
-  position: relative !important;
-  width: 100%;
-}
-.favorite-icon {
-  position: absolute;
-  top: 2px !important;
-  left: 2px !important;
-  color: #FF0000;
-  border: 1px solid #FF0000;
-  border-radius: 50%;
-  padding: 4px;
-  background-color: #fff;
-  z-index: 2;
-}
-
-.favorite-icon-filled {
-  color: #fffc2e; /* Màu đỏ đậm khi được chọn */
+.image-wrapper {
+  position: relative; /* Để định vị icon favorite trên ảnh */
 }
 
 .item-image {
@@ -187,8 +171,6 @@
   height: 120px;
   object-fit: cover;
   border-radius: 8px;
-  position: relative;
-  z-index: 1;
 }
 
 .item-name {
@@ -243,9 +225,9 @@
 }
 
 .book-now-button {
-  background-color: #fff;
-  color: #FF0000;
-  border: 1px solid #FF0000;
+  background-color: transparent !important;
+  color: #FF0000 !important;
+  border: 1px solid #FF0000 !important;
   border-radius: 4px;
   font-size: 14px;
   text-transform: none;
@@ -253,7 +235,7 @@
 }
 
 .book-now-button:hover {
-  background-color: #FFE6E6;
+  background-color: #FFE6E6 !important;
 }
 
 /* CSS cho FormControl: Danh sách địa điểm du lịch được ưa thích */
