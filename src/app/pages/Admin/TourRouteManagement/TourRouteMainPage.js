@@ -50,7 +50,7 @@ export default function TourRouteMainPage() {
     const start = new Date(startDate);
     const end = new Date(endDate);
     if (isNaN(start) || isNaN(end)) return "N/A";
-    const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+    const diffDays = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1; // Thêm 1 để tính cả ngày kết thúc
     return diffDays > 0 ? `${diffDays} ngày` : "N/A";
   };
 

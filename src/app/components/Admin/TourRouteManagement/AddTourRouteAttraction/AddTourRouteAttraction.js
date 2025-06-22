@@ -25,6 +25,26 @@ export default function AddTourRouteAttraction({ onClose, onAdd, days, itinerary
   const [categories, setCategories] = useState([]);
   const [touristAttractions, setTouristAttractions] = useState([]);
   const [errors, setErrors] = useState({ day: "", orderAction: "" });
+  const [tourRouteDuration, setTourRouteDuration] = useState(0); // Số ngày của hành trình
+
+  // Tải thông tin tourRoute để tính số ngày
+  useEffect(() => {
+    fetchGet(
+      `/api/admin/tour-route/get/${tourRouteId}`,
+      (res) => {
+        const startDate = new Date(res.data.startDate);
+        const endDate = new Date(res.data.endDate);
+        // Tính số ngày: (endDate - startDate) / (1000 * 60 * 60 * 24) + 1
+        const duration = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+        setTourRouteDuration(duration);
+        console.log("Số ngày của tourRoute:", duration);
+      },
+      (err) => {
+        console.error("Lỗi khi tải thông tin tourRoute:", err);
+        toast.error("Lỗi khi tải thông tin tourRoute!", { autoClose: 5000 });
+      }
+    );
+  }, [tourRouteId]);
 
   // Tải danh sách category
   useEffect(() => {
@@ -93,30 +113,32 @@ export default function AddTourRouteAttraction({ onClose, onAdd, days, itinerary
         }
       }
 
-    // Kiểm tra ràng buộc cho day
-    if (field === "day") {
-      const dayValue = parseInt(value);
-      if (isNaN(dayValue) || dayValue <= 0) {
-        setErrors({ ...errors, day: "Ngày phải lớn hơn 0" });
-      } else if (dayValue >= maxDay + 2) {
-        setErrors({ ...errors, day: `Ngày phải nhỏ hơn ${maxDay + 2}` });
-      } else {
-        setErrors({ ...errors, day: "" });
+      // Kiểm tra ràng buộc cho day
+      if (field === "day") {
+        const dayValue = parseInt(value);
+        if (isNaN(dayValue) || dayValue <= 0) {
+          setErrors({ ...errors, day: "Ngày phải lớn hơn 0" });
+        } else if (dayValue > tourRouteDuration) {
+          setErrors({ ...errors, day: `Ngày phải nhỏ hơn hoặc bằng ${tourRouteDuration}` });
+        } else if (dayValue >= maxDay + 2) {
+          setErrors({ ...errors, day: `Ngày phải nhỏ hơn ${maxDay + 2}` });
+        } else {
+          setErrors({ ...errors, day: "" });
+        }
       }
-    }
 
-    // Kiểm tra ràng buộc cho orderAction
-    if (field === "orderAction") {
-      const orderValue = parseInt(value);
-      const maxOrder = getMaxOrderAction(newData.day);
-      if (isNaN(orderValue) || orderValue <= maxOrder) {
-        setErrors({ ...errors, orderAction: `Thứ tự phải lớn hơn ${maxOrder}` });
-      } else if (orderValue >= maxOrder + 2) {
-        setErrors({ ...errors, orderAction: `Thứ tự phải nhỏ hơn ${maxOrder + 2}` });
-      } else {
-        setErrors({ ...errors, orderAction: "" });
+      // Kiểm tra ràng buộc cho orderAction
+      if (field === "orderAction") {
+        const orderValue = parseInt(value);
+        const maxOrder = getMaxOrderAction(newData.day);
+        if (isNaN(orderValue) || orderValue <= maxOrder) {
+          setErrors({ ...errors, orderAction: `Thứ tự phải lớn hơn ${maxOrder}` });
+        } else if (orderValue >= maxOrder + 2) {
+          setErrors({ ...errors, orderAction: `Thứ tự phải nhỏ hơn ${maxOrder + 2}` });
+        } else {
+          setErrors({ ...errors, orderAction: "" });
+        }
       }
-    }
 
       return newData;
     });
@@ -190,7 +212,7 @@ export default function AddTourRouteAttraction({ onClose, onAdd, days, itinerary
         console.log("Lỗi khi thêm lịch trình:", err);
         toast.error(err.response?.data?.message || "Lỗi khi thêm lịch trình!", { autoClose: 5000 });
       },
-      ()=>{
+      () => {
         console.log("Thêm lịch trình xong");
       }
     );
@@ -263,7 +285,7 @@ export default function AddTourRouteAttraction({ onClose, onAdd, days, itinerary
             disabled={!isEditing}
             error={!!errors.day}
             helperText={errors.day}
-            inputProps={{ min: 1, max: maxDay + 2 }}
+            inputProps={{ min: 1, max: Math.min(maxDay + 2, tourRouteDuration) }}
             sx={{ minWidth: 100 }}
           />
         </Grid>

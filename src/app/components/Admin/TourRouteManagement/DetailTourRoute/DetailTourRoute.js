@@ -44,34 +44,9 @@ export default function DetailTourRoute() {
   const [openAddAttractionDialog, setOpenAddAttractionDialog] = useState(false);
   const [isItineraryLoading, setIsItineraryLoading] = useState(true);
 
-  useEffect(() => {
-    // Tải thông tin tuyến du lịch
-    fetchGet(
-      `/api/admin/tour-route/get/${id}`,
-      (res) => {
-        const tourRouteData = {
-          id: res.data.id,
-          name: res.data.routeName,
-          departure: res.data.startLocation,
-          destination: res.data.endLocation,
-          startDate: res.data.startDate ? new Date(res.data.startDate) : null,
-          endDate: res.data.endDate ? new Date(res.data.endDate) : null,
-          image: res.data.image || "https://via.placeholder.com/36",
-          imagePreview: res.data.image?.startsWith("http")
-            ? res.data.image
-            : BE_ENDPOINT + (res.data.image || "/api/asset/view-image/placeholder.jpg"),
-        };
-        setTourRoute(tourRouteData);
-        setTempData(tourRouteData);
-      },
-      (err) => {
-        console.error("Lỗi khi tải thông tin tuyến du lịch:", err);
-        setTourRoute(null);
-        toast.error("Lỗi khi tải thông tin tuyến du lịch!", { autoClose: 5000 });
-      }
-    );
-
-    // Tải lịch trình theo tourRouteId
+  // Hàm tải lại itinerary từ backend
+  const fetchItinerary = () => {
+    setIsItineraryLoading(true);
     fetchGet(
       `/api/admin/tour-route-attraction/tour-route/${id}`,
       (res) => {
@@ -101,6 +76,11 @@ export default function DetailTourRoute() {
           return dayA - dayB;
         });
 
+        // Sắp xếp activities theo orderAction
+        itineraryData.forEach((day) => {
+          day.activities.sort((a, b) => a.orderAction - b.orderAction);
+        });
+
         setItinerary(itineraryData);
         setIsItineraryLoading(false);
       },
@@ -110,6 +90,37 @@ export default function DetailTourRoute() {
         setIsItineraryLoading(false);
       }
     );
+  };
+
+  useEffect(() => {
+    // Tải thông tin tuyến du lịch
+    fetchGet(
+      `/api/admin/tour-route/get/${id}`,
+      (res) => {
+        const tourRouteData = {
+          id: res.data.id,
+          name: res.data.routeName,
+          departure: res.data.startLocation,
+          destination: res.data.endLocation,
+          startDate: res.data.startDate ? new Date(res.data.startDate) : null,
+          endDate: res.data.endDate ? new Date(res.data.endDate) : null,
+          image: res.data.image || "https://via.placeholder.com/36",
+          imagePreview: res.data.image?.startsWith("http")
+            ? res.data.image
+            : BE_ENDPOINT + (res.data.image || "/api/asset/view-image/placeholder.jpg"),
+        };
+        setTourRoute(tourRouteData);
+        setTempData(tourRouteData);
+      },
+      (err) => {
+        console.error("Lỗi khi tải thông tin tuyến du lịch:", err);
+        setTourRoute(null);
+        toast.error("Lỗi khi tải thông tin tuyến du lịch!", { autoClose: 5000 });
+      }
+    );
+
+    // Tải lịch trình
+    fetchItinerary();
   }, [id]);
 
   const handleImageChange = (e) => {
@@ -254,15 +265,8 @@ export default function DetailTourRoute() {
     fetchDelete(
       `/api/admin/tour-route-attraction/delete/${activityId}`,
       (res) => {
-        // Cập nhật state itinerary để xóa hoạt động
-        setItinerary((prevItinerary) => {
-          const newItinerary = [...prevItinerary];
-          const activities = [...newItinerary[dayIndex].activities];
-          const updatedActivities = activities.filter((act) => act.id !== activityId);
-          newItinerary[dayIndex].activities = updatedActivities;
-          // Loại bỏ ngày nếu không còn hoạt động
-          return newItinerary.filter((day) => day.activities.length > 0);
-        });
+        // Tải lại danh sách itinerary từ backend để đảm bảo đồng bộ
+        fetchItinerary();
         toast.success(res.message || "Xóa hoạt động thành công!", { autoClose: 3000 });
       },
       (err) => {
@@ -282,14 +286,8 @@ export default function DetailTourRoute() {
   };
 
   const handleSaveActivity = (updatedActivity) => {
-    setItinerary((prevItinerary) => {
-      const newItinerary = [...prevItinerary];
-      const activities = [...newItinerary[selectedDayIndex].activities];
-      const activityIndex = activities.findIndex((act) => act.id === selectedActivity.id);
-      activities[activityIndex] = updatedActivity;
-      newItinerary[selectedDayIndex].activities = activities;
-      return newItinerary;
-    });
+    // Tải lại dữ liệu từ backend để đảm bảo đồng bộ
+    fetchItinerary();
     handleCloseAttractionDialog();
   };
 
@@ -311,6 +309,8 @@ export default function DetailTourRoute() {
       const dayIndex = newItinerary.findIndex((item) => item.day === selectedDay);
       if (dayIndex !== -1) {
         newItinerary[dayIndex].activities.push(newActivity);
+        // Sắp xếp lại activities theo orderAction
+        newItinerary[dayIndex].activities.sort((a, b) => a.orderAction - b.orderAction);
       } else {
         newItinerary.push({
           day: selectedDay,
@@ -325,6 +325,8 @@ export default function DetailTourRoute() {
       return newItinerary;
     });
     handleCloseAddAttractionDialog();
+    // Tải lại dữ liệu từ backend để đảm bảo đồng bộ
+    fetchItinerary();
   };
 
   if (!tourRoute) return <Typography>Đang tải...</Typography>;
@@ -469,68 +471,70 @@ export default function DetailTourRoute() {
                       <Typography variant="subtitle1" fontWeight="bold">
                         {day.day}
                       </Typography>
-                      <IconButton size="small" color="success">
+                      {/* <IconButton size="small" color="success">
                         <AddCircleOutlineIcon fontSize="small" />
-                      </IconButton>
+                      </IconButton> */}
                     </Box>
-                    {day.activities.map((activity, i) => (
-                      <Box
-                        key={activity.id}
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          mb: 2,
-                          p: 1,
-                          border: "1px solid #ddd",
-                          borderRadius: 1,
-                        }}
-                      >
+                    {day.activities
+                      .sort((a, b) => a.orderAction - b.orderAction)
+                      .map((activity, i) => (
                         <Box
+                          key={activity.id}
                           sx={{
                             display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            pl: 1,
-                            borderLeft: "3px solid",
-                            borderImage: "linear-gradient(to bottom, red, orange, yellow, green, blue, indigo, violet) 1",
+                            flexDirection: "column",
+                            mb: 2,
+                            p: 1,
+                            border: "1px solid #ddd",
+                            borderRadius: 1,
                           }}
                         >
-                          <Typography fontSize="14px">{activity.Tourist_Attraction_Name}</Typography>
-                          <Box>
-                            <Tooltip title="Sửa">
-                              <IconButton
-                                size="small"
-                                color="primary"
-                                onClick={() => handleEditActivity(dayIndex, activity)}
-                              >
-                                <ModeEditOutlineIcon fontSize="inherit" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Xóa hoạt động">
-                              <IconButton
-                                size="small"
-                                color="error"
-                                onClick={() => handleDeleteActivity(dayIndex, activity.id)}
-                              >
-                                <DeleteIcon fontSize="inherit" />
-                              </IconButton>
-                            </Tooltip>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              pl: 1,
+                              borderLeft: "3px solid",
+                              borderImage: "linear-gradient(to bottom, red, orange, yellow, green, blue, indigo, violet) 1",
+                            }}
+                          >
+                            <Typography fontSize="14px">{activity.Tourist_Attraction_Name}</Typography>
+                            <Box>
+                              <Tooltip title="Sửa">
+                                <IconButton
+                                  size="small"
+                                  color="primary"
+                                  onClick={() => handleEditActivity(dayIndex, activity)}
+                                >
+                                  <ModeEditOutlineIcon fontSize="inherit" />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Xóa hoạt động">
+                                <IconButton
+                                  size="small"
+                                  color="error"
+                                  onClick={() => handleDeleteActivity(dayIndex, activity.id)}
+                                >
+                                  <DeleteIcon fontSize="inherit" />
+                                </IconButton>
+                              </Tooltip>
+                            </Box>
+                          </Box>
+                          <Box
+                            display="flex"
+                            justifyContent="flex-start"
+                            alignItems="center"
+                            mt={1}
+                          >
+                            <Chip
+                              label={activity.category}
+                              size="small"
+                              sx={{ backgroundColor: "#4D40CA", borderRadius: 10, color: "#fff" }}
+                            />
                           </Box>
                         </Box>
-                        <Box
-                          display="flex"
-                          justifyContent="flex-start"
-                          alignItems="center"
-                          mt={1}
-                        >
-                          <Chip
-                            label={activity.category}
-                            size="small"
-                            sx={{ backgroundColor: "#4D40CA", borderRadius: 10, color: "#fff" }}
-                          />
-                        </Box>
-                      </Box>
-                    ))}
+                      ))}
                   </Paper>
                 </Grid>
               );

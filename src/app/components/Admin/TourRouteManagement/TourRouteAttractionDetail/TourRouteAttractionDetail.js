@@ -13,7 +13,7 @@ import {
 import { fetchGet, fetchPut } from "../../../../lib/httpHandler";
 import { toast } from "react-toastify";
 
-export default function TourRouteAttractionDetail({ activity, day, onClose, onSave, tourRouteId, itinerary }) {
+export default function TourRouteAttractionDetail({ activity, onClose, onSave, tourRouteId, itinerary }) {
   const [isEditing, setIsEditing] = useState(true);
   const [tempData, setTempData] = useState({
     touristAttractionId: "",
@@ -24,7 +24,7 @@ export default function TourRouteAttractionDetail({ activity, day, onClose, onSa
   });
   const [categories, setCategories] = useState([]);
   const [touristAttractions, setTouristAttractions] = useState([]);
-  const [errors, setErrors] = useState({ orderAction: "" });
+  const [errors, setErrors] = useState({ orderAction: "", day: "" });
 
   // Tải danh sách category
   useEffect(() => {
@@ -37,9 +37,6 @@ export default function TourRouteAttractionDetail({ activity, day, onClose, onSa
       (err) => {
         console.error("Lỗi khi tải danh sách category:", err);
         toast.error("Lỗi khi tải danh sách category!", { autoClose: 5000 });
-      },
-      () => {
-        console.log("Tải danh sách category xong");
       }
     );
   }, []);
@@ -55,14 +52,11 @@ export default function TourRouteAttractionDetail({ activity, day, onClose, onSa
       (err) => {
         console.error("Lỗi khi tải danh sách điểm tham quan:", err);
         toast.error("Lỗi khi tải danh sách điểm tham quan!", { autoClose: 5000 });
-      },
-      () => {
-        console.log("Tải danh sách điểm tham quan xong");
       }
     );
   }, []);
 
-  // Khởi tạo touristAttractionId và categoryId khi dữ liệu sẵn sàng
+  // Khởi tạo touristAttractionId và categoryId
   useEffect(() => {
     if (touristAttractions.length > 0 && activity?.Tourist_Attraction_Name) {
       const selectedAttraction = touristAttractions.find((attr) => attr.name === activity.Tourist_Attraction_Name);
@@ -89,6 +83,14 @@ export default function TourRouteAttractionDetail({ activity, day, onClose, onSa
     return Math.max(...selectedDay.activities.map((act) => act.orderAction || 0));
   };
 
+  // Lấy danh sách ngày từ itinerary
+  const getAvailableDays = () => {
+    if (!itinerary || !Array.isArray(itinerary)) {
+      return [];
+    }
+    return itinerary.map((item) => parseInt(item.day.replace("Ngày ", "")));
+  };
+
   // Xử lý thay đổi input và kiểm tra ràng buộc
   const handleInputChange = (field, value) => {
     setTempData((prev) => {
@@ -109,12 +111,23 @@ export default function TourRouteAttractionDetail({ activity, day, onClose, onSa
       if (field === "orderAction") {
         const orderValue = parseInt(value);
         const maxOrder = getMaxOrderAction(newData.day);
-        if (isNaN(orderValue) || orderValue <= maxOrder) {
-          setErrors({ ...errors, orderAction: `Thứ tự phải lớn hơn ${maxOrder}` });
-        } else if (orderValue > maxOrder + 2) {
-          setErrors({ ...errors, orderAction: `Thứ tự phải nhỏ hơn hoặc bằng ${maxOrder + 2}` });
+        if (isNaN(orderValue) || orderValue < 1) {
+          setErrors({ ...errors, orderAction: "Thứ tự phải là số nguyên dương" });
+        } else if (orderValue > maxOrder) {
+          setErrors({ ...errors, orderAction: `Thứ tự phải nhỏ hơn hoặc bằng ${maxOrder}` });
         } else {
           setErrors({ ...errors, orderAction: "" });
+        }
+      }
+
+      // Kiểm tra ràng buộc cho day
+      if (field === "day") {
+        const dayValue = parseInt(value);
+        const availableDays = getAvailableDays();
+        if (!availableDays.includes(dayValue)) {
+          setErrors({ ...errors, day: "Vui lòng chọn ngày hợp lệ" });
+        } else {
+          setErrors({ ...errors, day: "" });
         }
       }
 
@@ -130,18 +143,22 @@ export default function TourRouteAttractionDetail({ activity, day, onClose, onSa
       orderAction: activity?.orderAction || "",
       actionDescription: activity?.actionDescription || "",
     });
-    setErrors({ orderAction: "" });
+    setErrors({ orderAction: "", day: "" });
     onClose();
   };
 
   const handleConfirmEdit = () => {
     // Kiểm tra ràng buộc
     if (!tempData.touristAttractionId) {
-      toast.error("Vui lòng chọn điểm tham quan!");
+      toast.error("Vui lòng chọn điểm tham quan!", { autoClose: 5000 });
+      return;
+    }
+    if (!tempData.day || errors.day) {
+      toast.error(errors.day || "Vui lòng chọn ngày hợp lệ!", { autoClose: 5000 });
       return;
     }
     if (!tempData.orderAction || errors.orderAction) {
-      toast.error(errors.orderAction || "Vui lòng nhập thứ tự hợp lệ!");
+      toast.error(errors.orderAction || "Vui lòng nhập thứ tự hợp lệ!", { autoClose: 5000 });
       return;
     }
 
@@ -166,25 +183,25 @@ export default function TourRouteAttractionDetail({ activity, day, onClose, onSa
         const selectedAttraction = touristAttractions.find((attr) => attr.id === tempData.touristAttractionId);
         const selectedCategory = categories.find((cat) => cat.name === selectedAttraction?.categoryName);
 
-        // Cập nhật state cục bộ qua onSave
-        onSave({
+        // Cập nhật hoạt động đã chỉnh sửa
+        const updatedActivity = {
           id: activity.id,
           Tourist_Attraction_Name: selectedAttraction?.name || "",
           category: selectedCategory?.name || "",
           actionDescription: tempData.actionDescription,
           orderAction: parseInt(tempData.orderAction),
           day: parseInt(tempData.day),
-        });
+        };
+
+        // Gọi onSave với thông tin hoạt động đã cập nhật
+        onSave(updatedActivity);
 
         toast.success("Cập nhật lịch trình thành công!", { autoClose: 3000 });
         onClose();
       },
       (err) => {
         console.error("Lỗi khi cập nhật lịch trình:", err);
-        toast.error(err.response?.data?.message || "Lỗi khi cập nhật lịch trình!", { autoClose: 5000 });
-      },
-      () => {
-        console.log("Cập nhật hoàn tất");
+        toast.error(err.data?.message || "Lỗi khi cập nhật lịch trình!", { autoClose: 5000 });
       }
     );
   };
@@ -247,14 +264,25 @@ export default function TourRouteAttractionDetail({ activity, day, onClose, onSa
           </FormControl>
         </Grid>
         <Grid item xs={4}>
-          <TextField
-            label="Ngày thứ"
-            type="number"
-            fullWidth
-            value={tempData.day}
-            disabled={true}
-            sx={{ minWidth: 100 }}
-          />
+          <FormControl fullWidth sx={{ minWidth: 100 }}>
+            <InputLabel>Ngày thứ</InputLabel>
+            <Select
+              value={tempData.day}
+              onChange={(e) => handleInputChange("day", e.target.value)}
+              disabled={true}
+              label="Ngày thứ"
+            >
+              {getAvailableDays().length === 0 ? (
+                <MenuItem disabled>Không có ngày</MenuItem>
+              ) : (
+                getAvailableDays().map((day) => (
+                  <MenuItem key={day} value={day}>
+                    Ngày {day}
+                  </MenuItem>
+                ))
+              )}
+            </Select>
+          </FormControl>
         </Grid>
         <Grid item xs={4}>
           <TextField
