@@ -1,4 +1,327 @@
-.abc {
-  font-style: italic;
-  color: red;
+.banner-container {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  background-color: #FFF;
+}
+
+.banner-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.banner-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  z-index: 2;
+  padding: 10px;
+  border-radius: 50%;
+}
+
+.banner-arrow-left {
+  left: 20px;
+  top: auto;
+  color: #FFF !important;
+  background-color: #C34141 !important;
+}
+
+.banner-arrow-right {
+  right: 20px;
+  top: auto;
+  color: #FFF !important;
+  background-color: #C34141 !important;
+}
+
+.banner-indicators {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 2;
+}
+
+.indicator {
+  width: 12px;
+  height: 12px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.indicator.active {
+  background-color: white;
+}
+
+.overlay-text {
+  position: absolute;
+  bottom: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #fff;
+  color: #000;
+  padding: 30px 40px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: normal;
+  text-align: center;
+  z-index: 3;
+  width: 80%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.overlay-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+.overlay-header span {
+  font-weight: bold;
+  font-size: 18px;
+  text-align: left;
+}
+
+.overlay-inputs .MuiInputBase-root,
+.overlay-inputs .MuiButton-root {
+  height: 48px;
+  box-sizing: border-box;
+  font-size: 16px;
+  border-radius: 6px;
+}
+
+.overlay-inputs .MuiInputBase-input {
+  padding: 12px;
+}
+
+.overlay-inputs .MuiSelect-select {
+  padding: 12px !important;
+}
+
+.overlay-inputs .MuiOutlinedInput-notchedOutline {
+  border: 1px solid #ccc;
+}
+
+/* CSS cho FormControl: Lựa chọn du lịch được yêu thích */
+.popular-choices-container {
+  width: 90%;
+  margin: 120px auto 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.popular-choices-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #000;
+  text-align: left;
+  margin-top: 10px;
+  margin-left: 20px;
+  width: 100%;
+}
+
+.popular-choices-items {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+.popular-choice-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: auto 10px;
+}
+
+.banner-container .image-wrapper {
+  position: relative !important;
+  width: 100%;
+}
+.favorite-icon {
+  position: absolute;
+  top: 2px !important;
+  left: 2px !important;
+  color: #FF0000;
+  border: 1px solid #FF0000;
+  border-radius: 50%;
+  padding: 4px;
+  background-color: #fff;
+  z-index: 2;
+}
+
+.favorite-icon-filled {
+  color: #fffc2e; /* Màu đỏ đậm khi được chọn */
+}
+
+.item-image {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.item-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #000;
+  margin: 0;
+}
+
+.item-dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.date-chip {
+  background-color: #fff;
+  color: #FF0000;
+  border: 1px solid #FF0000;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 14px;
+}
+
+.item-duration {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #000;
+}
+
+.duration-icon {
+  font-size: 16px;
+}
+
+.item-price {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.price-label {
+  font-size: 14px;
+  color: #000;
+}
+
+.price-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #FF0000;
+}
+
+.book-now-button {
+  background-color: #fff;
+  color: #FF0000;
+  border: 1px solid #FF0000;
+  border-radius: 4px;
+  font-size: 14px;
+  text-transform: none;
+  padding: 8px;
+}
+
+.book-now-button:hover {
+  background-color: #FFE6E6;
+}
+
+/* CSS cho FormControl: Danh sách địa điểm du lịch được ưa thích */
+.favorite-destinations-container {
+  width: 90%;
+  margin: 40px auto; /* Margin top và bottom */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.favorite-destinations-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #000;
+  text-align: left;
+  margin-top: 10px;
+  margin-left: 20px;
+  width: 100%;
+}
+
+.favorite-destinations-items {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+.favorite-destination-item {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: auto 5px; /* Giảm margin để item ngắn hơn */
+}
+
+.destination-image {
+  width: 100%;
+  height: 150px; /* Tăng chiều cao */
+  object-fit: cover;
+  display: block;
+}
+
+.destination-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Lớp màn tối */
+}
+
+.destination-name {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.view-more-button {
+  width: calc(40% + 16px);
+  height: 48px;
+  font-size: 16px;
+  text-transform: none;
 }
