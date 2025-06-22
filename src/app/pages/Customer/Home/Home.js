@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Home.css";
 import { 
   IconButton, 
@@ -9,12 +9,14 @@ import {
   Button, 
   TextField 
 } from "@mui/material";
+import { toast } from "react-toastify";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import SearchIcon from "@mui/icons-material/Search";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import { BE_ENDPOINT, fetchGet } from "../../../lib/httpHandler";
 
 // Dữ liệu mẫu cho banner (ảnh tĩnh)
 const banners = [
@@ -76,38 +78,10 @@ const popularChoices = [
   },
 ];
 
-// Dữ liệu giả cho favorite destinations
-const favoriteDestinations = [
-  {
-    id: 1,
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=300&q=80",
-    name: "Hà Nội",
-  },
-  {
-    id: 2,
-    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=300&q=80",
-    name: "Đà Lạt",
-  },
-  {
-    id: 3,
-    image: "https://images.unsplash.com/photo-1519046904884-5315520d7548?auto=format&fit=crop&w=300&q=80",
-    name: "Phú Quốc",
-  },
-  {
-    id: 4,
-    image: "https://images.unsplash.com/photo-1496412705862-e0088f16f791?auto=format&fit=crop&w=300&q=80",
-    name: "Hội An",
-  },
-  {
-    id: 5,
-    image: "https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=300&q=80",
-    name: "Sapa",
-  },
-];
-
 export default function Banner() {
   const [currentBanner, setCurrentBanner] = useState(0);
-  const [favorites, setFavorites] = useState({}); // Trạng thái để theo dõi favorite
+  const [favorites, setFavorites] = useState({});
+  const [favoriteDestinations, setFavoriteDestinations] = useState([]); // Khởi tạo mảng rỗng
 
   const handlePrevBanner = () => {
     setCurrentBanner((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
@@ -120,9 +94,39 @@ export default function Banner() {
   const toggleFavorite = (id) => {
     setFavorites((prev) => ({
       ...prev,
-      [id]: !prev[id], // Chuyển đổi trạng thái favorite cho item
+      [id]: !prev[id],
     }));
   };
+
+  // Gọi API khi component mount
+  useEffect(() => {
+    const fetchFavoriteDestinations = () => {
+      fetchGet(
+        "/api/admin/tourist-attraction/top-5-favorite",
+        (response) => {
+          if (response?.data) {
+            setFavoriteDestinations(response.data); 
+            toast.success(response.data.message, { autoClose: 3000 });
+          } else {
+            toast.error("Dữ liệu API không đúng định dạng!", { autoClose: 5000 });
+          }
+        },
+        (err) => {
+          console.log("Lỗi khi lấy top 5 địa điểm du lịch:", err);
+          toast.error(err?.data?.message || "Lấy dữ liệu thất bại!", {
+            autoClose: 5000,
+          });
+        },
+        () => {
+          toast.error("Đã xảy ra lỗi mạng!", {
+            autoClose: 5000,
+          });
+        }
+      );
+    };
+
+    fetchFavoriteDestinations();
+  }, []);
 
   return (
     <div className="banner-container">
@@ -178,7 +182,7 @@ export default function Banner() {
                 fontSize: "16px",
               },
               "& .MuiInputBase-input::placeholder": {
-                fontSize: "14px", // Giảm font-size của placeholder để vừa
+                fontSize: "14px",
               },
             }}
           />
@@ -216,8 +220,8 @@ export default function Banner() {
             startIcon={<SearchIcon />}
             sx={{
               height: "48px",
-              fontSize: "14px", // Giảm font-size của nút Tìm kiếm
-              padding: "0 10px", // Giảm padding để nút nhỏ hơn
+              fontSize: "14px",
+              padding: "0 10px",
             }}
           >
             Tìm kiếm
@@ -284,13 +288,21 @@ export default function Banner() {
       <div className="favorite-destinations-container">
         <h2 className="favorite-destinations-title">Danh sách địa điểm du lịch được ưa thích</h2>
         <div className="favorite-destinations-items">
-          {favoriteDestinations.map((item) => (
-            <div key={item.id} className="favorite-destination-item">
-              <img src={item.image} alt={item.name} className="destination-image" />
-              <div className="destination-overlay"></div>
-              <h3 className="destination-name">{item.name}</h3>
-            </div>
-          ))}
+          {Array.isArray(favoriteDestinations) && favoriteDestinations.length > 0 ? (
+            favoriteDestinations.map((item) => (
+              <div key={item.id} className="favorite-destination-item">
+                <img
+                  src={item.image || "https://via.placeholder.com/300"}
+                  alt={item.name}
+                  className="destination-image"
+                />
+                <div className="destination-overlay"></div>
+                <h3 className="destination-name">{item.name}</h3>
+              </div>
+            ))
+          ) : (
+            <p>Đang tải dữ liệu...</p>
+          )}
         </div>
       </div>
     </div>
