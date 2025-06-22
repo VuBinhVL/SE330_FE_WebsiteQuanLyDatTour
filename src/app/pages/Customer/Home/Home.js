@@ -34,54 +34,11 @@ const banners = [
   },
 ];
 
-// Dữ liệu giả cho popular choices
-const popularChoices = [
-  {
-    id: 1,
-    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=300&q=80",
-    name: "Hà Nội - Sapa",
-    dates: ["01/03", "04/03", "15/03", "20/04"],
-    duration: "5 ngày",
-    price: "8.000.000 VND",
-  },
-  {
-    id: 2,
-    image: "https://images.unsplash.com/photo-1519046904884-5315520d7548?auto=format&fit=crop&w=300&q=80",
-    name: "Đà Nẵng - Hội An",
-    dates: ["02/03", "05/03", "10/03", "25/04"],
-    duration: "4 ngày",
-    price: "7.500.000 VND",
-  },
-  {
-    id: 3,
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=300&q=80",
-    name: "Phú Quốc",
-    dates: ["03/03", "06/03", "12/03", "22/04"],
-    duration: "3 ngày",
-    price: "9.000.000 VND",
-  },
-  {
-    id: 4,
-    image: "https://images.unsplash.com/photo-1496412705862-e0088f16f791?auto=format&fit=crop&w=300&q=80",
-    name: "Hà Nội - Hạ Long",
-    dates: ["04/03", "07/03", "14/03", "21/04"],
-    duration: "2 ngày",
-    price: "5.000.000 VND",
-  },
-  {
-    id: 5,
-    image: "https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=300&q=80",
-    name: "Nha Trang",
-    dates: ["05/03", "08/03", "16/03", "23/04"],
-    duration: "5 ngày",
-    price: "8.500.000 VND",
-  },
-];
-
 export default function Banner() {
   const [currentBanner, setCurrentBanner] = useState(0);
   const [favorites, setFavorites] = useState({});
-  const [favoriteDestinations, setFavoriteDestinations] = useState([]); // Khởi tạo mảng rỗng
+  const [favoriteDestinations, setFavoriteDestinations] = useState([]);
+  const [popularChoices, setPopularChoices] = useState([]); // State cho dữ liệu động
 
   const handlePrevBanner = () => {
     setCurrentBanner((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
@@ -98,15 +55,29 @@ export default function Banner() {
     }));
   };
 
-  // Gọi API khi component mount
+  // Format LocalDateTime thành DD/MM
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    return `${day}/${month}`;
+  };
+
+  // Format giá thành X.XXX.XXX VND
+  const formatPrice = (price) => {
+    if (!price) return "0 VND";
+    return `${Math.round(price).toLocaleString("vi-VN")} VND`;
+  };
+
+  // Gọi API cho favoriteDestinations
   useEffect(() => {
     const fetchFavoriteDestinations = () => {
       fetchGet(
         "/api/admin/tourist-attraction/top-5-favorite",
         (response) => {
           if (response?.data) {
-            setFavoriteDestinations(response.data); 
-            toast.success(response.data.message, { autoClose: 3000 });
+            setFavoriteDestinations(response.data);
           } else {
             toast.error("Dữ liệu API không đúng định dạng!", { autoClose: 5000 });
           }
@@ -126,6 +97,43 @@ export default function Banner() {
     };
 
     fetchFavoriteDestinations();
+  }, []);
+
+  // Gọi API cho popularChoices
+  useEffect(() => {
+    const fetchPopularTourRoutes = () => {
+      fetchGet(
+        "/api/admin/tour/top-5-popular-tour-routes",
+        (response) => {
+          if (response?.data) {
+            const formattedData = response.data.map((item) => ({
+              id: item.id,
+              name: item.routeName,
+              image: item.image || "https://via.placeholder.com/300",
+              dates: item.recentStartDates ? item.recentStartDates.map(formatDate) : [],
+              duration: item.durationDays ? `${item.durationDays} ngày` : "0 ngày",
+              price: formatPrice(item.latestPrice),
+            }));
+            setPopularChoices(formattedData);
+          } else {
+            toast.error("Dữ liệu API không đúng định dạng!", { autoClose: 5000 });
+          }
+        },
+        (err) => {
+          console.log("Lỗi khi lấy top 5 tuyến du lịch:", err);
+          toast.error(err?.data?.message || "Lấy dữ liệu thất bại!", {
+            autoClose: 5000,
+          });
+        },
+        () => {
+          toast.error("Đã xảy ra lỗi mạng!", {
+            autoClose: 5000,
+          });
+        }
+      );
+    };
+
+    fetchPopularTourRoutes();
   }, []);
 
   return (
@@ -233,47 +241,51 @@ export default function Banner() {
       <div className="popular-choices-container">
         <h2 className="popular-choices-title">Lựa chọn du lịch được yêu thích</h2>
         <div className="popular-choices-items">
-          {popularChoices.map((item) => (
-            <div key={item.id} className="popular-choice-item">
-              <div className="image-wrapper">
-                <img src={item.image} alt={item.name} className="item-image" />
-                <IconButton
-                  onClick={() => toggleFavorite(item.id)}
-                  style={{
-                    position: "absolute",
-                    top: "8px",
-                    left: "8px",
-                    backgroundColor: "transparent",
-                    color: "#FF0000",
-                    padding: "4px",
-                    zIndex: 100,
-                  }}
+          {Array.isArray(popularChoices) && popularChoices.length > 0 ? (
+            popularChoices.map((item) => (
+              <div key={item.id} className="popular-choice-item">
+                <div className="image-wrapper">
+                  <img src={item.image} alt={item.name} className="item-image" />
+                  <IconButton
+                    onClick={() => toggleFavorite(item.id)}
+                    style={{
+                      position: "absolute",
+                      top: "8px",
+                      left: "8px",
+                      backgroundColor: "transparent",
+                      color: "#FF0000",
+                      padding: "4px",
+                      zIndex: 100,
+                    }}
+                  >
+                    {favorites[item.id] ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                  </IconButton>
+                </div>
+                <h3 className="item-name">{item.name}</h3>
+                <div className="item-dates">
+                  {item.dates.map((date, index) => (
+                    <span key={index} className="date-chip">{date}</span>
+                  ))}
+                </div>
+                <div className="item-duration">
+                  <AccessTimeIcon className="duration-icon" />
+                  <span>{item.duration}</span>
+                </div>
+                <div className="item-price">
+                  <span className="price-label">Giá từ:</span>
+                  <span className="price-value">{item.price}</span>
+                </div>
+                <Button
+                  variant="outlined"
+                  className="book-now-button"
                 >
-                  {favorites[item.id] ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                </IconButton>
+                  Đặt ngay
+                </Button>
               </div>
-              <h3 className="item-name">{item.name}</h3>
-              <div className="item-dates">
-                {item.dates.map((date, index) => (
-                  <span key={index} className="date-chip">{date}</span>
-                ))}
-              </div>
-              <div className="item-duration">
-                <AccessTimeIcon className="duration-icon" />
-                <span>{item.duration}</span>
-              </div>
-              <div className="item-price">
-                <span className="price-label">Giá từ:</span>
-                <span className="price-value">{item.price}</span>
-              </div>
-              <Button
-                variant="outlined"
-                className="book-now-button"
-              >
-                Đặt ngay
-              </Button>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p>Đang tải dữ liệu...</p>
+          )}
         </div>
         <Button
           variant="outlined"
