@@ -71,7 +71,7 @@ export default function TourMainPage() {
                 ? "Hoàn thành"
                 : "Không xác định",
             price: tour.price.toLocaleString("vi-VN") + " VND",
-            quantity: tour.totalSeats - tour.bookedSeats,
+            quantity: tour.totalSeats,
           }));
 
           setTours(mappedTours || []);
