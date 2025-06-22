@@ -40,8 +40,8 @@ export default function DetailTour() {
   const [bookings, setBookings] = useState([]);
   const [openAddBookingDialog, setOpenAddBookingDialog] = useState(false);
 
-  useEffect(() => {
-    // Lấy thông tin tour
+  // Hàm lấy thông tin tour
+  const fetchTourData = () => {
     fetchGet(
       `/api/admin/tour/get/${id}`,
       async (res) => {
@@ -70,7 +70,16 @@ export default function DetailTour() {
                 price: res.data.price,
                 bookedSeats: res.data.bookedSeats || 0,
                 maxSeats: res.data.totalSeats || 30,
-                status: res.data.status === 0 ? "Đang mở" : res.data.status === 1 ? "Đang chờ" : "Đã hủy",
+                status:
+                  res.data.status === 0
+                    ? "Hoạt động"
+                    : res.data.status === 1
+                    ? "Đã hủy"
+                    : res.data.status === 2
+                    ? "Hết vé"
+                    : res.data.status === 3
+                    ? "Hoàn thành"
+                    : "Không xác định",
               };
               setTour(tourData);
               setTempData(tourData);
@@ -96,7 +105,16 @@ export default function DetailTour() {
                 price: res.data.price,
                 bookedSeats: res.data.bookedSeats || 0,
                 maxSeats: res.data.totalSeats || 30,
-                status: res.data.status === 0 ? "Đang mở" : res.data.status === 1 ? "Đang chờ" : "Đã hủy",
+                status:
+                  res.data.status === 0
+                    ? "Hoạt động"
+                    : res.data.status === 1
+                    ? "Đã hủy"
+                    : res.data.status === 2
+                    ? "Hết vé"
+                    : res.data.status === 3
+                    ? "Hoàn thành"
+                    : "Không xác định",
               };
               setTour(tourData);
               setTempData(tourData);
@@ -112,20 +130,24 @@ export default function DetailTour() {
         toast.error("Lỗi khi tải thông tin tour!", { autoClose: 5000 });
       }
     );
+  };
 
-    // Lấy danh sách hành khách
+  // Hàm lấy danh sách hành khách
+  const fetchBookingsData = () => {
     fetchGet(
       `/api/admin/tour/get-list-tour-booking/${id}`,
       (res) => {
         console.log("Dữ liệu bookings:", res.data);
-        setBookings(res.data.map((item) => ({
-          id: item.tourBookingId,
-          fullName: item.userMemberFullname,
-          gender: item.userMemberSex ? "Nam" : "Nữ",
-          phone: item.userMemberPhoneNumber,
-          email: item.userMemberEmail,
-          booker: item.userFullname,
-        })));
+        setBookings(
+          res.data.map((item) => ({
+            id: item.tourBookingId,
+            fullName: item.userMemberFullname,
+            gender: item.userMemberSex ? "Nam" : "Nữ",
+            phone: item.userMemberPhoneNumber,
+            email: item.userMemberEmail,
+            booker: item.userFullname,
+          }))
+        );
       },
       (err) => {
         console.error("Lỗi lấy danh sách hành khách:", err);
@@ -133,6 +155,11 @@ export default function DetailTour() {
         setBookings([]);
       }
     );
+  };
+
+  useEffect(() => {
+    fetchTourData();
+    fetchBookingsData();
   }, [id]);
 
   const handleToggleEdit = () => {
@@ -183,7 +210,9 @@ export default function DetailTour() {
 
     if (!tempData?.status) {
       errors.push("Trạng thái không được để trống");
-    } else if (!["Đang mở", "Đang chờ", "Đã hủy"].includes(tempData.status)) {
+    } else if (
+      !["Hoạt động", "Đã hủy", "Hết vé", "Hoàn thành"].includes(tempData.status)
+    ) {
       errors.push("Trạng thái không hợp lệ");
     }
 
@@ -213,7 +242,14 @@ export default function DetailTour() {
       price: tempData.price,
       totalSeats: parseInt(tempData.maxSeats, 10),
       bookedSeats: parseInt(tempData.bookedSeats, 10),
-      status: tempData.status === "Đang mở" ? 0 : tempData.status === "Đang chờ" ? 1 : 2,
+      status:
+        tempData.status === "Hoạt động"
+          ? 0
+          : tempData.status === "Đã hủy"
+          ? 1
+          : tempData.status === "Hết vé"
+          ? 2
+          : 3,
     };
 
     console.log("Dữ liệu gửi đi:", tourRouteDTO);
@@ -233,16 +269,27 @@ export default function DetailTour() {
         const updatedTour = {
           ...tempData,
           id: res.data?.id || tempData.id,
-          tourId: res.data?.id ? `TOUR${String(res.data.id).padStart(3, "0")}` : tempData.tourId,
+          tourId: res.data?.id
+            ? `TOUR${String(res.data.id).padStart(3, "0")}`
+            : tempData.tourId,
           name: res.data?.routeName || tempData.name,
-          startDate: res.data?.depatureDate ? new Date(res.data.depatureDate) : tempData.startDate,
+          startDate: res.data?.depatureDate
+            ? new Date(res.data.depatureDate)
+            : tempData.startDate,
           endDate: res.data?.returnDate ? new Date(res.data.returnDate) : tempData.endDate,
           pickUpTime: pickUpTime,
           departure: res.data?.pickUpLocation || tempData.departure,
           price: res.data?.price || tempData.price,
           bookedSeats: res.data?.bookedSeats || tempData.bookedSeats,
           maxSeats: res.data?.totalSeats || tempData.maxSeats,
-          status: res.data?.status === 0 ? "Đang mở" : res.data?.status === 1 ? "Đang chờ" : "Đã hủy",
+          status:
+            res.data?.status === 0
+              ? "Hoạt động"
+              : res.data?.status === 1
+              ? "Đã hủy"
+              : res.data?.status === 2
+              ? "Hết vé"
+              : "Hoàn thành",
         };
 
         setTour(updatedTour);
@@ -255,9 +302,12 @@ export default function DetailTour() {
       },
       (err) => {
         console.error("Lỗi chi tiết:", err.response?.data);
-        toast.error(err.response?.data?.message || "Đã có lỗi xảy ra khi cập nhật tuyến du lịch", {
-          autoClose: 5000,
-        });
+        toast.error(
+          err.response?.data?.message || "Đã có lỗi xảy ra khi cập nhật tuyến du lịch",
+          {
+            autoClose: 5000,
+          }
+        );
       }
     );
   };
@@ -271,9 +321,24 @@ export default function DetailTour() {
   };
 
   const handleSaveBooking = (newBooking) => {
+    // Cập nhật danh sách hành khách
     setBookings((prev) => [...prev, newBooking]);
+
+    // Cập nhật số chỗ đã đặt
+    setTour((prev) => ({
+      ...prev,
+      bookedSeats: prev.bookedSeats + newBooking.seatsBooked,
+    }));
+    setTempData((prev) => ({
+      ...prev,
+      bookedSeats: prev.bookedSeats + newBooking.seatsBooked,
+    }));
+
+    // Gọi lại API để lấy dữ liệu tour và bookings mới nhất
+    fetchTourData();
+    fetchBookingsData();
+
     handleCloseAddBookingDialog();
-    toast.success("Thêm phiếu đặt chỗ thành công!", { autoClose: 3000 });
   };
 
   const handlePriceChange = (e) => {
@@ -378,9 +443,10 @@ export default function DetailTour() {
                   onChange={(e) => setTempData({ ...tempData, status: e.target.value })}
                   disabled={!isEditing}
                 >
-                  <MenuItem value="Đang mở">Đang mở</MenuItem>
-                  <MenuItem value="Đang chờ">Đang chờ</MenuItem>
+                  <MenuItem value="Hoạt động">Hoạt động</MenuItem>
                   <MenuItem value="Đã hủy">Đã hủy</MenuItem>
+                  <MenuItem value="Hết vé">Hết vé</MenuItem>
+                  <MenuItem value="Hoàn thành">Hoàn thành</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -452,7 +518,11 @@ export default function DetailTour() {
         >
           <DialogTitle>Thêm phiếu đặt chỗ mới</DialogTitle>
           <DialogContent>
-            <AddTourBooking onClose={handleCloseAddBookingDialog} onSave={handleSaveBooking} />
+            <AddTourBooking
+              onClose={handleCloseAddBookingDialog}
+              onSave={handleSaveBooking}
+              tourId={id}
+            />
           </DialogContent>
         </Dialog>
       </Box>

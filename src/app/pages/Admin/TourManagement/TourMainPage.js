@@ -9,7 +9,7 @@ import { BE_ENDPOINT, fetchGet, fetchDelete } from "../../../lib/httpHandler";
 import { DataGrid } from "@mui/x-data-grid";
 import { Box, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import AddTour from "../../../components/Admin/TourManagement/AddTour/AddTour";
-import { toast } from "react-toastify"; // Import react-toastify
+import { toast } from "react-toastify";
 
 export default function TourMainPage() {
   const [tours, setTours] = useState([]);
@@ -37,7 +37,7 @@ export default function TourMainPage() {
                 },
                 (error) => {
                   console.error(`Lỗi tour route ${id}:`, error);
-                  resolve({ id, name: `Tuyến du lịch ${id}` }); // Fallback
+                  resolve({ id, name: `Tuyến du lịch ${id}` });
                 },
                 () => console.log(`Hoàn tất tour route ${id}`)
               );
@@ -60,7 +60,16 @@ export default function TourMainPage() {
             name: tourRouteMap[tour.tourRouteId] || `Chuyến du lịch ${tour.id}`,
             startDate: new Date(tour.depatureDate).toLocaleDateString("vi-VN"),
             departure: tour.pickUpLocation,
-            status: tour.status === 0 ? "Hoạt động" : "Ngừng hoạt động",
+            status:
+              tour.status === 0
+                ? "Hoạt động"
+                : tour.status === 1
+                ? "Đã hủy"
+                : tour.status === 2
+                ? "Hết vé"
+                : tour.status === 3
+                ? "Hoàn thành"
+                : "Không xác định",
             price: tour.price.toLocaleString("vi-VN") + " VND",
             quantity: tour.totalSeats - tour.bookedSeats,
           }));
@@ -73,7 +82,16 @@ export default function TourMainPage() {
             name: `Chuyến du lịch ${tour.id}`,
             startDate: new Date(tour.depatureDate).toLocaleDateString("vi-VN"),
             departure: tour.pickUpLocation,
-            status: tour.status === 0 ? "Hoạt động" : "Ngừng hoạt động",
+            status:
+              tour.status === 0
+                ? "Hoạt động"
+                : tour.status === 1
+                ? "Đã hủy"
+                : tour.status === 2
+                ? "Hết vé"
+                : tour.status === 3
+                ? "Hoàn thành"
+                : "Không xác định",
             price: tour.price.toLocaleString("vi-VN") + " VND",
             quantity: tour.totalSeats - tour.bookedSeats,
           }));
@@ -114,7 +132,7 @@ export default function TourMainPage() {
           toast.success("Xóa chuyến du lịch thành công!", { autoClose: 3000 });
         },
         (err) => {
-           console.log("Lỗi khi xóa chuyến du lịch:", err);
+          console.log("Lỗi khi xóa chuyến du lịch:", err);
           toast.error(err.data?.message || "Xóa thất bại!", {
             autoClose: 5000,
           });
