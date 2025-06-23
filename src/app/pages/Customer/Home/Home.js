@@ -16,7 +16,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { BE_ENDPOINT, fetchGet } from "../../../lib/httpHandler";
+import { BE_ENDPOINT, fetchGet, fetchPost, fetchDelete } from "../../../lib/httpHandler";
+import { useAuth } from "../../../lib/AuthContext";
 
 // Dữ liệu mẫu cho banner (ảnh tĩnh)
 const banners = [
@@ -35,10 +36,13 @@ const banners = [
 ];
 
 export default function Banner() {
+  const { isLoggedIn } = useAuth();
   const [currentBanner, setCurrentBanner] = useState(0);
   const [favorites, setFavorites] = useState({});
   const [favoriteDestinations, setFavoriteDestinations] = useState([]);
-  const [popularChoices, setPopularChoices] = useState([]); // State cho dữ liệu động
+  const [popularChoices, setPopularChoices] = useState([]);
+
+  const userId = localStorage.getItem("userId");
 
   const handlePrevBanner = () => {
     setCurrentBanner((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
@@ -46,13 +50,6 @@ export default function Banner() {
 
   const handleNextBanner = () => {
     setCurrentBanner((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
-  };
-
-  const toggleFavorite = (id) => {
-    setFavorites((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
   };
 
   // Format LocalDateTime thành DD/MM
@@ -69,6 +66,35 @@ export default function Banner() {
     if (!price) return "0 VND";
     return `${Math.round(price).toLocaleString("vi-VN")} VND`;
   };
+
+  // Gọi API để lấy danh sách tour yêu thích theo userId
+  useEffect(() => {
+    if (isLoggedIn && userId) {
+      fetchGet(
+        `/api/admin/favorite-tour/user/${userId}`,
+        (response) => {
+          if (response?.data) {
+            const favoriteMap = {};
+            response.data.forEach((item) => {
+              favoriteMap[item.tourRouteId] = item.id; // Lưu ID của favorite tour để xóa
+            });
+            setFavorites(favoriteMap);
+          }
+        },
+        (err) => {
+          console.log("Lỗi khi lấy danh sách tour yêu thích:", err);
+          toast.error(err?.data?.message || "Lấy danh sách tour yêu thích thất bại!", {
+            autoClose: 5000,
+          });
+        },
+        () => {
+          toast.error("Đã xảy ra lỗi mạng!", {
+            autoClose: 5000,
+          });
+        }
+      );
+    }
+  }, [isLoggedIn, userId]);
 
   // Gọi API cho favoriteDestinations
   useEffect(() => {
@@ -135,6 +161,70 @@ export default function Banner() {
 
     fetchPopularTourRoutes();
   }, []);
+
+  // Hàm xử lý toggle favorite
+  const toggleFavorite = (tourRouteId) => {
+    if (!isLoggedIn || !userId) {
+      toast.error("Bạn cần đăng nhập để thực hiện hành động này!", { autoClose: 5000 });
+      return;
+    }
+
+    if (!tourRouteId) {
+      toast.error("ID tuyến tour không hợp lệ!", { autoClose: 5000 });
+      return;
+    }
+
+    const isFavorite = !!favorites[tourRouteId];
+
+    if (isFavorite) {
+      // Gọi API xóa tour yêu thích
+      fetchDelete(
+        `/api/admin/favorite-tour/remove/${favorites[tourRouteId]}`,
+        (response) => {
+          setFavorites((prev) => ({
+            ...prev,
+            [tourRouteId]: false,
+          }));
+          toast.success("Xóa tour yêu thích thành công!", { autoClose: 5000 });
+        },
+        (err) => {
+          console.log("Lỗi khi xóa tour yêu thích:", err);
+          toast.error(err?.data?.message || "Xóa tour yêu thích thất bại!", {
+            autoClose: 5000,
+          });
+        },
+        () => {
+          toast.error("Đã xảy ra lỗi mạng!", {
+            autoClose: 5000,
+          });
+        }
+      );
+    } else {
+      // Gọi API thêm tour yêu thích
+      fetchPost(
+        "/api/admin/favorite-tour/add",
+        { userID: Number(userId), tourRouteId: Number(tourRouteId) }, // Sử dụng userID và tourRouteId
+        (response) => {
+          setFavorites((prev) => ({
+            ...prev,
+            [tourRouteId]: response.data?.id || tourRouteId, // Lưu ID của favorite tour mới
+          }));
+          toast.success("Thêm tour yêu thích thành công!", { autoClose: 5000 });
+        },
+        (err) => {
+          console.log("Lỗi khi thêm tour yêu thích:", err);
+          toast.error(err?.data?.message || "Thêm tour yêu thích thất bại!", {
+            autoClose: 5000,
+          });
+        },
+        () => {
+          toast.error("Đã xảy ra lỗi mạng!", {
+            autoClose: 5000,
+          });
+        }
+      );
+    }
+  };
 
   return (
     <div className="banner-container">
