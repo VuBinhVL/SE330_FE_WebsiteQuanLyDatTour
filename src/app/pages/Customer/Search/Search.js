@@ -109,6 +109,11 @@ useEffect(() => {
         setTours(res.data || []);
         setLoading(false);
       },
+      (fail)=>{
+        console.error("Lỗi khi lấy danh sách tour:", fail);
+        setTours([]);
+        setLoading(false);
+      },
       () => setLoading(false)
     );
   }, []);

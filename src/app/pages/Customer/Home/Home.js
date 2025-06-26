@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import "./Home.css";
-import { 
-  IconButton, 
-  FormControl, 
-  InputLabel, 
-  Select, 
-  MenuItem, 
-  Button, 
-  TextField 
+import {
+  IconButton,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Button,
+  TextField,
 } from "@mui/material";
 import { toast } from "react-toastify";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
@@ -16,6 +17,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import  banner  from "../../../assets/images/customer/banner.png";
 import { BE_ENDPOINT, fetchGet, fetchPost, fetchDelete } from "../../../lib/httpHandler";
 import { useAuth } from "../../../lib/AuthContext";
 
@@ -24,23 +26,36 @@ const banners = [
   {
     id: 1,
     image:
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80",
+      banner,
+      
     alt: "Banner 1",
   },
   {
     id: 2,
     image:
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80",
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80",
     alt: "Banner 2",
   },
 ];
 
+// Budget options (đồng nhất với Search.js)
+const BUDGETS = [
+  { label: "Dưới 5 triệu", value: "under5" },
+  { label: "Từ 5 - 10 triệu", value: "5to10" },
+  { label: "Từ 10 - 50 triệu", value: "10to50" },
+  { label: "Trên 50 triệu", value: "over50" },
+];
+
 export default function Banner() {
   const { isLoggedIn } = useAuth();
+  const navigate = useNavigate(); // Khởi tạo useNavigate
   const [currentBanner, setCurrentBanner] = useState(0);
   const [favorites, setFavorites] = useState({});
   const [favoriteDestinations, setFavoriteDestinations] = useState([]);
   const [popularChoices, setPopularChoices] = useState([]);
+  const [destination, setDestination] = useState(""); // Thêm state cho điểm đến
+  const [date, setDate] = useState(""); // Thêm state cho ngày đi
+  const [budget, setBudget] = useState(""); // Thêm state cho ngân sách
 
   const userId = localStorage.getItem("userId");
 
@@ -177,7 +192,6 @@ export default function Banner() {
     const isFavorite = !!favorites[tourRouteId];
 
     if (isFavorite) {
-      // Gọi API xóa tour yêu thích
       fetchDelete(
         `/api/admin/favorite-tour/remove/${favorites[tourRouteId]}`,
         (response) => {
@@ -200,14 +214,13 @@ export default function Banner() {
         }
       );
     } else {
-      // Gọi API thêm tour yêu thích
       fetchPost(
         "/api/admin/favorite-tour/add",
-        { userID: Number(userId), tourRouteId: Number(tourRouteId) }, // Sử dụng userID và tourRouteId
+        { userID: Number(userId), tourRouteId: Number(tourRouteId) },
         (response) => {
           setFavorites((prev) => ({
             ...prev,
-            [tourRouteId]: response.data?.id || tourRouteId, // Lưu ID của favorite tour mới
+            [tourRouteId]: response.data?.id || tourRouteId,
           }));
           toast.success("Thêm tour yêu thích thành công!", { autoClose: 5000 });
         },
@@ -224,6 +237,25 @@ export default function Banner() {
         }
       );
     }
+  };
+
+  // Hàm xử lý khi nhấn nút Xem thêm
+  const handleViewMore = () => {
+    navigate("/search");
+  };
+
+  // Hàm xử lý khi nhấn vào địa điểm yêu thích
+  const handleDestinationClick = (location) => {
+    navigate(`/search?destination=${encodeURIComponent(location)}`);
+  };
+
+  // Hàm xử lý tìm kiếm
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (destination) params.set("destination", destination);
+    if (date) params.set("date", date);
+    if (budget) params.set("budget", budget);
+    navigate(`/search?${params.toString()}`);
   };
 
   return (
@@ -260,35 +292,42 @@ export default function Banner() {
         ))}
       </div>
 
-      {/* Form tìm kiếm */}
+      {/* Form tìm kiếm đồng nhất với Search.js */}
       <div className="overlay-text">
         <div className="overlay-row overlay-header">
-          <span>Bạn muốn đi đâu?</span>
+          <span>Điểm đến</span>
           <span>Ngày đi</span>
           <span>Ngân sách</span>
           <span> </span>
         </div>
 
         <div className="overlay-row overlay-inputs">
-          <TextField
-            fullWidth
-            placeholder="Tìm kiếm với bất kỳ địa danh bạn yêu thích"
-            variant="outlined"
-            sx={{
-              "& .MuiInputBase-root": {
+          <FormControl fullWidth>
+            <InputLabel>Chọn điểm đến</InputLabel>
+            <Select
+              label="Chọn điểm đến"
+              value={destination}
+              onChange={(e) => setDestination(e.target.value)}
+              sx={{
                 height: "48px",
                 fontSize: "16px",
-              },
-              "& .MuiInputBase-input::placeholder": {
-                fontSize: "14px",
-              },
-            }}
-          />
+              }}
+            >
+              <MenuItem value="">Tất cả</MenuItem>
+              {favoriteDestinations.map((dest) => (
+                <MenuItem key={dest.id} value={dest.location}>
+                  {dest.location}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <TextField
             fullWidth
             type="date"
             variant="outlined"
             InputLabelProps={{ shrink: true }}
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
             sx={{
               "& .MuiInputBase-root": {
                 height: "48px",
@@ -299,16 +338,20 @@ export default function Banner() {
           <FormControl fullWidth>
             <InputLabel>Chọn mức giá</InputLabel>
             <Select
-              label="Chọn mức giá"
-              defaultValue=""
+              label rosa="Chọn mức giá"
+              value={budget}
+              onChange={(e) => setBudget(e.target.value)}
               sx={{
-                height: "48px",
+                height: " olhou48px",
                 fontSize: "16px",
               }}
             >
-              <MenuItem value="low">Dưới 5 triệu</MenuItem>
-              <MenuItem value="medium">5-10 triệu</MenuItem>
-              <MenuItem value="high">Trên 10 triệu</MenuItem>
+              <MenuItem value="">Tất cả</MenuItem>
+              {BUDGETS.map((b) => (
+                <MenuItem key={b.value} value={b.value}>
+                  {b.label}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
           <Button
@@ -316,6 +359,7 @@ export default function Banner() {
             variant="contained"
             color="primary"
             startIcon={<SearchIcon />}
+            onClick={handleSearch} // Gọi hàm handleSearch khi nhấn nút
             sx={{
               height: "48px",
               fontSize: "14px",
@@ -365,10 +409,7 @@ export default function Banner() {
                   <span className="price-label">Giá từ:</span>
                   <span className="price-value">{item.price}</span>
                 </div>
-                <Button
-                  variant="outlined"
-                  className="book-now-button"
-                >
+                <Button variant="outlined" className="book-now-button">
                   Đặt ngay
                 </Button>
               </div>
@@ -381,6 +422,7 @@ export default function Banner() {
           variant="outlined"
           color="primary"
           className="view-more-button"
+          onClick={handleViewMore}
         >
           Xem thêm
         </Button>
@@ -388,23 +430,30 @@ export default function Banner() {
 
       {/* FormControl cho danh sách địa điểm du lịch */}
       <div className="favorite-destinations-container">
-        <h2 className="favorite-destinations-title">Danh sách địa điểm du lịch được ưa thích</h2>
+        <h2 className="favorite-destinations-title">
+          Danh sách địa điểm du lịch được ưa thích
+        </h2>
         <div className="favorite-destinations-items">
-          {Array.isArray(favoriteDestinations) && favoriteDestinations.length > 0 ? (
-            favoriteDestinations.map((item) => (
-              <div key={item.id} className="favorite-destination-item">
-                <img
-                  src={item.image || "https://via.placeholder.com/300"}
-                  alt={item.name}
-                  className="destination-image"
-                />
-                <div className="destination-overlay"></div>
-                <h3 className="destination-name">{item.name}</h3>
-              </div>
-            ))
-          ) : (
-            <p>Đang tải dữ liệu...</p>
-          )}
+{Array.isArray(favoriteDestinations) && favoriteDestinations.length > 0 ? (
+  favoriteDestinations.map((item) => (
+    <div
+      key={item.id}
+      className="favorite-destination-item"
+      onClick={() => handleDestinationClick(item.location)} // Thêm sự kiện onClick
+      style={{ cursor: "pointer" }} // Thêm style để chỉ báo có thể click
+    >
+      <img
+        src={item.image || "https://via.placeholder.com/300"}
+        alt={item.name}
+        className="destination-image"
+      />
+      <div className="destination-overlay"></div>
+      <h3 className="destination-name">{item.name}</h3>
+    </div>
+  ))
+) : (
+  <p>Đang tải dữ liệu...</p>
+)}
         </div>
       </div>
     </div>
