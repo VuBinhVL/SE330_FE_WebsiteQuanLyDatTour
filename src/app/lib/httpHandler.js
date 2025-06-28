@@ -63,4 +63,15 @@ const fetchDelete = (uri, onSuccess, onFail, onException) =>
 const fetchUpload = (uri, formData, onSuccess, onFail, onException) =>
   request("POST", uri, formData, onSuccess, onFail, onException, true);
 
-export { fetchGet, fetchPost, fetchPut, fetchDelete, fetchUpload, BE_ENDPOINT };
+const fetchDeleteWithBody = (uri, data, onSuccess, onFail, onException) =>
+  request("DELETE", uri, data, onSuccess, onFail, onException);
+
+export {
+  fetchGet,
+  fetchPost,
+  fetchPut,
+  fetchDelete,
+  fetchUpload,
+  fetchDeleteWithBody,
+  BE_ENDPOINT,
+};

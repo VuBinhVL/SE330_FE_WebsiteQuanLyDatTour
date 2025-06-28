@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
-import { MdDelete, MdKeyboardArrowRight } from "react-icons/md";
-import { ImQrcode } from "react-icons/im";
-import { LuAlarmClock } from "react-icons/lu";
 import { CiCalendar } from "react-icons/ci";
+import { ImQrcode } from "react-icons/im";
 import { IoLocationOutline } from "react-icons/io5";
-import { FiUserPlus } from "react-icons/fi";
-
+import { LuAlarmClock } from "react-icons/lu";
+import { MdDelete, MdKeyboardArrowRight } from "react-icons/md";
+import { toast } from "react-toastify";
 import UserSidebar from "../../../components/Customer/UserSidebar/UserSidebar";
+import { fetchDeleteWithBody, fetchGet } from "../../../lib/httpHandler";
 import "./Cart.css";
-import { fetchGet } from "../../../lib/httpHandler";
 
 export default function Cart() {
   const [cart, setCart] = useState([]);
@@ -21,9 +20,10 @@ export default function Cart() {
     );
   };
 
+  //Đếm tổng tiền của các mục đã chọn
   const total = selected.reduce((sum, id) => {
     const item = cart.find((i) => i.id === id);
-    return sum + (item?.price || 0);
+    return sum + (item?.price * item?.quantity || 0);
   }, 0);
 
   //Gọi API để lấy giỏ hàng của người dùng
@@ -39,6 +39,28 @@ export default function Cart() {
       () => console.error("Lỗi kết nối đến máy chủ")
     );
   }, [userId]);
+
+  //Hàm xóa
+  const handleDeleteCartItems = (ids) => {
+    if (!ids || ids.length === 0) {
+      toast.error("Không có mục nào được chọn để xóa.");
+      return;
+    }
+    console.log("Xóa các mục:", ids);
+    fetchDeleteWithBody(
+      "/api/cart/items",
+      ids,
+      (res) => {
+        // Cập nhật lại cart sau khi xóa
+        setCart((prev) => prev.filter((item) => !ids.includes(item.id)));
+        setSelected((prev) => prev.filter((id) => !ids.includes(id)));
+        console.log("Xóa thành công:", res);
+      },
+      (err) => toast.error("Xóa thất bại:"),
+      () => toast.error("Lỗi kết nối máy chủ")
+    );
+  };
+
   return (
     <div className="cart-container">
       <UserSidebar />
@@ -55,7 +77,12 @@ export default function Cart() {
               }
             />
             <span>Chọn tất cả</span>
-            <button className="delete-all">Xóa các mục đã chọn</button>
+            <button
+              className="delete-all"
+              onClick={() => handleDeleteCartItems(selected)}
+            >
+              Xóa các mục đã chọn
+            </button>
           </div>
           <div className="right">
             <span>
@@ -83,14 +110,17 @@ export default function Cart() {
               <div className="item-info">
                 <div className="item-header">
                   <h3>{item.routeName}</h3>
-                  <MdDelete className="delete-icon" />
+                  <MdDelete
+                    className="delete-icon"
+                    onClick={() => handleDeleteCartItems([item.id])}
+                  />
                 </div>
 
                 <div className="item-details">
                   <div className="detail-row">
                     <p>
                       <ImQrcode className="icon" /> <span>Mã tour:</span>
-                      TOUR{String(item.tourId).padStart(2, "0")}
+                      TOUR{String(item.id).padStart(2, "0")}
                     </p>
                     <p>
                       <IoLocationOutline className="icon" />
