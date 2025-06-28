@@ -1,0 +1,137 @@
+.booking-page-container {
+  display: flex;
+  width: 100%;
+  background-color: #fefefe;
+  min-height: 100vh;
+}
+
+.booking-page-container .booking-page {
+  flex: 1;
+  padding: 32px;
+}
+
+.booking-page-container .page-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #b1342f;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.booking-page-container .booking-toolbar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 12px;
+}
+
+.booking-page-container .search-bar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background-color: white;
+}
+
+.booking-page-container .search-bar input {
+  border: none;
+  outline: none;
+  flex: 1;
+  margin-left: 8px;
+}
+
+.booking-page-container .filter-select {
+  border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.booking-page-container .booking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.booking-page-container .booking-item {
+  display: flex;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 16px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.booking-page-container .booking-img {
+  width: 150px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.booking-page-container .booking-content {
+  flex: 1;
+}
+
+.booking-page-container .booking-info-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.booking-page-container .booking-content p {
+  font-size: 14px;
+  margin: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.booking-page-container .booking-price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  min-width: 160px;
+}
+
+.booking-page-container .price-label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: -4px;
+}
+
+.booking-page-container .price {
+  font-size: 20px;
+  font-weight: bold;
+  color: #c41111;
+}
+
+.booking-page-container .status-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-weight: 600;
+  color: white;
+  cursor: default;
+}
+
+.booking-page-container .status-btn.pending {
+  background-color: #d94136;
+}
+
+.booking-page-container .status-btn.paid {
+  background-color: #5f44d0;
+}
+.booking-page-container .icon {
+  font-size: 20px;
+}
