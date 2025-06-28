@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MdDelete, MdKeyboardArrowRight } from "react-icons/md";
 import { ImQrcode } from "react-icons/im";
 import { LuAlarmClock } from "react-icons/lu";
@@ -8,36 +8,11 @@ import { FiUserPlus } from "react-icons/fi";
 
 import UserSidebar from "../../../components/Customer/UserSidebar/UserSidebar";
 import "./Cart.css";
-
-const dummyCart = [
-  {
-    id: 1,
-    code: "DNSG838",
-    name: "Vịnh Hạ Long - Đà Nẵng",
-    start: "TP. Hồ Chí Minh",
-    destination: "Đà Nẵng",
-    date: "01/03",
-    duration: "5N4Đ",
-    price: 8189000,
-    quantity: 1,
-    img: "https://hnm.1cdn.vn/2024/01/12/images1283642_2.jpg",
-  },
-  {
-    id: 2,
-    code: "DNSG838",
-    name: "Vịnh Hạ Long - Đà Nẵng",
-    start: "TP. Hồ Chí Minh",
-    destination: "Đà Nẵng",
-    date: "01/03",
-    duration: "5N4Đ",
-    price: 8189000,
-    quantity: 1,
-    img: "https://hnm.1cdn.vn/2024/01/12/images1283642_2.jpg",
-  },
-];
+import { fetchGet } from "../../../lib/httpHandler";
 
 export default function Cart() {
-  const [cart, setCart] = useState(dummyCart);
+  const [cart, setCart] = useState([]);
+  const userId = localStorage.getItem("userId");
   const [selected, setSelected] = useState([]);
 
   const toggleSelect = (id) => {
@@ -51,6 +26,19 @@ export default function Cart() {
     return sum + (item?.price || 0);
   }, 0);
 
+  //Gọi API để lấy giỏ hàng của người dùng
+  useEffect(() => {
+    const uri = `/api/cart/${userId}`;
+    fetchGet(
+      uri,
+      (res) => {
+        setCart(res);
+        console.log(res);
+      },
+      (err) => console.error(err),
+      () => console.error("Lỗi kết nối đến máy chủ")
+    );
+  }, [userId]);
   return (
     <div className="cart-container">
       <UserSidebar />
@@ -90,46 +78,46 @@ export default function Cart() {
                   checked={selected.includes(item.id)}
                   onChange={() => toggleSelect(item.id)}
                 />
-                <img src={item.img} alt="tour" />
+                <img src={item.routeImage} alt="tour" />
               </div>
               <div className="item-info">
                 <div className="item-header">
-                  <h3>{item.name}</h3>
+                  <h3>{item.routeName}</h3>
                   <MdDelete className="delete-icon" />
                 </div>
 
                 <div className="item-details">
                   <div className="detail-row">
                     <p>
-                      <ImQrcode className="icon" /> <span>Mã tour:</span>{" "}
-                      {item.code}
+                      <ImQrcode className="icon" /> <span>Mã tour:</span>
+                      TOUR{String(item.tourId).padStart(2, "0")}
                     </p>
                     <p>
-                      <IoLocationOutline className="icon" />{" "}
-                      <span>Khởi hành:</span> {item.start}
+                      <IoLocationOutline className="icon" />
+                      <span>Khởi hành:</span> {item.startLocation}
                     </p>
                   </div>
 
                   <div className="detail-row">
                     <p>
-                      <LuAlarmClock className="icon" /> <span>Thời gian:</span>{" "}
+                      <LuAlarmClock className="icon" /> <span>Thời gian:</span>
                       {item.duration}
                     </p>
                     <p>
                       <IoLocationOutline className="icon" />{" "}
                       <span>Điểm đến:</span>
-                      {item.destination}
+                      {item.endLocation}
                     </p>
                   </div>
 
                   <div className="detail-row">
                     <p>
                       <CiCalendar className="icon" />
-                      <span>Ngày khởi hành:</span> {item.date}
+                      <span>Ngày khởi hành:</span>{" "}
+                      {new Date(item.departureDates).toLocaleDateString(
+                        "vi-VN"
+                      )}
                     </p>
-                    <button className="info-btn">
-                      <FiUserPlus className="icon" /> Nhập thông tin hành khách
-                    </button>
                   </div>
                 </div>
 
@@ -138,7 +126,7 @@ export default function Cart() {
                     <label>Số lượng:</label>
                     <div className="quantity">
                       <button>-</button>
-                      <input type="text" value={item.quantity} readOnly />
+                      <input type="text" value={item.quantity} />
                       <button>+</button>
                     </div>
                     <label className="ticket-label">Vé</label>
@@ -146,7 +134,7 @@ export default function Cart() {
                   <div className="item-footer-right">
                     <label>Tổng tiền:</label>
                     <p className="item-price">
-                      {item.price.toLocaleString()} đ
+                      {(item.price * item.quantity).toLocaleString()} đ
                     </p>
                   </div>
                 </div>
