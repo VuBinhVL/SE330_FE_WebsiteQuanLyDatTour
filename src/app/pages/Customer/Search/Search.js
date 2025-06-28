@@ -1,67 +1,8 @@
 import React, { useEffect, useState, useMemo } from "react";
 import "./Search.css";
-
-// Fake API data
-const FAKE_TOURS = [
-  {
-    id: 1,
-    name: "Mông cổ",
-    code: "DNSG838",
-    duration: 5,
-    nights: 4,
-    price: 8179000,
-    departure: "TP. Hồ Chí Minh",
-    destination: "Đà Nẵng",
-    startDates: [
-      "2025-04-15",
-      "2025-04-20",
-      "2025-05-01",
-      "2025-06-12",
-      "2025-06-10",
-    ],
-    image:
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: 2,
-    name: "Mông cổ - Phố cổ Hội An - Bà Nà Hill - Con đường ký ức",
-    code: "DNSG838",
-    duration: 5,
-    nights: 4,
-    price: 8199000,
-    departure: "TP. Hồ Chí Minh",
-    destination: "Đà Nẵng",
-    startDates: [
-      "2025-06-16",
-      "2025-06-17",
-      "2025-06-11",
-      "2025-06-05",
-      "2025-06-15",
-    ],
-    image:
-      "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: 3,
-    name: "Đà Nẵng - Phố cổ Hội An - Bà Nà Hill - Con đường ký ức",
-    code: "DNSG838",
-    duration: 5,
-    nights: 4,
-    price: 8189000,
-    departure: "TP. Hồ Chí Minh",
-    destination: "Đà Nẵng",
-    startDates: [
-      "2025-04-18",
-      "2025-04-28",
-      "2025-05-10",
-      "2025-06-08",
-      "2025-06-18",
-    ],
-    image:
-      "http://localhost:8081/uploads/avatars/1.png",
-  },
-  // Add more tours as needed
-];
+import { useLocation, useNavigate } from "react-router-dom";
+import { fetchGet, fetchPost, fetchDelete, BE_ENDPOINT } from "../../../lib/httpHandler";
+import { useAuth } from "../../../lib/AuthContext";
 
 // Budget options
 const BUDGETS = [
@@ -95,7 +36,7 @@ function getBudgetRange(value) {
 }
 
 function formatCurrency(num) {
-  return num.toLocaleString("vi-VN") + " đ";
+  return Number(num).toLocaleString("vi-VN") + " đ";
 }
 
 function formatDate(dateStr) {
@@ -109,7 +50,7 @@ function formatDate(dateStr) {
 }
 
 function getFutureDates(dates, minDate) {
-  return dates.filter((d) => new Date(d) >= minDate);
+  return (dates || []).filter((d) => new Date(d) >= minDate);
 }
 
 const todayPlus3 = () => {
@@ -120,42 +61,99 @@ const todayPlus3 = () => {
 };
 
 export default function Search() {
-  // Filter states
-  const [budget, setBudget] = useState("");
-  const [departure, setDeparture] = useState("");
-  const [destination, setDestination] = useState("");
-  const [date, setDate] = useState("");
-  const [duration, setDuration] = useState("");
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
+  const userId = localStorage.getItem("userId");
+
+  // Lọc từ params truyền qua
+  const params = new URLSearchParams(location.search);
+  const [budget, setBudget] = useState(params.get("budget") || "");
+  const [departure, setDeparture] = useState(params.get("departure") || "");
+  const [destination, setDestination] = useState(params.get("destination") || "");
+  const [date, setDate] = useState(params.get("date") || "");
+  const [duration, setDuration] = useState(params.get("duration") || "");
   const [sort, setSort] = useState("default");
 
-  // Trạng thái yêu thích (id tour)
-  const [favorites, setFavorites] = useState([]);
+  // Khi filter thay đổi thì cập nhật URL
+useEffect(() => {
+  const params = new URLSearchParams();
+  if (budget) params.set("budget", budget);
+  if (departure) params.set("departure", departure);
+  if (destination) params.set("destination", destination);
+  if (date) params.set("date", date);
+  if (duration) params.set("duration", duration);
+  if (sort && sort !== "default") params.set("sort", sort);
 
-  // Fake API fetch
+  // Chỉ replace nếu khác với location.search hiện tại
+  const newSearch = params.toString();
+  if (newSearch !== location.search.replace(/^\?/, "")) {
+    navigate(`?${newSearch}`, { replace: true });
+  }
+  // eslint-disable-next-line
+}, [budget, departure, destination, date, duration, sort]);
+
+  // Dữ liệu tour từ API
   const [tours, setTours] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Trạng thái yêu thích: { [tourRouteId]: favoriteId }
+  const [favorites, setFavorites] = useState({});
+
+  // Lấy danh sách tour từ API
   useEffect(() => {
-    setTimeout(() => setTours(FAKE_TOURS), 500);
+    setLoading(true);
+    fetchGet(
+      "/api/admin/tour-route/search",
+      (res) => {
+        setTours(res.data || []);
+        setLoading(false);
+      },
+      () => setLoading(false)
+    );
   }, []);
 
-  // Get all unique departures/destinations for filter dropdowns
+  // Lấy danh sách tour yêu thích của user
+  useEffect(() => {
+    if (isLoggedIn && userId) {
+      fetchGet(`/api/admin/favorite-tour/user/${userId}`, (res) => {
+        const favMap = {};
+        (res.data || []).forEach(fav => {
+          favMap[fav.tourRouteId] = fav.id;
+        });
+        setFavorites(favMap);
+      });
+    }
+  }, [isLoggedIn, userId]);
+
+  // Lấy tất cả điểm đi/đến cho dropdown
   const departures = useMemo(
-    () => [...new Set(FAKE_TOURS.map((t) => t.departure))],
-    []
+    () => [...new Set(tours.map((t) => t.departure))],
+    [tours]
   );
   const destinations = useMemo(
-    () => [...new Set(FAKE_TOURS.map((t) => t.destination))],
-    []
+    () => [...new Set(tours.map((t) => t.destination))],
+    [tours]
   );
 
-  // Filtering logic
+  // Lấy tất cả ngày hợp lệ cho date picker
+  const allValidDates = useMemo(() => {
+    const dates = new Set();
+    tours.forEach((tour) =>
+      getFutureDates(tour.startDates, todayPlus3()).forEach((d) => dates.add(d))
+    );
+    return Array.from(dates).sort();
+  }, [tours]);
+
+  // Lọc tour theo filter
   const filteredTours = useMemo(() => {
     let result = tours.map((tour) => {
-      // Only keep startDates after today+3
+      // Chỉ lấy ngày hợp lệ
       const validDates = getFutureDates(tour.startDates, todayPlus3());
       return { ...tour, validDates };
     });
 
-    // Only show tours with at least one valid date
+    // Chỉ show tour còn ngày hợp lệ
     result = result.filter((tour) => tour.validDates.length > 0);
 
     if (budget) {
@@ -175,11 +173,11 @@ export default function Search() {
     }
     if (duration) {
       result = result.filter(
-        (tour) => tour.duration === parseInt(duration, 10)
+        (tour) => String(tour.duration) === String(duration)
       );
     }
 
-    // Sorting
+    // Sắp xếp
     if (sort === "priceAsc") {
       result = [...result].sort((a, b) => a.price - b.price);
     } else if (sort === "priceDesc") {
@@ -193,27 +191,39 @@ export default function Search() {
     return result;
   }, [tours, budget, departure, destination, date, duration, sort]);
 
-  // For date picker, show all valid dates from all tours
-  const allValidDates = useMemo(() => {
-    const dates = new Set();
-    tours.forEach((tour) =>
-      getFutureDates(tour.startDates, todayPlus3()).forEach((d) => dates.add(d))
-    );
-    return Array.from(dates).sort();
-  }, [tours]);
-
   // Xử lý chọn ngày với date picker
   function handleDateChange(e) {
     setDate(e.target.value);
   }
 
   // Xử lý favorite
-  function toggleFavorite(tourId) {
-    setFavorites((prev) =>
-      prev.includes(tourId)
-        ? prev.filter((id) => id !== tourId)
-        : [...prev, tourId]
-    );
+  function toggleFavorite(tourRouteId) {
+    if (!isLoggedIn || !userId) return;
+    if (favorites[tourRouteId]) {
+      // Đã tym, xóa
+      fetchDelete(`/api/admin/favorite-tour/remove/${favorites[tourRouteId]}`, () => {
+        setFavorites((prev) => {
+          const newFav = { ...prev };
+          delete newFav[tourRouteId];
+          return newFav;
+        });
+      });
+    } else {
+      // Chưa tym, thêm
+      fetchPost(
+        "/api/admin/favorite-tour/add",
+        { userID: Number(userId), tourRouteId: Number(tourRouteId) },
+        (res) => {
+          setFavorites((prev) => ({ ...prev, [tourRouteId]: res.data.id }));
+        }
+      );
+    }
+  }
+
+  // Chuyển sang trang chi tiết tour (chưa làm)
+  function handleBookNow(tourId) {
+    // navigate(`/tour/${tourId}`);
+    alert("Chức năng xem chi tiết tour chưa được phát triển.");
   }
 
   return (
@@ -286,7 +296,7 @@ export default function Search() {
           <div className="filter-label">Thời gian:</div>
           <select value={duration} onChange={(e) => setDuration(e.target.value)}>
             <option value="">Tất cả</option>
-            {[...new Set(FAKE_TOURS.map((t) => t.duration))].map((d) => (
+            {[...new Set(tours.map((t) => t.duration))].map((d) => (
               <option key={d} value={d}>
                 {d}N{d - 1}Đ
               </option>
@@ -314,15 +324,23 @@ export default function Search() {
           </div>
         </div>
         <div className="tour-list">
-          {filteredTours.length === 0 && (
+          {loading && <div className="no-result">Đang tải dữ liệu...</div>}
+          {!loading && filteredTours.length === 0 && (
             <div className="no-result">Không tìm thấy tour phù hợp.</div>
           )}
           {filteredTours.map((tour) => (
             <div className="tour-card" key={tour.id}>
               <div className="tour-img">
-                <img src={tour.image} alt={tour.name} />
+                <img
+                  src={
+                    tour.image?.startsWith("http")
+                      ? tour.image
+                      : `${BE_ENDPOINT}/${tour.image}`
+                  }
+                  alt={tour.name}
+                />
                 <button
-                  className={`favorite-btn${favorites.includes(tour.id) ? " active" : ""}`}
+                  className={`favorite-btn${favorites[tour.id] ? " active" : ""}`}
                   title="Yêu thích"
                   onClick={() => toggleFavorite(tour.id)}
                 >
@@ -330,9 +348,9 @@ export default function Search() {
                     role="img"
                     aria-label="heart"
                     style={{
-                      color: favorites.includes(tour.id) ? "#e53935" : "#bbb",
+                      color: favorites[tour.id] ? "#e53935" : "#bbb",
                       transition: "color 0.2s",
-                      filter: favorites.includes(tour.id)
+                      filter: favorites[tour.id]
                         ? "drop-shadow(0 0 4px #e5393533)"
                         : "none",
                     }}
@@ -364,7 +382,9 @@ export default function Search() {
                       </span>
                     ))}
                     {tour.validDates.length > 3 && (
-                      <span className="tour-date more-date">+{tour.validDates.length - 3} ngày khác</span>
+                      <span className="tour-date more-date">
+                        +{tour.validDates.length - 3} ngày khác
+                      </span>
                     )}
                   </div>
                 </div>
@@ -372,7 +392,9 @@ export default function Search() {
                   <div className="tour-price">
                     Giá từ: <span>{formatCurrency(tour.price)}</span>
                   </div>
-                  <button className="book-btn">Đặt ngay</button>
+                  <button className="book-btn" onClick={() => handleBookNow(tour.id)}>
+                    Đặt ngay
+                  </button>
                 </div>
               </div>
             </div>
