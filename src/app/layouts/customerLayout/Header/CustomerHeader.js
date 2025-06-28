@@ -235,7 +235,7 @@ export default function CustomerHeader() {
       return (
         <div className="dropdown-menu-custom">
           <ul>
-            <li onClick={() => navigate("/member")}>
+            <li onClick={() => navigate("/members")}>
               <FaUsers className="icon-li" /> Thành viên
             </li>
             <li onClick={() => navigate("/favorites")}>

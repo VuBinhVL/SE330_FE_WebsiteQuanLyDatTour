@@ -91,7 +91,6 @@ export default function DetailCustomer({ customerId }) {
       if (result.isConfirmed) {
         fetchDelete(
           `/api/admin/user-member/delete/${memberId}`,
-          null,
           () => {
             MySwal.fire({
               icon: "success",

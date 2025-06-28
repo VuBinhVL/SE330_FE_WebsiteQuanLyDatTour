@@ -66,6 +66,7 @@
   color: #5a3ea6;
   font-weight: 500;
   font-size: 15px;
+  height: fit-content;
 }
 
 .user-member-form .form-edit .edit-button {
@@ -79,6 +80,9 @@
   transition: background 0.18s, color 0.18s;
   display: flex;
   align-items: center;
+  justify-content: center;
+  height: 28px;
+  width: 28px;
 }
 
 .user-member-form .form-edit .edit-button:hover {
@@ -97,6 +101,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-bottom: 18px;
 }
 
 .user-member-form .form-group {
