@@ -58,12 +58,12 @@ export default function MainRoutes() {
             element={<TourBookingManagement />}
           ></Route>
           <Route
-            path="tour-bookings/detail-booking/:id"
+            path="tour-bookings/detail-booking/:bookingId"
             element={<BookingDetail />}
           ></Route>
 
           <Route path="invoices" element={<OrderManagement />}></Route>
-          <Route path="invoices/detail/:id" element={<OrderDetail />}></Route>
+          <Route path="invoices/detail/:invoiceId" element={<OrderDetail />}></Route>
         </Route>
 
         {/* Customer */}

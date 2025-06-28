@@ -11,8 +11,8 @@ const AddEmployeePopup = ({ isOpen, onClose, onSubmit }) => {
     address: '',
     phoneNumber: '',
     email: '',
-    role_id: 3,      
-    account_id: 1,
+    role_id: 3,
+    account_id: null,
   };
 
   const [formData, setFormData] = useState(initialForm);
@@ -42,63 +42,89 @@ const AddEmployeePopup = ({ isOpen, onClose, onSubmit }) => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!formData.fullname || formData.sex === '') {
-      alert("Vui lòng điền đầy đủ thông tin bắt buộc.");
-      return;
-    }
+  if (!formData.fullname || formData.sex === '' || !formData.username || !formData.password) {
+    alert("Vui lòng điền đầy đủ thông tin bắt buộc.");
+    return;
+  }
 
-    if (new Date(formData.birthday) > new Date()) {
-      alert("Ngày sinh không hợp lệ!");
-      return;
-    }
+  if (new Date(formData.birthday) > new Date()) {
+    alert("Ngày sinh không hợp lệ!");
+    return;
+  }
 
-    setLoading(true);
+  setLoading(true);
 
-    const payload = {
-      ...formData,
-      avatar: "" // avatar sẽ được upload sau
-    };
-
-    fetchPost(
-      "/api/admin/staff/create",
-      payload,
-      (res) => {
-        const staff = res.data;
-
-        if (avatar && staff?.id) {
-          const formImg = new FormData();
-          formImg.append("file", avatar);
-
-          fetchUpload(
-            `/api/admin/staff/update-avatar/${staff.id}`,
-            formImg,
-            (res2) => {
-              staff.avatar = res2.data;
-              onSubmit && onSubmit();
-              handleClose();
-              setLoading(false);
-            },
-            () => {
-              alert("Lỗi upload ảnh!");
-              setLoading(false);
-            },
-            () => setLoading(false)
-          );
-        } else {
-          onSubmit && onSubmit();
-          handleClose();
-          setLoading(false);
-        }
-      },
-      () => {
-        alert("Đã xảy ra lỗi khi thêm nhân viên!");
-        setLoading(false);
-      },
-      () => setLoading(false)
-    );
+  const accountPayload = {
+    username: formData.username,
+    password: formData.password,
+    isLock: false
   };
+
+  fetchPost(
+    "/api/admin/account/create",
+    accountPayload,
+    (accRes) => {
+      const accountId = accRes.data?.id;
+      if (!accountId) {
+        alert("Không lấy được account_id");
+        setLoading(false);
+        return;
+      }
+
+      const staffPayload = {
+        ...formData,
+        account_id: accountId,
+        avatar: ""
+      };
+
+      fetchPost(
+        "/api/admin/staff/create",
+        staffPayload,
+        (res) => {
+          const staff = res.data;
+
+          if (avatar && staff?.id) {
+            const formImg = new FormData();
+            formImg.append("file", avatar);
+
+            fetchUpload(
+              `/api/admin/staff/update-avatar/${staff.id}`,
+              formImg,
+              (res2) => {
+                staff.avatar = res2.data;
+                onSubmit && onSubmit();
+                handleClose();
+                setLoading(false);
+              },
+              () => {
+                alert("Lỗi upload ảnh!");
+                setLoading(false);
+              },
+              () => {}
+            );
+          } else {
+            onSubmit && onSubmit();
+            handleClose();
+            setLoading(false);
+          }
+        },
+        () => {
+          alert("Đã xảy ra lỗi khi thêm nhân viên!");
+          setLoading(false);
+        },
+        () => {}
+      );
+    },
+    () => {
+      alert("Tạo tài khoản thất bại");
+      setLoading(false);
+    },
+    () => {}
+  );
+};
+
 
   if (!isOpen) return null;
 
@@ -198,6 +224,27 @@ const AddEmployeePopup = ({ isOpen, onClose, onSubmit }) => {
               placeholder="example@gmail.com"
               value={formData.email}
               onChange={handleChange}
+              required
+            />
+
+            <label>Tên đăng nhập</label>
+            <input
+              type="text"
+              name="username"
+              placeholder="Tên đăng nhập"
+              value={formData.username}
+              onChange={handleChange}
+              required
+            />
+
+            <label>Mật khẩu</label>
+            <input
+              type="password"
+              name="password"
+              placeholder="Mật khẩu"
+              value={formData.password}
+              onChange={handleChange}
+              required
             />
 
             <div className="actions">

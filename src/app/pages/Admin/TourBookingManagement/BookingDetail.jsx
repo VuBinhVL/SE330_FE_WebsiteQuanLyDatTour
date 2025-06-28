@@ -1,16 +1,28 @@
-import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import "./BookingDetail.css";
 import ModalPassengerEdit from "./ModalPassengerEdit";
 import { ReactComponent as EditIcon } from "../../../assets/icons/admin/Nút sửa.svg";
+import { fetchGet } from "../../../lib/httpHandler";
 
 const BookingDetail = () => {
+  const { bookingId } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
-  const booking = location.state?.booking;
-
+  const [booking, setBooking] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedPassenger, setSelectedPassenger] = useState(null);
+
+  useEffect(() => {
+    if (bookingId) {
+      fetchGet(
+        `/api/admin/tour-booking/get/${bookingId}`,
+        (res) => setBooking(res.data),
+        () => setBooking(null),
+        () => alert("Không thể tải thông tin booking.")
+      );
+    }
+  }, [bookingId]);
+
 
   if (!booking) {
     return (
@@ -21,7 +33,15 @@ const BookingDetail = () => {
         </button>
       </div>
     );
-  }
+  };
+
+  const getStatusClass = (status) => {
+  return status ? "status-paid" : "status-pending";
+  };
+
+  const getStatusText = (status) => {
+    return status ? "Đã thanh toán" : "Chưa thanh toán";
+  };
 
   const handleEditPassenger = (passenger) => {
     setSelectedPassenger(passenger);
@@ -41,51 +61,75 @@ const BookingDetail = () => {
   return (
     <div className="booking-detail-container">
       <div className="tour-info-card">
-        <p className="tour-title"><strong>{booking.tourName}</strong></p>
+        <p className="tour-title"><strong>{booking.tourRoute?.routeName}</strong></p>
         <div className="grid-form">
           <div className="form-group">
             <label>Mã chuyến du lịch:</label>
-            <input type="text" value={booking.tourCode} readOnly />
+            <input type="text" value={booking.tourId} readOnly />
           </div>
           <div className="form-group">
             <label>Ngày khởi hành:</label>
-            <input type="text" value={booking.departureDate} readOnly />
+            <input
+              type="text"
+              value={new Date(booking.tour?.depatureDate).toLocaleDateString("vi-VN")}
+              readOnly
+            />
           </div>
+
           <div className="form-group">
             <label>Ngày trở về:</label>
-            <input type="text" value={booking.returnDate} readOnly />
+            <input
+              type="text"
+              value={new Date(booking.tour?.returnDate).toLocaleDateString("vi-VN")}
+              readOnly
+            />
           </div>
+
           <div className="form-group">
             <label>Giờ xuất phát:</label>
-            <input type="text" value={booking.departureTime} readOnly />
+            <input
+              type="text"
+              value={new Date(booking.tour?.pickUpTime).toLocaleTimeString("vi-VN", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+              readOnly
+            />
           </div>
+
           <div className="form-group">
             <label>Điểm xuất phát:</label>
-            <input type="text" value={booking.departureLocation} readOnly />
+            <input type="text" value={booking.tour?.pickUpLocation} readOnly />
           </div>
           <div className="form-group">
             <label>Giá:</label>
             <input
               type="text"
-              value={new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(booking.totalAmount)}
+              value={new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(booking.tour?.price)}
               readOnly
             />
           </div>
           <div className="form-group">
             <label>Số lượng đặt hành khách:</label>
-            <input type="text" value={booking.seats} readOnly />
+            <input type="text" value={booking.seatsBooked} readOnly />
           </div>
           <div className="form-group">
             <label>Tổng tiền:</label>
             <input
               type="text"
-              value={new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(booking.paidAmount)}
+              value={new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(booking.totalPrice)}
               readOnly
             />
           </div>
           <div className="form-group">
             <label>Trạng thái thanh toán:</label>
-            <input type="text" value={booking.status} readOnly />
+           <input
+              type="text"
+              className={`status ${getStatusClass(booking.invoice?.paymentStatus === "PAID")}`}
+              value={getStatusText(booking.invoice?.paymentStatus === "PAID")}
+              readOnly
+            />
+
           </div>
         </div>
       </div>
