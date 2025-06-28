@@ -24,6 +24,7 @@ import TourMainPage from "../pages/Admin/TourManagement/TourMainPage";
 import DetailTour from "../components/Admin/TourManagement/DetailTour/DetailTour";
 import Account from "../pages/Other/Account";
 import Cart from "../pages/Customer/Cart";
+import Member from "../pages/Customer/Member";
 import DetailCustomerPage from "../components/Admin/CustomerManagement/DetailCustomerPage/DetailCustomerPage";
 
 export default function MainRoutes() {
@@ -75,6 +76,7 @@ export default function MainRoutes() {
           <Route path="account" element={<Account />}></Route>
           <Route path="forget-password" element={<ForgetPassword />}></Route>
           <Route path="cart" element={<Cart />} />
+          <Route path="members" element={<Member />} />
         </Route>
       </Routes>
     </BrowserRouter>

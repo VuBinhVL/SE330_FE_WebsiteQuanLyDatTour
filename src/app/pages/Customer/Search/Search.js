@@ -238,6 +238,8 @@ export default function Search() {
           delete newFav[tourRouteId];
           return newFav;
         });
+      }, (error) => {
+        console.error("Error removing favorite:", error);
       });
     } else {
       // Chưa tym, thêm
