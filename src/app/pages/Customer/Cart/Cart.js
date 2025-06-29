@@ -33,6 +33,7 @@ export default function Cart() {
       uri,
       (res) => {
         setCart(res);
+        console.log("Giỏ hàng:", res);
       },
       (err) => toast.error(err),
       () => toast.error("Lỗi kết nối đến máy chủ")
@@ -59,7 +60,7 @@ export default function Cart() {
     );
   };
 
-  //Hàm thanh toán
+  //Hàm chuyển sang trang thanh toán
   const handlePayment = (ids) => {
     if (!ids || ids.length === 0) {
       toast.error("Vui lòng chọn ít nhất 1 tour để đặt.");
@@ -69,6 +70,7 @@ export default function Cart() {
     localStorage.setItem("selectedCart", JSON.stringify(selectedItems));
     window.location.href = "/payment";
   };
+
   return (
     <div className="cart-container">
       <UserSidebar />
@@ -189,11 +191,19 @@ export default function Cart() {
                         value={item.quantity}
                         onChange={(e) => {
                           const value = parseInt(e.target.value);
-                          if (!isNaN(value) && value >= 1) {
+                          if (
+                            !isNaN(value) &&
+                            value >= 1 &&
+                            value <= item.availableSeats
+                          ) {
                             setCart((prev) =>
                               prev.map((p) =>
                                 p.id === item.id ? { ...p, quantity: value } : p
                               )
+                            );
+                          } else if (value > item.availableSeats) {
+                            toast.warn(
+                              `Chỉ được đặt tối đa ${item.availableSeats} vé cho tour này.`
                             );
                           }
                         }}
@@ -201,14 +211,21 @@ export default function Cart() {
 
                       <button
                         onClick={() => {
-                          setCart((prev) =>
-                            prev.map((p) =>
-                              p.id === item.id
-                                ? { ...p, quantity: p.quantity + 1 }
-                                : p
-                            )
-                          );
+                          if (item.quantity < item.availableSeats) {
+                            setCart((prev) =>
+                              prev.map((p) =>
+                                p.id === item.id
+                                  ? { ...p, quantity: p.quantity + 1 }
+                                  : p
+                              )
+                            );
+                          } else {
+                            toast.warn(
+                              `Chỉ còn ${item.availableSeats} vé cho tour này.`
+                            );
+                          }
                         }}
+                        disabled={item.quantity >= item.availableSeats}
                       >
                         +
                       </button>

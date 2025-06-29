@@ -5,7 +5,7 @@ import { LuAlarmClock } from "react-icons/lu";
 import { ImQrcode } from "react-icons/im";
 import { IoLocationOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
-import { fetchGet } from "../../../lib/httpHandler";
+import { fetchGet, fetchPost } from "../../../lib/httpHandler";
 
 export default function Payment() {
   const [orderItems, setOrderItems] = useState([]);
@@ -57,7 +57,7 @@ export default function Payment() {
 
       setPassengerData(
         items.map((tour) => ({
-          tourId: tour.id,
+          tourId: tour.tourId,
           routeName: tour.routeName,
           contactIndex: 0,
           passengers: Array.from({ length: tour.quantity }, () => ({
@@ -76,28 +76,49 @@ export default function Payment() {
   // Kiểm tra nếu dữ liệu hàng khách
   const isPassengerDataValid = () => {
     for (const tour of passengerData) {
+      const seen = new Set();
+
       for (const passenger of tour.passengers) {
-        if (
-          !passenger.fullname.trim() ||
-          !passenger.email.trim() ||
-          !passenger.phoneNumber.trim()
-        ) {
+        const { fullname, email, phoneNumber } = passenger;
+
+        // Kiểm tra rỗng
+        if (!fullname.trim() || !email.trim() || !phoneNumber.trim()) {
+          toast.error(
+            `Vui lòng nhập đầy đủ thông tin hành khách ở tour "${tour.routeName}"`
+          );
           return false;
         }
 
         // Kiểm tra email hợp lệ
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(passenger.email)) {
+        if (!emailRegex.test(email)) {
+          toast.error(`Email không hợp lệ trong tour "${tour.routeName}"`);
           return false;
         }
 
-        // Kiểm tra số điện thoại chỉ là số, 10 số
+        // Kiểm tra số điện thoại hợp lệ
         const phoneRegex = /^\d{10}$/;
-        if (!phoneRegex.test(passenger.phoneNumber)) {
+        if (!phoneRegex.test(phoneNumber)) {
+          toast.error(
+            `Số điện thoại không hợp lệ trong tour "${tour.routeName}"`
+          );
           return false;
         }
+
+        // Kiểm tra trùng (dựa trên email + phone)
+        const identityKey = `${email
+          .trim()
+          .toLowerCase()}|${phoneNumber.trim()}`;
+        if (seen.has(identityKey)) {
+          toast.error(
+            `Trong tour "${tour.routeName}" có hành khách bị trùng thông tin.`
+          );
+          return false;
+        }
+        seen.add(identityKey);
       }
     }
+
     return true;
   };
 
@@ -126,12 +147,34 @@ export default function Payment() {
       return;
     }
 
-    // TODO: Gửi dữ liệu về server tại đây nếu cần
+    const invoicePayload = {
+      userId: Number(userId),
+      tours: passengerData.map((tour, tourIndex) => ({
+        tourId: tour.tourId,
+        departureDate:
+          orderItems.find((o) => o.tourId === tour.tourId)?.departureDates ||
+          "",
+        quantity: tour.passengers.length,
+        contactIndex: tour.contactIndex,
+        passengers: tour.passengers.map((p) => ({
+          fullname: p.fullname,
+          email: p.email,
+          phoneNumber: p.phoneNumber,
+        })),
+      })),
+    };
 
-    toast.success("Đặt hàng thành công", {
-      autoClose: 1000,
-    });
-
+    fetchPost(
+      "/api/invoice/payment-cash",
+      invoicePayload,
+      (res) => {
+        toast.success("Đặt hàng thành công!", { autoClose: 1000 });
+        localStorage.removeItem("selectedCart");
+        setTimeout(() => (window.location.href = "/bookings"), 1000);
+      },
+      (err) => toast.error(err),
+      () => toast.error("Lỗi kết nối tới máy chủ")
+    );
     // Xóa giỏ hàng sau khi xác nhận
     localStorage.removeItem("selectedCart");
   };

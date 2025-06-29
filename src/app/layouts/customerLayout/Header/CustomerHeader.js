@@ -5,7 +5,16 @@ import logo from "../../../assets/icons/admin/navigation/logo.png";
 import avatar from "../../../assets/images/admin/header/avatar.jpg";
 import "./CustomerHeader.css";
 import { NavLink, useNavigate } from "react-router-dom";
-import { FaSignOutAlt, FaHeart, FaClipboardList, FaUser, FaShoppingCart, FaCog, FaTachometerAlt, FaUsers } from "react-icons/fa";
+import {
+  FaSignOutAlt,
+  FaHeart,
+  FaClipboardList,
+  FaUser,
+  FaShoppingCart,
+  FaCog,
+  FaTachometerAlt,
+  FaUsers,
+} from "react-icons/fa";
 import { useAuth } from "../../../lib/AuthContext";
 import { fetchGet, BE_ENDPOINT } from "../../../lib/httpHandler";
 
@@ -85,9 +94,9 @@ export default function CustomerHeader() {
       }
     };
 
-    window.addEventListener('userInfoUpdated', handleUserUpdate);
+    window.addEventListener("userInfoUpdated", handleUserUpdate);
     return () => {
-      window.removeEventListener('userInfoUpdated', handleUserUpdate);
+      window.removeEventListener("userInfoUpdated", handleUserUpdate);
     };
   }, [isLoggedIn]);
 
@@ -101,11 +110,46 @@ export default function CustomerHeader() {
 
     // Data mẫu nếu API không hoạt động
     const sampleData = [
-      { id: 1, name: "Hành trình khám phá miền Bắc", code: "HNCB1", departure: "Hà Nội", destination: "Cao Bằng", type: 'route' },
-      { id: 2, name: "Khám phá miền Trung", code: "HĐN2", departure: "Huế", destination: "Đà Nẵng", type: 'route' },
-      { id: 3, name: "Hành trình về nguồn", code: "THCMCC3", departure: "TP. Hồ Chí Minh", destination: "Củ Chi", type: 'route' },
-      { id: 4, name: "Tour du lịch Hạ Long", code: "HLB4", departure: "Hà Nội", destination: "Quảng Ninh", type: 'route' },
-      { id: 5, name: "Khám phá Sapa", code: "SP5", departure: "Hà Nội", destination: "Lào Cai", type: 'route' }
+      {
+        id: 1,
+        name: "Hành trình khám phá miền Bắc",
+        code: "HNCB1",
+        departure: "Hà Nội",
+        destination: "Cao Bằng",
+        type: "route",
+      },
+      {
+        id: 2,
+        name: "Khám phá miền Trung",
+        code: "HĐN2",
+        departure: "Huế",
+        destination: "Đà Nẵng",
+        type: "route",
+      },
+      {
+        id: 3,
+        name: "Hành trình về nguồn",
+        code: "THCMCC3",
+        departure: "TP. Hồ Chí Minh",
+        destination: "Củ Chi",
+        type: "route",
+      },
+      {
+        id: 4,
+        name: "Tour du lịch Hạ Long",
+        code: "HLB4",
+        departure: "Hà Nội",
+        destination: "Quảng Ninh",
+        type: "route",
+      },
+      {
+        id: 5,
+        name: "Khám phá Sapa",
+        code: "SP5",
+        departure: "Hà Nội",
+        destination: "Lào Cai",
+        type: "route",
+      },
     ];
 
     try {
@@ -113,13 +157,19 @@ export default function CustomerHeader() {
       const tourRoutesPromise = new Promise((resolve) => {
         fetchGet(
           "/api/admin/tour-route/search",
-          (res) => resolve((res.data || res || []).map(item => ({ ...item, type: 'route' }))),
+          (res) =>
+            resolve(
+              (res.data || res || []).map((item) => ({
+                ...item,
+                type: "route",
+              }))
+            ),
           () => resolve([])
         );
       });
 
       const routes = await tourRoutesPromise;
-      
+
       if (routes.length > 0) {
         processSearchResults(routes, query);
       } else {
@@ -136,36 +186,42 @@ export default function CustomerHeader() {
   // Xử lý kết quả tìm kiếm - ưu tiên location (departure, destination)
   const processSearchResults = (data, query) => {
     const normalizedQuery = removeVietnameseTones(query.toLowerCase());
-    
+
     // Tách thành 2 nhóm: khớp location trước, khớp name sau
     const locationMatches = [];
     const nameMatches = [];
-    
-    data.forEach(item => {
+
+    data.forEach((item) => {
       const normalizedName = removeVietnameseTones(item.name.toLowerCase());
-      const normalizedDeparture = removeVietnameseTones((item.departure || '').toLowerCase());
-      const normalizedDestination = removeVietnameseTones((item.destination || '').toLowerCase());
-      
+      const normalizedDeparture = removeVietnameseTones(
+        (item.departure || "").toLowerCase()
+      );
+      const normalizedDestination = removeVietnameseTones(
+        (item.destination || "").toLowerCase()
+      );
+
       // Kiểm tra khớp location (departure hoặc destination)
-      const locationMatch = normalizedDeparture.includes(normalizedQuery) || 
-                          normalizedDestination.includes(normalizedQuery) ||
-                          (item.departure || '').toLowerCase().includes(query.toLowerCase()) ||
-                          (item.destination || '').toLowerCase().includes(query.toLowerCase());
-      
+      const locationMatch =
+        normalizedDeparture.includes(normalizedQuery) ||
+        normalizedDestination.includes(normalizedQuery) ||
+        (item.departure || "").toLowerCase().includes(query.toLowerCase()) ||
+        (item.destination || "").toLowerCase().includes(query.toLowerCase());
+
       // Kiểm tra khớp name
-      const nameMatch = normalizedName.includes(normalizedQuery) || 
-                       item.name.toLowerCase().includes(query.toLowerCase());
-      
+      const nameMatch =
+        normalizedName.includes(normalizedQuery) ||
+        item.name.toLowerCase().includes(query.toLowerCase());
+
       if (locationMatch) {
         locationMatches.push(item);
       } else if (nameMatch) {
         nameMatches.push(item);
       }
     });
-    
+
     // Gộp kết quả: location trước, name sau
     const filtered = [...locationMatches, ...nameMatches];
-    
+
     console.log("Filtered results (location first):", filtered); // Debug log
     setSearchResults(filtered.slice(0, 5)); // Chỉ hiển thị 5 kết quả đầu
     setShowSearchResults(true);
@@ -180,7 +236,7 @@ export default function CustomerHeader() {
 
   // Xử lý khi nhấn Enter trong ô tìm kiếm
   const handleSearchKeyPress = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSearchSubmit();
     }
   };
@@ -190,9 +246,11 @@ export default function CustomerHeader() {
     if (searchQuery.trim()) {
       // Navigate đến trang search với query, tránh URL stacking
       const currentPath = window.location.pathname;
-      if (currentPath === '/search') {
+      if (currentPath === "/search") {
         // Nếu đang ở trang search, thay thế URL hiện tại
-        navigate(`/search?query=${encodeURIComponent(searchQuery.trim())}`, { replace: true });
+        navigate(`/search?query=${encodeURIComponent(searchQuery.trim())}`, {
+          replace: true,
+        });
       } else {
         // Nếu không ở trang search, tạo entry mới
         navigate(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
@@ -252,19 +310,21 @@ export default function CustomerHeader() {
     // Xóa input search
     setSearchQuery("");
     // Navigate đến trang search với destination (ưu tiên destination, fallback departure)
-    const destination = item.destination || item.departure || '';
+    const destination = item.destination || item.departure || "";
     const currentPath = window.location.pathname;
-    
+
     if (destination) {
-      const searchUrl = `/search?destination=${encodeURIComponent(destination)}&query=${encodeURIComponent(query)}`;
-      if (currentPath === '/search') {
+      const searchUrl = `/search?destination=${encodeURIComponent(
+        destination
+      )}&query=${encodeURIComponent(query)}`;
+      if (currentPath === "/search") {
         navigate(searchUrl, { replace: true });
       } else {
         navigate(searchUrl);
       }
     } else {
       const searchUrl = `/search?query=${encodeURIComponent(query)}`;
-      if (currentPath === '/search') {
+      if (currentPath === "/search") {
         navigate(searchUrl, { replace: true });
       } else {
         navigate(searchUrl);
@@ -287,7 +347,7 @@ export default function CustomerHeader() {
             <li onClick={() => navigate("/cart")}>
               <FaShoppingCart className="icon-li" /> Giỏ hàng
             </li>
-            <li onClick={() => navigate("/orders")}>
+            <li onClick={() => navigate("/bookings")}>
               <FaClipboardList className="icon-li" /> Đơn hàng
             </li>
             <li onClick={() => navigate("/account")}>
@@ -324,7 +384,11 @@ export default function CustomerHeader() {
         <img src={logo} alt="logo" className="logo" />
         <h2 className="logo-text">Website Đặt Tour </h2>
       </div>
-      <div className="header-center" ref={searchRef} style={{ position: 'relative' }}>
+      <div
+        className="header-center"
+        ref={searchRef}
+        style={{ position: "relative" }}
+      >
         <img src={search} alt="Icon-Search" className="icon-search" />
         <input
           type="text"
@@ -335,8 +399,10 @@ export default function CustomerHeader() {
           onKeyPress={handleSearchKeyPress}
           onFocus={() => searchQuery && setShowSearchResults(true)}
         />
-        <button className="search-button" onClick={handleSearchSubmit}>SEARCH</button>
-        
+        <button className="search-button" onClick={handleSearchSubmit}>
+          SEARCH
+        </button>
+
         {/* Search Results Dropdown */}
         {showSearchResults && searchResults.length > 0 && (
           <div className="search-results-dropdown">
@@ -348,26 +414,29 @@ export default function CustomerHeader() {
               >
                 <div className="result-name">{item.name}</div>
                 <div className="result-location">
-                  {item.departure && item.destination 
-                    ? `${item.departure} → ${item.destination}` 
-                    : (item.departure || item.destination || 'Tuyến du lịch')
-                  }
+                  {item.departure && item.destination
+                    ? `${item.departure} → ${item.destination}`
+                    : item.departure || item.destination || "Tuyến du lịch"}
                   {item.code && ` • ${item.code}`}
                 </div>
               </div>
             ))}
           </div>
         )}
-        
+
         {/* No results message */}
-        {showSearchResults && searchResults.length === 0 && searchQuery.trim() && (
-          <div className="search-results-dropdown">
-            <div className="search-result-item no-results">
-              <div className="result-name">Không tìm thấy kết quả</div>
-              <div className="result-location">Thử tìm kiếm với từ khóa khác</div>
+        {showSearchResults &&
+          searchResults.length === 0 &&
+          searchQuery.trim() && (
+            <div className="search-results-dropdown">
+              <div className="search-result-item no-results">
+                <div className="result-name">Không tìm thấy kết quả</div>
+                <div className="result-location">
+                  Thử tìm kiếm với từ khóa khác
+                </div>
+              </div>
             </div>
-          </div>
-        )}
+          )}
       </div>
       <div className="header-right">
         <NavLink to="/admin" className="help-link">
@@ -381,23 +450,28 @@ export default function CustomerHeader() {
               </NavLink>
             )}
             <div className="header-account" ref={dropdownRef}>
-              <img 
+              <img
                 key={`avatar-${avatarKey}`}
-                className="avatar" 
-                alt="Avatar" 
+                className="avatar"
+                alt="Avatar"
                 src={
                   userInfo?.avatar
                     ? userInfo.avatar.startsWith("http")
                       ? `${userInfo.avatar}?t=${avatarKey}`
                       : `${BE_ENDPOINT}${userInfo.avatar}?t=${avatarKey}`
                     : avatar
-                } 
+                }
               />
               <div className="user-infor">
-                <p className="full-name">{userInfo?.fullname || "Đang tải..."}</p>
+                <p className="full-name">
+                  {userInfo?.fullname || "Đang tải..."}
+                </p>
                 <p className="user-role">
-                  {userRole === "admin" ? "Quản trị viên" : 
-                   userRole === "staff" ? "Nhân viên" : "Khách hàng"}
+                  {userRole === "admin"
+                    ? "Quản trị viên"
+                    : userRole === "staff"
+                    ? "Nhân viên"
+                    : "Khách hàng"}
                 </p>
               </div>
               <div className="dropdown-wrapper">
