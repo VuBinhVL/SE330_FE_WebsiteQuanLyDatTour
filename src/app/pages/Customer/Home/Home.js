@@ -1,39 +1,25 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
-import "./Home.css";
-import {
-  IconButton,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Button,
-  TextField,
-import {
-  IconButton,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Button,
-  TextField,
-} from "@mui/material";
-import { toast } from "react-toastify";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import SearchIcon from "@mui/icons-material/Search";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import SearchIcon from "@mui/icons-material/Search";
 import {
-  BE_ENDPOINT,
-  fetchGet,
-  fetchPost,
-  fetchDelete,
-} from "../../../lib/httpHandler";
-import  banner  from "../../../assets/images/customer/banner.png";
-import { BE_ENDPOINT, fetchGet, fetchPost, fetchDelete } from "../../../lib/httpHandler";
+  Button,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { toast } from "react-toastify";
+import banner from "../../../assets/images/customer/banner.png";
 import { useAuth } from "../../../lib/AuthContext";
+import { fetchDelete, fetchGet, fetchPost } from "../../../lib/httpHandler";
+import "./Home.css";
 
 // Dữ liệu mẫu cho banner (ảnh tĩnh)
 const banners = [
@@ -484,28 +470,29 @@ export default function Banner() {
         <h2 className="favorite-destinations-title">
           Danh sách địa điểm du lịch được ưa thích
         </h2>
-       
+
         <div className="favorite-destinations-items">
-{Array.isArray(favoriteDestinations) && favoriteDestinations.length > 0 ? (
-  favoriteDestinations.map((item) => (
-    <div
-      key={item.id}
-      className="favorite-destination-item"
-      onClick={() => handleDestinationClick(item.location)} // Thêm sự kiện onClick
-      style={{ cursor: "pointer" }} // Thêm style để chỉ báo có thể click
-    >
-      <img
-        src={item.image || "https://via.placeholder.com/300"}
-        alt={item.name}
-        className="destination-image"
-      />
-      <div className="destination-overlay"></div>
-      <h3 className="destination-name">{item.name}</h3>
-    </div>
-  ))
-) : (
-  <p>Đang tải dữ liệu...</p>
-)}
+          {Array.isArray(favoriteDestinations) &&
+          favoriteDestinations.length > 0 ? (
+            favoriteDestinations.map((item) => (
+              <div
+                key={item.id}
+                className="favorite-destination-item"
+                onClick={() => handleDestinationClick(item.location)} // Thêm sự kiện onClick
+                style={{ cursor: "pointer" }} // Thêm style để chỉ báo có thể click
+              >
+                <img
+                  src={item.image || "https://via.placeholder.com/300"}
+                  alt={item.name}
+                  className="destination-image"
+                />
+                <div className="destination-overlay"></div>
+                <h3 className="destination-name">{item.name}</h3>
+              </div>
+            ))
+          ) : (
+            <p>Đang tải dữ liệu...</p>
+          )}
         </div>
       </div>
     </div>
