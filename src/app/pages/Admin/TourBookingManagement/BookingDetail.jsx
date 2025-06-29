@@ -35,10 +35,6 @@ const BookingDetail = () => {
     );
   };
 
-  const getStatusClass = (status) => {
-  return status ? "status-paid" : "status-pending";
-  };
-
   const getStatusText = (status) => {
     return status ? "Đã thanh toán" : "Chưa thanh toán";
   };
@@ -125,7 +121,6 @@ const BookingDetail = () => {
             <label>Trạng thái thanh toán:</label>
            <input
               type="text"
-              className={`status ${getStatusClass(booking.invoice?.paymentStatus === "PAID")}`}
               value={getStatusText(booking.invoice?.paymentStatus === "PAID")}
               readOnly
             />
@@ -173,7 +168,21 @@ const BookingDetail = () => {
       </table>
 
       <div className="footer-btns">
-        <button className="invoice-btn">Xem thông tin hóa đơn</button>
+        <button
+              className="invoice-btn"
+              onClick={() => {
+                if (booking.invoiceId) {
+                  navigate(`/admin/invoices/detail/${booking.invoiceId}`, {
+                    state: { order: booking.invoice },
+                  });
+                } else {
+                  alert("Không tìm thấy thông tin hóa đơn.");
+                }
+              }}
+        >
+          Xem thông tin hóa đơn
+        </button>
+
       </div>
 
       {isPopupOpen && selectedPassenger && (

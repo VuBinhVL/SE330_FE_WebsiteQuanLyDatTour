@@ -5,12 +5,14 @@ import { ReactComponent as DeleteIcon } from "../../../assets/icons/admin/Frame 
 import { fetchGet, fetchDelete } from "../../../lib/httpHandler";
 import "./OrderManagement.css";
 
-const getStatusClass = (status) => {
-  return status ? "status-paid" : "status-pending";
+const getStatusText = (status, isCanceled) => {
+  if (isCanceled) return "Đã hủy";
+  return status ? "Đã thanh toán" : "Chưa thanh toán";
 };
 
-const getStatusText = (status) => {
-  return status ? "Đã thanh toán" : "Chưa thanh toán";
+const getStatusClass = (status, isCanceled) => {
+  if (isCanceled) return "status-canceled";
+  return status ? "status-paid" : "status-pending";
 };
 
 const formatCurrency = (amount) =>
@@ -38,8 +40,9 @@ export default function OrderManagement() {
           orderCode: invoice.id,
           orderDate: new Date(invoice.createdAt).toLocaleString("vi-VN"),
           totalAmount: invoice.totalAmount || 0,
-          tourCount: invoice.tourCount || 1,
-          status: invoice.paymentStatus === true, // chuyển sang kiểu boolean
+          tourCount: invoice.tourCount || "",
+          status: invoice.paymentStatus === true,
+          isCanceled: invoice.isCanceled === true,
         }));
         setOrders(transformed);
       },

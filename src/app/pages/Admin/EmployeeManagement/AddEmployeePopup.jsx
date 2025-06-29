@@ -1,7 +1,19 @@
-import React, { useState } from 'react';
+// AddEmployeePopup.jsx
+import React, { useEffect, useRef, useState } from 'react';
 import './EmployeePopup.css';
 import { ReactComponent as CameraIcon } from "../../../assets/icons/admin/Icon1.svg";
-import { fetchPost, fetchUpload } from "../../../lib/httpHandler";
+import { fetchPost, fetchUpload, fetchGet } from "../../../lib/httpHandler";
+import MySwal from 'sweetalert2';
+
+function randomString(length) {
+  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  for (let i = 0; i < length; ++i) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+// Helper generate string
 
 const AddEmployeePopup = ({ isOpen, onClose, onSubmit }) => {
   const initialForm = {
@@ -15,116 +27,164 @@ const AddEmployeePopup = ({ isOpen, onClose, onSubmit }) => {
     account_id: null,
   };
 
-  const [formData, setFormData] = useState(initialForm);
-  const [avatar, setAvatar] = useState(null);
+  const [form, setForm] = useState(initialForm);
+  const [avatarFile, setAvatarFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [accounts, setAccounts] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [createdAccountId, setCreatedAccountId] = useState(null);
+  const [createdUser, setCreatedUser] = useState(null);
+  const [canSendMail, setCanSendMail] = useState(false);
+  const [mailCountdown, setMailCountdown] = useState(30);
+  const mailTimerRef = useRef(null);
+
+  useEffect(() => {
+    fetchGet("/api/admin/account/get-all", (res) => setAccounts(res.data || []));
+    fetchGet("/api/admin/staff/get-all", (res) => setUsers(res.data || []));
+    return () => clearInterval(mailTimerRef.current);
+  }, []);
+
+  const generateUsername = () => {
+    let username;
+    do {
+      username = "emp" + randomString(6);
+    } while (accounts.some((acc) => acc.username === username));
+    return username;
+  };
+
+  const generatePassword = () => randomString(8);
+
+  const isValidEmail = (mail) =>
+    /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(mail);
+
+  const isValidPhone = (phone) => /^\d{10,11}$/.test(phone);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'sex') {
-      setFormData(prev => ({ ...prev, sex: value === 'Nam' }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
+    setForm(prev => ({
+      ...prev,
+      [name]: name === 'sex' ? value === "Nam" : value
+    }));
   };
 
-  const handleImageChange = (e) => {
+  const handleAvatarChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setAvatar(file);
-    }
+    if (file) setAvatarFile(file);
   };
 
   const handleClose = () => {
-    setFormData(initialForm);
-    setAvatar(null);
+    setForm(initialForm);
+    setAvatarFile(null);
+    setLoading(false);
     onClose();
   };
 
-  const handleSubmit = (e) => {
-  e.preventDefault();
-
-  if (!formData.fullname || formData.sex === '' || !formData.username || !formData.password) {
-    alert("Vui lòng điền đầy đủ thông tin bắt buộc.");
-    return;
-  }
-
-  if (new Date(formData.birthday) > new Date()) {
-    alert("Ngày sinh không hợp lệ!");
-    return;
-  }
-
-  setLoading(true);
-
-  const accountPayload = {
-    username: formData.username,
-    password: formData.password,
-    isLock: false
+  const startMailCountdown = () => {
+    setMailCountdown(30);
+    setCanSendMail(false);
+    mailTimerRef.current = setInterval(() => {
+      setMailCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(mailTimerRef.current);
+          setCanSendMail(true);
+          return 30;
+        }
+        return prev - 1;
+      });
+    }, 1000);
   };
 
-  fetchPost(
-    "/api/admin/account/create",
-    accountPayload,
-    (accRes) => {
-      const accountId = accRes.data?.id;
-      if (!accountId) {
-        alert("Không lấy được account_id");
-        setLoading(false);
-        return;
-      }
+  const handleSendMail = async () => {
+    if (!createdAccountId || !createdUser) return;
+    startMailCountdown();
+    MySwal.fire({
+      icon: "success",
+      title: "Đã gửi email thành công!",
+      text: "Vui lòng kiểm tra email của nhân viên.",
+      confirmButtonText: "OK",
+    });
+    await new Promise((resolve) =>
+      fetchPost(`/api/admin/account/send-credentials/${createdAccountId}`, {}, resolve, resolve)
+    );
+    onSubmit && onSubmit();
+    handleClose();
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const { fullname, email, phoneNumber, birthday, address } = form;
+
+    if (!fullname || !email || !phoneNumber || !birthday || !address) {
+      MySwal.fire({ icon: "error", title: "Thiếu thông tin", text: "Vui lòng nhập đầy đủ thông tin!" });
+      return;
+    }
+    if (!isValidEmail(email)) {
+      MySwal.fire({ icon: "error", title: "Email không hợp lệ" });
+      return;
+    }
+    if (!isValidPhone(phoneNumber)) {
+      MySwal.fire({ icon: "error", title: "Số điện thoại không hợp lệ" });
+      return;
+    }
+    if (users.some((u) => u.email.trim().toLowerCase() === email.trim().toLowerCase())) {
+      MySwal.fire({ icon: "error", title: "Email đã tồn tại!" });
+      return;
+    }
+
+    setLoading(true);
+    const username = generateUsername();
+    const password = generatePassword();
+
+    fetchPost("/api/admin/account/create", { username, password, isLock: false }, (accRes) => {
+      const accountId = accRes.data.id;
 
       const staffPayload = {
-        ...formData,
+        ...form,
         account_id: accountId,
-        avatar: ""
+        avatar: "default.png"
       };
 
-      fetchPost(
-        "/api/admin/staff/create",
-        staffPayload,
-        (res) => {
-          const staff = res.data;
+      fetchPost("/api/admin/staff/create", staffPayload, (staffRes) => {
+        const staff = staffRes.data;
+        const afterCreate = (finalStaff) => {
+          setCreatedAccountId(accountId);
+          setCreatedUser(finalStaff);
+          setCanSendMail(true);
+          MySwal.fire({
+            icon: "success",
+            title: "Tạo nhân viên thành công!",
+            text: "Bạn có muốn gửi thông tin tài khoản về email không?",
+            showCancelButton: true,
+            confirmButtonText: "Gửi email",
+            cancelButtonText: "Không",
+          }).then((result) => {
+            if (result.isConfirmed) handleSendMail();
+            else handleClose();
+          });
+        };
 
-          if (avatar && staff?.id) {
-            const formImg = new FormData();
-            formImg.append("file", avatar);
-
-            fetchUpload(
-              `/api/admin/staff/update-avatar/${staff.id}`,
-              formImg,
-              (res2) => {
-                staff.avatar = res2.data;
-                onSubmit && onSubmit();
-                handleClose();
-                setLoading(false);
-              },
-              () => {
-                alert("Lỗi upload ảnh!");
-                setLoading(false);
-              },
-              () => {}
-            );
-          } else {
-            onSubmit && onSubmit();
-            handleClose();
+        if (avatarFile) {
+          const formImg = new FormData();
+          formImg.append("file", avatarFile);
+          fetchUpload(`/api/admin/staff/update-avatar/${staff.id}`, formImg, (res2) => {
+            afterCreate({ ...staff, avatar: res2.data });
+          }, () => {
             setLoading(false);
-          }
-        },
-        () => {
-          alert("Đã xảy ra lỗi khi thêm nhân viên!");
-          setLoading(false);
-        },
-        () => {}
-      );
-    },
-    () => {
-      alert("Tạo tài khoản thất bại");
-      setLoading(false);
-    },
-    () => {}
-  );
-};
+            MySwal.fire({ icon: "warning", title: "Upload avatar thất bại!" });
+          });
+        } else {
+          afterCreate(staff);
+        }
 
+      }, () => {
+        setLoading(false);
+        MySwal.fire({ icon: "error", title: "Tạo nhân viên thất bại!" });
+      });
+    }, () => {
+      setLoading(false);
+      MySwal.fire({ icon: "error", title: "Tạo tài khoản thất bại!" });
+    });
+  };
 
   if (!isOpen) return null;
 
@@ -137,24 +197,10 @@ const AddEmployeePopup = ({ isOpen, onClose, onSubmit }) => {
         </div>
         <div className="popup-body">
           <div className="avatar-emp">
-            <input
-              type="file"
-              accept="image/*"
-              id="avatarInput"
-              style={{ display: 'none' }}
-              onChange={handleImageChange}
-            />
-            <div
-              className="avatar-placeholder"
-              onClick={() => document.getElementById('avatarInput').click()}
-              style={{ cursor: 'pointer' }}
-            >
-              {avatar ? (
-                <img
-                  src={URL.createObjectURL(avatar)}
-                  alt="Avatar"
-                  className="avatar-image"
-                />
+            <input type="file" accept="image/*" id="avatarInput" style={{ display: 'none' }} onChange={handleAvatarChange} />
+            <div className="avatar-placeholder" onClick={() => document.getElementById('avatarInput').click()} style={{ cursor: 'pointer' }}>
+              {avatarFile ? (
+                <img src={URL.createObjectURL(avatarFile)} alt="Avatar" className="avatar-image" />
               ) : (
                 <CameraIcon className="avatar-camera-icon" />
               )}
@@ -163,94 +209,34 @@ const AddEmployeePopup = ({ isOpen, onClose, onSubmit }) => {
 
           <form onSubmit={handleSubmit}>
             <label>Họ và tên</label>
-            <input
-              type="text"
-              name="fullname"
-              placeholder="Nhập họ tên nhân viên"
-              value={formData.fullname}
-              onChange={handleChange}
-              required
-            />
+            <input type="text" name="fullname" value={form.fullname} onChange={handleChange} placeholder="Nhập họ tên" required />
 
             <div className="row">
               <div>
                 <label>Giới tính</label>
-                <select
-                  name="sex"
-                  value={formData.sex === true ? "Nam" : formData.sex === false ? "Nữ" : ""}
-                  onChange={handleChange}
-                  required
-                >
+                <select name="sex" value={form.sex === true ? "Nam" : form.sex === false ? "Nữ" : ""} onChange={handleChange} required>
                   <option value="" disabled hidden>Giới tính</option>
                   <option value="Nam">Nam</option>
                   <option value="Nữ">Nữ</option>
                 </select>
               </div>
-
               <div>
                 <label>Ngày sinh</label>
-                <input
-                  type="date"
-                  name="birthday"
-                  value={formData.birthday}
-                  onChange={handleChange}
-                  required
-                />
+                <input type="date" name="birthday" value={form.birthday} onChange={handleChange} required />
               </div>
             </div>
 
             <label>Địa chỉ</label>
-            <input
-              type="text"
-              name="address"
-              placeholder="Địa chỉ"
-              value={formData.address}
-              onChange={handleChange}
-            />
+            <input type="text" name="address" value={form.address} onChange={handleChange} placeholder="Địa chỉ" required />
 
             <label>Số điện thoại</label>
-            <input
-              type="tel"
-              name="phoneNumber"
-              placeholder="Số điện thoại"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-            />
+            <input type="tel" name="phoneNumber" value={form.phoneNumber} onChange={handleChange} placeholder="Số điện thoại" required />
 
             <label>Email</label>
-            <input
-              type="email"
-              name="email"
-              placeholder="example@gmail.com"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-
-            <label>Tên đăng nhập</label>
-            <input
-              type="text"
-              name="username"
-              placeholder="Tên đăng nhập"
-              value={formData.username}
-              onChange={handleChange}
-              required
-            />
-
-            <label>Mật khẩu</label>
-            <input
-              type="password"
-              name="password"
-              placeholder="Mật khẩu"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
+            <input type="email" name="email" value={form.email} onChange={handleChange} placeholder="example@gmail.com" required />
 
             <div className="actions">
-              <button type="button" className="cancel-btn" onClick={handleClose} disabled={loading}>
-                Hủy
-              </button>
+              <button type="button" className="cancel-btn" onClick={handleClose} disabled={loading}>Hủy</button>
               <button type="submit" className="confirm-btn" disabled={loading}>
                 {loading ? "Đang xử lý..." : "Xác nhận"}
               </button>

@@ -8,6 +8,7 @@ const ViewEditEmployeePopup = ({ isOpen, onClose, onSubmit, employeeId }) => {
   const [formData, setFormData] = useState({});
   const [originalData, setOriginalData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
+  const [avatar, setAvatar] = useState(null); // Ảnh mới chọn
 
   useEffect(() => {
     if (employeeId && isOpen) {
@@ -26,10 +27,11 @@ const ViewEditEmployeePopup = ({ isOpen, onClose, onSubmit, employeeId }) => {
             address: emp.address || "",
             avatar: emp.avatar || "",
             isLock: emp.account?.isLock ? "Đã khóa" : "Đang mở",
-            accountId: emp.account?.id, 
+            accountId: emp.account?.id,
           };
           setFormData(data);
           setOriginalData(data);
+          setAvatar(null); // reset ảnh mới chọn
         },
         () => alert("Không thể tải dữ liệu nhân viên"),
         () => alert("Lỗi hệ thống khi tải nhân viên")
@@ -44,28 +46,16 @@ const ViewEditEmployeePopup = ({ isOpen, onClose, onSubmit, employeeId }) => {
 
   const handleCancelEdit = () => {
     setFormData(originalData);
+    setAvatar(null);
     setIsEditing(false);
   };
 
   const handleImageChange = (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    const formDataData = new FormData();
-    formDataData.append("file", file);
-
-    fetchUpload(
-      `/api/admin/staff/update-avatar/${employeeId}`, // sử dụng prop employeeId
-      formDataData,
-      (res) => {
-        setFormData((prev) => ({ ...prev, avatar: res.data }));
-      },
-      () => alert("Không thể cập nhật ảnh"),
-      () => alert("Lỗi hệ thống khi cập nhật ảnh")
-    );
-  }
-};
-
-
+    const file = e.target.files[0];
+    if (file) {
+      setAvatar(file); // ảnh mới chọn
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -77,21 +67,41 @@ const ViewEditEmployeePopup = ({ isOpen, onClose, onSubmit, employeeId }) => {
       phoneNumber: formData.phoneNumber,
       email: formData.email,
       address: formData.address,
-      avatar: formData.avatar,
+      avatar: formData.avatar, // đường dẫn cũ, sẽ được cập nhật nếu có ảnh mới
       account: {
         id: formData.accountId,
         isLock: formData.isLock === "Đã khóa",
       },
     };
 
-
     fetchPut(
       `/api/admin/staff/update/${formData.id}`,
       dataToUpdate,
       () => {
-        onSubmit();
-        setIsEditing(false);
-        onClose();
+        // Nếu có chọn ảnh mới thì upload
+        if (avatar) {
+          const formImg = new FormData();
+          formImg.append("file", avatar);
+          fetchUpload(
+            `/api/admin/staff/update-avatar/${formData.id}`,
+            formImg,
+            (res2) => {
+              setFormData((prev) => ({
+                ...prev,
+                avatar: res2.data,
+              }));
+              onSubmit();
+              setIsEditing(false);
+              onClose();
+            },
+            () => alert("Không thể cập nhật ảnh"),
+            () => alert("Lỗi hệ thống khi cập nhật ảnh")
+          );
+        } else {
+          onSubmit();
+          setIsEditing(false);
+          onClose();
+        }
       },
       () => alert("Không thể cập nhật thông tin nhân viên"),
       () => alert("Lỗi hệ thống khi cập nhật")
@@ -99,6 +109,12 @@ const ViewEditEmployeePopup = ({ isOpen, onClose, onSubmit, employeeId }) => {
   };
 
   if (!isOpen) return null;
+
+  const avatarPreview = avatar
+    ? URL.createObjectURL(avatar)
+    : formData.avatar
+    ? `http://localhost:8080${formData.avatar}`
+    : null;
 
   return (
     <div className="popup-overlay-emp">
@@ -130,8 +146,8 @@ const ViewEditEmployeePopup = ({ isOpen, onClose, onSubmit, employeeId }) => {
               onClick={() => isEditing && document.getElementById("avatarInput").click()}
               style={{ cursor: isEditing ? "pointer" : "default" }}
             >
-              {formData.avatar ? (
-                <img src={formData.avatar} alt="Avatar" className="avatar-image" />
+              {avatarPreview ? (
+                <img src={avatarPreview} alt="Avatar" className="avatar-image" />
               ) : (
                 <CameraIcon className="avatar-camera-icon" />
               )}
