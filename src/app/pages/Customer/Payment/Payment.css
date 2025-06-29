@@ -112,8 +112,8 @@ h3 {
 }
 
 .order-row {
+  gap: 5rem;
   display: flex;
-  justify-content: space-between;
   font-size: 14px;
   margin: 0.4rem 0;
 }

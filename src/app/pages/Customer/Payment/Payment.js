@@ -1,53 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Payment.css";
 import { CiCalendar } from "react-icons/ci";
 import { LuAlarmClock } from "react-icons/lu";
 import { ImQrcode } from "react-icons/im";
 import { IoLocationOutline } from "react-icons/io5";
+import { toast } from "react-toastify";
 
 export default function Payment() {
-  const orderItems = [
-    {
-      id: 1,
-      routeName: "Mông cổ",
-      quantity: 1,
-      image:
-        "https://encrypted-tbn3.gstatic.com/licensed-image?q=tbn:ANd9GcStfJaYNG38SSjcKC3nNJbeePLwNfcgvtcXM7QFk6rsmLTiLbo_CuZN3k0u4K9oJfutnfu3HZvPzW4g5tY4iJDMjfKDU_ajO7RC05pYew",
-      tourCode: "DNSG838",
-      duration: "5N4Đ",
-      departureDate: "01/03",
-      startLocation: "TP. Hồ Chí Minh",
-      endLocation: "Đà Nẵng",
-      totalPrice: 9000,
-    },
-    {
-      id: 2,
-      routeName: "Mông cổ",
-      quantity: 2,
-      image:
-        "https://encrypted-tbn3.gstatic.com/licensed-image?q=tbn:ANd9GcStfJaYNG38SSjcKC3nNJbeePLwNfcgvtcXM7QFk6rsmLTiLbo_CuZN3k0u4K9oJfutnfu3HZvPzW4g5tY4iJDMjfKDU_ajO7RC05pYew",
-      tourCode: "DNSG838",
-      duration: "5N4Đ",
-      departureDate: "01/03",
-      startLocation: "TP. Hồ Chí Minh",
-      endLocation: "Đà Nẵng",
-      totalPrice: 8189000,
-    },
-    {
-      id: 3,
-      routeName: "Thanh Hóa - Sầm Sơn",
-      quantity: 2,
-      image:
-        "https://encrypted-tbn3.gstatic.com/licensed-image?q=tbn:ANd9GcStfJaYNG38SSjcKC3nNJbeePLwNfcgvtcXM7QFk6rsmLTiLbo_CuZN3k0u4K9oJfutnfu3HZvPzW4g5tY4iJDMjfKDU_ajO7RC05pYew",
-      tourCode: "DNSG838",
-      duration: "5N4Đ",
-      departureDate: "01/03",
-      startLocation: "TP. Hồ Chí Minh",
-      endLocation: "Đà Nẵng",
-      totalPrice: 8189000,
-    },
-  ];
-
+  const [orderItems, setOrderItems] = useState([]);
+  const [paymentMethod, setPaymentMethod] = useState("cash");
   const [passengerData, setPassengerData] = useState(
     orderItems.map((tour) => ({
       tourId: tour.id,
@@ -60,9 +21,11 @@ export default function Payment() {
       })),
     }))
   );
-
-  const [paymentMethod, setPaymentMethod] = useState("cash");
-
+  // Tính tổng tiền
+  const totalAmount = orderItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
   const handleChange = (tourIndex, passengerIndex, field, value) => {
     const updated = [...passengerData];
     updated[tourIndex].passengers[passengerIndex][field] = value;
@@ -74,6 +37,31 @@ export default function Payment() {
     updated[tourIndex].contactIndex = passengerIndex;
     setPassengerData(updated);
   };
+
+  //Lấy dữ liệu từ cart
+  useEffect(() => {
+    const data = localStorage.getItem("selectedCart");
+    if (data) {
+      const items = JSON.parse(data);
+      setOrderItems(items);
+      console.log("Order items:", items);
+      // tạo state hành khách tương ứng
+      setPassengerData(
+        items.map((tour) => ({
+          tourId: tour.id,
+          routeName: tour.routeName,
+          contactIndex: 0,
+          passengers: Array.from({ length: tour.quantity }, () => ({
+            fullname: "",
+            email: "",
+            phoneNumber: "",
+          })),
+        }))
+      );
+    } else {
+      toast.error("Không có dữ liệu giỏ hàng");
+    }
+  }, []);
 
   return (
     <div className="payment-container">
@@ -149,14 +137,14 @@ export default function Payment() {
           {orderItems.map((item) => (
             <div className="order-item" key={item.id}>
               <div className="order-image">
-                <img src={item.image} alt="Tour" />
+                <img src={item.routeImage} alt="Tour" />
               </div>
               <div className="order-details">
                 <h4>{item.routeName}</h4>
                 <div className="order-row">
                   <p>
                     <ImQrcode className="icon" /> Mã tour:{" "}
-                    <b>{item.tourCode}</b>
+                    <b> TOUR{String(item.tourId).padStart(2, "0")}</b>
                   </p>
                   <p>
                     <IoLocationOutline className="icon" /> Khởi hành:{" "}
@@ -176,16 +164,22 @@ export default function Payment() {
                 <div className="order-row">
                   <p>
                     <CiCalendar className="icon" /> Ngày khởi hành:{" "}
-                    <span className="departure-date">{item.departureDate}</span>
+                    <span className="departure-date">
+                      {new Date(item.departureDates).toLocaleDateString(
+                        "vi-VN"
+                      )}
+                    </span>
                   </p>
                 </div>
                 <p>
                   <b>Số lượng thành viên : {item.quantity}</b>
                 </p>
                 <div className="order-price">
-                  <span>Thành tiền:</span>
+                  <span>
+                    <b>Thành tiền:</b> {""}
+                  </span>
                   <b className="total-price">
-                    {item.totalPrice.toLocaleString()} đ
+                    {(item.price * item.quantity).toLocaleString()} đ
                   </b>
                 </div>
               </div>
@@ -226,9 +220,12 @@ export default function Payment() {
           </div>
           <div className="summary">
             <div className="total-box">
-              Tổng thanh toán (3 sản phẩm):{" "}
-              <span className="total-price">24.189.000 đ</span>
+              Tổng thanh toán ({orderItems.length} sản phẩm):{" "}
+              <span className="total-price">
+                {totalAmount.toLocaleString()} đ
+              </span>
             </div>
+
             <div className="action-group">
               <button className="confirm-order">Xác nhận đơn hàng</button>
               <button className="cancel-order">Hủy đơn hàng</button>

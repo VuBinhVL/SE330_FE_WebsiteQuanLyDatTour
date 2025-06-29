@@ -59,6 +59,16 @@ export default function Cart() {
     );
   };
 
+  //Hàm thanh toán
+  const handlePayment = (ids) => {
+    if (!ids || ids.length === 0) {
+      toast.error("Vui lòng chọn ít nhất 1 tour để đặt.");
+      return;
+    }
+    const selectedItems = cart.filter((item) => ids.includes(item.id));
+    localStorage.setItem("selectedCart", JSON.stringify(selectedItems));
+    window.location.href = "/payment";
+  };
   return (
     <div className="cart-container">
       <UserSidebar />
@@ -87,7 +97,10 @@ export default function Cart() {
               Tổng cộng ({selected.length} sản phẩm):{" "}
               <strong>{total.toLocaleString()} đ</strong>
             </span>
-            <button className="order-btn">
+            <button
+              className="order-btn"
+              onClick={() => handlePayment(selected)}
+            >
               Đặt ngay <MdKeyboardArrowRight />
             </button>
           </div>

@@ -85,7 +85,7 @@ export default function MainRoutes() {
           <Route path="bookings" element={<BookingHistory />} />
           <Route path="members" element={<Member />} />
           <Route path="tour-detail/:id" element={<TourDetail />} />
-          <Route path="tour/payment" element={<Payment />} />
+          <Route path="payment" element={<Payment />} />
         </Route>
       </Routes>
     </BrowserRouter>
