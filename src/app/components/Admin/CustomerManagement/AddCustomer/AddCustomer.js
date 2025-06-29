@@ -31,6 +31,7 @@ export default function AddCustomer({ onCloseAddForm, onAdded }) {
   const [avatarFile, setAvatarFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [canSendMail, setCanSendMail] = useState(false);
+  const [isSendingMail, setIsSendingMail] = useState(false);
   const [mailCountdown, setMailCountdown] = useState(30);
   const [createdAccountId, setCreatedAccountId] = useState(null);
   const [createdUser, setCreatedUser] = useState(null);
@@ -47,10 +48,13 @@ export default function AddCustomer({ onCloseAddForm, onAdded }) {
 
   // Tạo username random không trùng
   const generateUsername = () => {
+    const existingUsernames = accounts.map(acc => acc.username);
     let username;
+    let attempts = 0;
     do {
       username = "user" + randomString(6);
-    } while (accounts.some((acc) => acc.username === username));
+      attempts++;
+    } while (existingUsernames.includes(username) && attempts < 100);
     return username;
   };
 
@@ -93,27 +97,56 @@ export default function AddCustomer({ onCloseAddForm, onAdded }) {
     }, 1000);
   };
 
-  // Gửi mail tài khoản cho khách hàng (bất đồng bộ, chỉ khi đã tạo đủ account, user, user member)
+  // Gửi mail tài khoản cho khách hàng
   const handleSendMail = async () => {
     if (!createdAccountId || !createdUser || !createdUserMember) return;
-    startMailCountdown();
-    MySwal.fire({
-      icon: "success",
-      title: "Đã gửi email thành công!",
-      text: "Vui lòng kiểm tra email của khách hàng.",
-      confirmButtonText: "OK",
-    });
+    
+    setIsSendingMail(true);
+    setCanSendMail(false);
+    
+    // Gửi mail và chờ kết quả thực tế
     await new Promise((resolve) =>
       fetchPost(
         `/api/admin/account/send-credentials/${createdAccountId}`,
         {},
-        () => resolve(),
-        () => resolve()
+        () => {
+          MySwal.fire({
+            icon: "success",
+            title: "Đã gửi email thành công!",
+            text: "Thông tin tài khoản đã được gửi đến email khách hàng.",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+          setIsSendingMail(false);
+          startMailCountdown();
+          resolve();
+        },
+        () => {
+          MySwal.fire({
+            icon: "error", 
+            title: "Gửi email thất bại!",
+            text: "Vui lòng thử lại sau.",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+          setIsSendingMail(false);
+          setCanSendMail(true);
+          resolve();
+        },
+        () => {
+          MySwal.fire({
+            icon: "error",
+            title: "Lỗi kết nối!",
+            text: "Không thể gửi email. Vui lòng kiểm tra kết nối.",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+          setIsSendingMail(false);
+          setCanSendMail(true);
+          resolve();
+        }
       )
     );
-    // Đóng popup và trả về user cho main page
-    if (createdUser && onAdded) onAdded(createdUser);
-    onCloseAddForm && onCloseAddForm();
   };
 
   const handleSubmit = async (e) => {
@@ -178,7 +211,7 @@ export default function AddCustomer({ onCloseAddForm, onAdded }) {
           {
             ...form,
             account_id: accountId,
-            role_id: 2, // role_id cho customer
+            role_id: 1, // role_id cho customer
             avatar: form.avatar || "default.png",
           },
           (userRes) => {
@@ -203,15 +236,27 @@ export default function AddCustomer({ onCloseAddForm, onAdded }) {
                   setCreatedUser(userData);
                   setCreatedUserMember(memberRes.data);
                   setCanSendMail(true);
+                  
+                  // Cập nhật danh sách ngay lập tức
+                  if (onAdded) onAdded(userData);
+                  
                   MySwal.fire({
                     icon: "success",
                     title: "Tạo khách hàng thành công!",
                     text: "Bạn có muốn gửi thông tin tài khoản về email khách hàng không?",
                     showCancelButton: true,
-                    confirmButtonText: "Gửi email",
+                    confirmButtonText: "Có",
                     cancelButtonText: "Không",
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
                   }).then((result) => {
-                    if (result.isConfirmed) handleSendMail();
+                    if (result.isConfirmed) {
+                      handleSendMail();
+                      // Không đóng popup, để user có thể gửi lại nếu cần
+                    } else {
+                      // Chỉ đóng khi user chọn "Không"
+                      onCloseAddForm && onCloseAddForm();
+                    }
                   });
                 },
                 () => {
@@ -268,11 +313,24 @@ export default function AddCustomer({ onCloseAddForm, onAdded }) {
 
   return (
     <>
-      <div className="cus-add-overlay" onClick={onCloseAddForm}></div>
+      <div 
+        className="cus-add-overlay" 
+        onClick={isSendingMail ? undefined : onCloseAddForm}
+        style={{ cursor: isSendingMail ? 'not-allowed' : 'pointer' }}
+      ></div>
       <form className="cus-add-form" onSubmit={handleSubmit}>
         <div className="form-header">
           <h4>Thêm khách hàng mới</h4>
-          <button type="button" className="close-button" onClick={onCloseAddForm}>
+          <button 
+            type="button" 
+            className="close-button" 
+            onClick={onCloseAddForm}
+            style={{
+              opacity: isSendingMail ? 0.6 : 1,
+              cursor: isSendingMail ? 'not-allowed' : 'pointer'
+            }}
+            disabled={isSendingMail}
+          >
             <AiOutlineClose />
           </button>
         </div>
@@ -283,9 +341,16 @@ export default function AddCustomer({ onCloseAddForm, onAdded }) {
                 src={URL.createObjectURL(avatarFile)}
                 alt="avatar"
                 className="preview-avatar"
+                style={{ 
+                  opacity: createdAccountId ? 0.6 : 1,
+                  cursor: createdAccountId ? 'not-allowed' : 'pointer'
+                }}
               />
             ) : (
-              <label className="upload-icon">
+              <label className="upload-icon" style={{ 
+                opacity: createdAccountId ? 0.6 : 1,
+                cursor: createdAccountId ? 'not-allowed' : 'pointer'
+              }}>
                 <AiOutlineCamera />
                 <input
                   type="file"
@@ -293,6 +358,7 @@ export default function AddCustomer({ onCloseAddForm, onAdded }) {
                   hidden
                   onChange={handleAvatarChange}
                   ref={avatarInputRef}
+                  disabled={loading || createdAccountId}
                 />
               </label>
             )}
@@ -306,7 +372,7 @@ export default function AddCustomer({ onCloseAddForm, onAdded }) {
                 value={form.fullname}
                 onChange={handleChange}
                 required
-                disabled={loading}
+                disabled={loading || createdAccountId}
               />
             </div>
             <div className="form-group">
@@ -317,7 +383,7 @@ export default function AddCustomer({ onCloseAddForm, onAdded }) {
                 value={form.email}
                 onChange={handleChange}
                 required
-                disabled={loading}
+                disabled={loading || createdAccountId}
               />
             </div>
             <div className="form-group">
@@ -329,7 +395,7 @@ export default function AddCustomer({ onCloseAddForm, onAdded }) {
                 onChange={handleChange}
                 required
                 maxLength={11}
-                disabled={loading}
+                disabled={loading || createdAccountId}
               />
             </div>
             <div className="form-group">
@@ -340,7 +406,7 @@ export default function AddCustomer({ onCloseAddForm, onAdded }) {
                 value={form.birthday}
                 onChange={handleChange}
                 required
-                disabled={loading}
+                disabled={loading || createdAccountId}
               />
             </div>
             <div className="form-group">
@@ -351,7 +417,7 @@ export default function AddCustomer({ onCloseAddForm, onAdded }) {
                 value={form.address}
                 onChange={handleChange}
                 required
-                disabled={loading}
+                disabled={loading || createdAccountId}
               />
             </div>
             <div className="form-group">
@@ -364,7 +430,7 @@ export default function AddCustomer({ onCloseAddForm, onAdded }) {
                     value="true"
                     checked={form.sex === true || form.sex === "true"}
                     onChange={handleChange}
-                    disabled={loading}
+                    disabled={loading || createdAccountId}
                   />
                   Nam
                 </label>
@@ -375,7 +441,7 @@ export default function AddCustomer({ onCloseAddForm, onAdded }) {
                     value="false"
                     checked={form.sex === false || form.sex === "false"}
                     onChange={handleChange}
-                    disabled={loading}
+                    disabled={loading || createdAccountId}
                   />
                   Nữ
                 </label>
@@ -384,17 +450,36 @@ export default function AddCustomer({ onCloseAddForm, onAdded }) {
           </div>
         </div>
         <div className="form-footer">
-          <button
-            type="button"
-            className="cancel-button"
-            onClick={onCloseAddForm}
-            disabled={loading}
-          >
-            Hủy
-          </button>
-          <button type="submit" className="confirm-button" disabled={loading || createdAccountId}>
-            {loading ? "Đang tạo..." : "Tạo khách hàng"}
-          </button>
+          {!createdAccountId && (
+            <>
+              <button
+                type="button"
+                className="cancel-button"
+                onClick={onCloseAddForm}
+                disabled={loading}
+              >
+                Hủy
+              </button>
+              <button type="submit" className="confirm-button" disabled={loading}>
+                {loading ? "Đang tạo..." : "Tạo khách hàng"}
+              </button>
+            </>
+          )}
+          {createdAccountId && (
+            <button
+              type="button"
+              className="cancel-button"
+              onClick={onCloseAddForm}
+              style={{ 
+                margin: "0 auto",
+                opacity: isSendingMail ? 0.6 : 1,
+                cursor: isSendingMail ? 'not-allowed' : 'pointer'
+              }}
+              disabled={isSendingMail}
+            >
+              {isSendingMail ? "Đang gửi email..." : "Đóng"}
+            </button>
+          )}
         </div>
         {createdAccountId && createdUser && createdUserMember && (
           <div style={{ marginTop: 16, textAlign: "center" }}>
@@ -402,14 +487,16 @@ export default function AddCustomer({ onCloseAddForm, onAdded }) {
               type="button"
               className="confirm-button"
               style={{
-                background: canSendMail ? "#c34141" : "#e3bcbc",
-                cursor: canSendMail ? "pointer" : "not-allowed",
+                background: (canSendMail && !isSendingMail) ? "#c34141" : "#e3bcbc",
+                cursor: (canSendMail && !isSendingMail) ? "pointer" : "not-allowed",
                 marginTop: 0,
               }}
-              onClick={canSendMail ? handleSendMail : undefined}
-              disabled={!canSendMail}
+              onClick={(canSendMail && !isSendingMail) ? handleSendMail : undefined}
+              disabled={!canSendMail || isSendingMail}
             >
-              {canSendMail
+              {isSendingMail
+                ? "Đang gửi email..."
+                : canSendMail
                 ? "Gửi email tài khoản cho khách hàng"
                 : `Gửi lại sau ${mailCountdown}s`}
             </button>

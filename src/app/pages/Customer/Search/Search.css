@@ -339,3 +339,34 @@
   padding: 40px 0;
   animation: fadeIn 0.7s;
 }
+
+/* Search query info */
+.search-query-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background-color: #e3f2fd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.clear-search-btn {
+  background: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.clear-search-btn:hover {
+  background: #cc0000;
+}
