@@ -28,6 +28,7 @@ import Member from "../pages/Customer/Member";
 import DetailCustomerPage from "../components/Admin/CustomerManagement/DetailCustomerPage/DetailCustomerPage";
 import BookingHistory from "../pages/Customer/BookingHistory";
 import TourDetail from "../pages/Customer/TourDetail";
+import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import Payment from "../pages/Customer/Payment";
 
 export default function MainRoutes() {
@@ -35,28 +36,79 @@ export default function MainRoutes() {
     <BrowserRouter>
       <Routes>
         {/* Admin */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route path="dashboard" index element={<Dashboard />} />
-          <Route path="reports" element={<Report />} />
+        <Route path="/admin" element={
+          <ProtectedRoute requireStaffOrAdmin={true}>
+            <AdminLayout />
+          </ProtectedRoute>
+        }>
+          {/* Routes cho cả Admin và Staff */}
+          <Route path="dashboard" index element={
+            <ProtectedRoute requireStaffOrAdmin={true}>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="reports" element={
+            <ProtectedRoute requireAdmin={true}>
+              <Report />
+            </ProtectedRoute>
+          } />
           <Route path="account" element={<Account />} />
 
-          {/* Nested routes for customer management and destination management */}
-          <Route path="customers" element={<CustomerMainPage />} />
-          <Route path="tour-route" element={<TourRouteMainPage />} />
+          {/* Routes chỉ dành cho Admin - Quản lý khách hàng */}
+          <Route path="customers" element={
+            <ProtectedRoute requireAdmin={true}>
+              <CustomerMainPage />
+            </ProtectedRoute>
+          } />
+          <Route path="customers/:id" element={
+            <ProtectedRoute requireAdmin={true}>
+              <DetailCustomerPage />
+            </ProtectedRoute>
+          } />
+
+          {/* Routes chỉ dành cho Admin - Quản lý tour route */}
+          <Route path="tour-route" element={
+            <ProtectedRoute requireAdmin={true}>
+              <TourRouteMainPage />
+            </ProtectedRoute>
+          } />
           <Route
             path="/admin/tour-route/get/:id"
-            element={<DetailTourRoute />}
+            element={
+              <ProtectedRoute requireAdmin={true}>
+                <DetailTourRoute />
+              </ProtectedRoute>
+            }
           />
-          <Route path="tour" element={<TourMainPage />} />
-          <Route path="/admin/tour/get/:id" element={<DetailTour />} />
-          <Route path="customers/:id" element={<DetailCustomerPage />} />
 
+          {/* Routes chỉ dành cho Admin - Quản lý tour */}
+          <Route path="tour" element={
+            <ProtectedRoute requireAdmin={true}>
+              <TourMainPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/tour/get/:id" element={
+            <ProtectedRoute requireAdmin={true}>
+              <DetailTour />
+            </ProtectedRoute>
+          } />
+
+          {/* Routes chỉ dành cho Admin - Quản lý điểm đến và nhân viên */}
           <Route
             path="destination-management"
-            element={<DestinationMainPage />}
+            element={
+              <ProtectedRoute requireAdmin={true}>
+                <DestinationMainPage />
+              </ProtectedRoute>
+            }
           ></Route>
-          <Route path="staff" element={<EmployeeManagement />}></Route>
+          <Route path="staff" element={
+            <ProtectedRoute requireAdmin={true}>
+              <EmployeeManagement />
+            </ProtectedRoute>
+          }></Route>
 
+          {/* Routes cho cả Admin và Staff - Quản lý booking */}
           <Route
             path="tour-bookings"
             element={<TourBookingManagement />}
@@ -66,6 +118,7 @@ export default function MainRoutes() {
             element={<BookingDetail />}
           ></Route>
 
+          {/* Routes cho cả Admin và Staff - Quản lý hóa đơn */}
           <Route path="invoices" element={<OrderManagement />}></Route>
           <Route
             path="invoices/detail/:invoiceId"
@@ -75,12 +128,28 @@ export default function MainRoutes() {
 
         {/* Customer */}
         <Route path="/" element={<CustomerLayout />}>
-          <Route index element={<Home />}></Route>
+          <Route index element={<Home />} />
           <Route path="search" element={<Search />} />
-          <Route path="login" element={<Login />}></Route>
-          <Route path="register" element={<Register />}></Route>
-          <Route path="account" element={<Account />}></Route>
-          <Route path="forget-password" element={<ForgetPassword />}></Route>
+          <Route path="login" element={
+            <ProtectedRoute redirectLoggedIn={true}>
+              <Login />
+            </ProtectedRoute>
+          } />
+          <Route path="register" element={
+            <ProtectedRoute redirectLoggedIn={true}>
+              <Register />
+            </ProtectedRoute>
+          } />
+          <Route path="forget-password" element={
+            <ProtectedRoute redirectLoggedIn={true}>
+              <ForgetPassword />
+            </ProtectedRoute>
+          } />
+          <Route path="account" element={
+            <ProtectedRoute>
+              <Account />
+            </ProtectedRoute>
+          } />
           <Route path="cart" element={<Cart />} />
           <Route path="bookings" element={<BookingHistory />} />
           <Route path="members" element={<Member />} />
