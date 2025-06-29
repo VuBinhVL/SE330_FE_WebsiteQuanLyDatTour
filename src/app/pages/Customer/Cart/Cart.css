@@ -115,6 +115,7 @@
   height: 100%;
   object-fit: cover;
   border-radius: 14px 0 0 14px;
+  cursor: pointer;
 }
 
 .cart-container .item-check {

@@ -1,0 +1,267 @@
+.payment-container {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  background-color: #f9f9f9;
+}
+
+.payment-container .contact-info,
+.payment-container .order-info {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  flex: 1;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.08);
+}
+
+.payment-container .contact-info {
+  max-width: 400px;
+}
+
+.payment-container h3 {
+  color: #b30000;
+  margin-bottom: 1rem;
+  font-size: 20px;
+  text-transform: uppercase;
+}
+
+.payment-container .tour-passenger-block h4 {
+  color: green;
+}
+
+.payment-container .tour-passenger-block {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 1rem;
+}
+
+.payment-container .passenger-section {
+  margin-top: 1rem;
+}
+
+.payment-container .passenger-info {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.payment-container .passenger-contact-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.payment-container .contact-radio {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #333;
+}
+
+.payment-container .input-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.payment-container .input-group label {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.payment-container .input-group input {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.payment-container .order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.payment-container .order-item {
+  display: flex;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+.payment-container .order-image img {
+  width: 250px;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.payment-container .order-details {
+  padding: 1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.payment-container .order-details h4 {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.payment-container .order-row {
+  gap: 5rem;
+  display: flex;
+  font-size: 14px;
+  margin: 0.4rem 0;
+}
+
+.payment-container .order-row .icon {
+  margin-right: 4px;
+}
+
+.payment-container .departure-date {
+  background-color: #fdd;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #c00;
+  font-weight: bold;
+}
+
+.payment-container .order-price {
+  text-align: right;
+  margin-top: 10px;
+}
+
+.payment-container .total-price {
+  color: red;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.payment-container .payment-method {
+  margin-top: 2rem;
+}
+
+.payment-container .payment-method h4 {
+  margin-bottom: 1rem;
+}
+
+.payment-container .payment-method label {
+  display: inline-block;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  padding: 10px 20px;
+  margin-right: 1rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  background-color: #f9f9f9;
+  user-select: none;
+}
+
+.payment-container .payment-method input[type="radio"] {
+  display: none;
+}
+
+.payment-container .payment-method input[type="radio"]:checked + span {
+  color: red;
+  border-color: #b30000;
+}
+
+.payment-container .order-status {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.payment-container .status-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.payment-container .status-btn {
+  background: #b30000;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.payment-container .summary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.payment-container .total-box {
+  background-color: #f4f4f4;
+  padding: 5px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.payment-container .action-group {
+  display: flex;
+  gap: 1rem;
+}
+
+.payment-container .confirm-order {
+  background-color: #00cc44;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.payment-container .cancel-order {
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.payment-container .loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 18px;
+}
+
+.payment-container .spinner {
+  width: 48px;
+  height: 48px;
+  border: 5px solid #fff;
+  border-top: 5px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

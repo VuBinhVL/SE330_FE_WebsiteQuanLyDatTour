@@ -33,10 +33,10 @@ export default function Cart() {
       uri,
       (res) => {
         setCart(res);
-        console.log(res);
+        console.log("Giỏ hàng:", res);
       },
-      (err) => console.error(err),
-      () => console.error("Lỗi kết nối đến máy chủ")
+      (err) => toast.error(err),
+      () => toast.error("Lỗi kết nối đến máy chủ")
     );
   }, [userId]);
 
@@ -46,7 +46,6 @@ export default function Cart() {
       toast.error("Không có mục nào được chọn để xóa.");
       return;
     }
-    console.log("Xóa các mục:", ids);
     fetchDeleteWithBody(
       "/api/cart/items",
       ids,
@@ -54,13 +53,32 @@ export default function Cart() {
         // Cập nhật lại cart sau khi xóa
         setCart((prev) => prev.filter((item) => !ids.includes(item.id)));
         setSelected((prev) => prev.filter((id) => !ids.includes(id)));
-        console.log("Xóa thành công:", res);
+        toast.success(res.message || "Xóa thành công");
       },
       (err) => toast.error("Xóa thất bại:"),
       () => toast.error("Lỗi kết nối máy chủ")
     );
   };
 
+  //Hàm chuyển sang trang thanh toán
+  const handlePayment = (ids) => {
+    if (!ids || ids.length === 0) {
+      toast.error("Vui lòng chọn ít nhất 1 tour để đặt.");
+      return;
+    }
+    const selectedItems = cart.filter((item) => ids.includes(item.id));
+    localStorage.setItem("selectedCart", JSON.stringify(selectedItems));
+    window.location.href = "/payment";
+  };
+
+  //Hàm chuyển sang trang chi tiết tour khi click vào ảnh
+  const handleTourDetail = (tourRouteId) => {
+    if (!tourRouteId) {
+      toast.error("ID tuyến tour không hợp lệ!", { autoClose: 5000 });
+      return;
+    }
+    window.location.href = `/tour-detail/${tourRouteId}`;
+  };
   return (
     <div className="cart-container">
       <UserSidebar />
@@ -89,7 +107,10 @@ export default function Cart() {
               Tổng cộng ({selected.length} sản phẩm):{" "}
               <strong>{total.toLocaleString()} đ</strong>
             </span>
-            <button className="order-btn">
+            <button
+              className="order-btn"
+              onClick={() => handlePayment(selected)}
+            >
               Đặt ngay <MdKeyboardArrowRight />
             </button>
           </div>
@@ -105,7 +126,11 @@ export default function Cart() {
                   checked={selected.includes(item.id)}
                   onChange={() => toggleSelect(item.id)}
                 />
-                <img src={item.routeImage} alt="tour" />
+                <img
+                  src={item.routeImage}
+                  alt="tour"
+                  onClick={() => handleTourDetail(item.tourRouteId)}
+                />
               </div>
               <div className="item-info">
                 <div className="item-header">
@@ -155,10 +180,69 @@ export default function Cart() {
                   <div className="item-footer-left">
                     <label>Số lượng:</label>
                     <div className="quantity">
-                      <button>-</button>
-                      <input type="text" value={item.quantity} />
-                      <button>+</button>
+                      <button
+                        onClick={() => {
+                          setCart((prev) =>
+                            prev.map((p) =>
+                              p.id === item.id
+                                ? {
+                                    ...p,
+                                    quantity: Math.max(1, p.quantity - 1),
+                                  }
+                                : p
+                            )
+                          );
+                        }}
+                      >
+                        -
+                      </button>
+
+                      <input
+                        type="number"
+                        min={1}
+                        value={item.quantity}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value);
+                          if (
+                            !isNaN(value) &&
+                            value >= 1 &&
+                            value <= item.availableSeats
+                          ) {
+                            setCart((prev) =>
+                              prev.map((p) =>
+                                p.id === item.id ? { ...p, quantity: value } : p
+                              )
+                            );
+                          } else if (value > item.availableSeats) {
+                            toast.warn(
+                              `Chỉ được đặt tối đa ${item.availableSeats} vé cho tour này.`
+                            );
+                          }
+                        }}
+                      />
+
+                      <button
+                        onClick={() => {
+                          if (item.quantity < item.availableSeats) {
+                            setCart((prev) =>
+                              prev.map((p) =>
+                                p.id === item.id
+                                  ? { ...p, quantity: p.quantity + 1 }
+                                  : p
+                              )
+                            );
+                          } else {
+                            toast.warn(
+                              `Chỉ còn ${item.availableSeats} vé cho tour này.`
+                            );
+                          }
+                        }}
+                        disabled={item.quantity >= item.availableSeats}
+                      >
+                        +
+                      </button>
                     </div>
+
                     <label className="ticket-label">Vé</label>
                   </div>
                   <div className="item-footer-right">

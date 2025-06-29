@@ -185,16 +185,7 @@ export default function DetailUserMember({ userMember, onClose, onUpdated }) {
                 </label>
               </div>
             </div>
-            <div className="form-group">
-              <label>User ID</label>
-              <input
-                type="number"
-                name="userId"
-                value={editForm.userId}
-                readOnly
-                disabled
-              />
-            </div>
+
           </div>
         </div>
         {isEditing && (

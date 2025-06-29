@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   FaUserFriends,
@@ -7,16 +7,42 @@ import {
   FaClipboardList,
   FaCog,
 } from "react-icons/fa";
-import avatar from "../../../assets/images/admin/header/avatar.jpg";
+import defaultAvatar from "../../../assets/images/customer/default-avatar.png";
+import { BE_ENDPOINT, fetchGet } from "../../../lib/httpHandler";
 
 import "./UserSidebar.css";
 
 export default function UserSidebar() {
-  const user = {
-    name: "Hồ Tiến Vũ Bình",
-    email: "22520129@gm.uit.edu.vn",
-    avatar: avatar,
-  };
+  const [user, setUser] = useState({
+    name: "",
+    email: "",
+    avatar: defaultAvatar,
+  });
+
+  const userId = localStorage.getItem("userId");
+
+  useEffect(() => {
+    if (userId) {
+      fetchGet(
+        `/api/admin/user/get/${userId}`,
+        (res) => {
+          const userData = res.data;
+          setUser({
+            name: userData.fullname || "Người dùng",
+            email: userData.email || "",
+            avatar: userData.avatar
+              ? userData.avatar.startsWith("http")
+                ? userData.avatar
+                : BE_ENDPOINT + userData.avatar
+              : defaultAvatar,
+          });
+        },
+        () => {
+          // Keep default values if fetch fails
+        }
+      );
+    }
+  }, [userId]);
 
   const menu = [
     { label: "Danh sách thành viên", icon: <FaUserFriends />, to: "/members" },

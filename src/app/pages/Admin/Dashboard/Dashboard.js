@@ -1,77 +1,9 @@
 import React, { useState, useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { AdminTitleContext } from "../../../layouts/adminLayout/AdminLayout/AdminLayout";
 import "./Dashboard.css";
 import CalendarLogo from "../../../assets/icons/admin/DashBoard/calendar-heart-01.svg";
-
-// Mock data
-const favoriteRoutes = [
-  {
-    id: 1,
-    name: "teamLab Borderless Ticket: World Building DIGITAL ART",
-    location: "Museums Tokyo",
-    price: 8189000,
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: 2,
-    name: "teamLab Borderless Ticket: World Building DIGITAL ART",
-    location: "Museums Tokyo",
-    price: 8189000,
-    image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: 3,
-    name: "teamLab Borderless Ticket: World Building DIGITAL ART",
-    location: "Museums Tokyo",
-    price: 8189000,
-    image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: 4,
-    name: "teamLab Borderless Ticket: World Building DIGITAL ART",
-    location: "Museums Tokyo",
-    price: 8189000,
-    image: "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=crop&w=400&q=80",
-  },
-];
-
-const recentTickets = [
-  {
-    id: 1,
-    route: "Nhật Bản: Fukushima - Tochigi - Công viên Ashikaga - Tokyo - Núi Phú Sĩ - Làng",
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=80&q=80",
-    quantity: 3,
-    status: "Hoàn tất",
-  },
-  {
-    id: 2,
-    route: "Nhật Bản: Fukushima - Tochigi - Công viên Ashikaga - Tokyo - Núi Phú Sĩ - Làng",
-    image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=80&q=80",
-    quantity: 2,
-    status: "Đang chờ",
-  },
-  {
-    id: 3,
-    route: "Nhật Bản: Fukushima - Tochigi - Công viên Ashikaga - Tokyo - Núi Phú Sĩ - Làng",
-    image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=80&q=80",
-    quantity: 1,
-    status: "Hoàn tất",
-  },
-  {
-    id: 4,
-    route: "Nhật Bản: Fukushima - Tochigi - Công viên Ashikaga - Tokyo - Núi Phú Sĩ - Làng",
-    image: "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=crop&w=80&q=80",
-    quantity: 7,
-    status: "Đã huỷ",
-  },
-  {
-    id: 5,
-    route: "Nhật Bản: Fukushima - Tochigi - Công viên Ashikaga - Tokyo - Núi Phú Sĩ - Làng",
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=80&q=80",
-    quantity: 5,
-    status: "Hoàn tất",
-  },
-];
+import { fetchGet, BE_ENDPOINT } from "../../../lib/httpHandler";
 
 const statusColor = {
   "Hoàn tất": "#4CAF50",
@@ -79,50 +11,15 @@ const statusColor = {
   "Đã huỷ": "#F44336",
 };
 
-const favoritePlaces = [
-  {
-    name: "Cối xay gió Hà Lan",
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    name: "Cầu Vàng Đà Nẵng",
-    image: "http://localhost:8081/uploads/avatars/abc.jpg",
-  },
-  {
-    name: "Phố cổ Hà Nội",
-    image: "http://localhost:8081/uploads/avatars/123.png",
-  },
-  {
-    name: "Cánh đồng hoa Hà Lan",
-    image: "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    name: "Chùa Thiên Mụ",
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    name: "Thành phố Hồ Chí Minh",
-    image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    name: "Hồ Gươm",
-    image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80",
-  },
-];
+// Helper function to convert status boolean to Vietnamese text
+const getStatusText = (status) => {
+  return status ? "Hoàn tất" : "Đang chờ";
+};
 
-// Fake API cho chuyến đi trong tháng
-const tripDaysInfo = [
-  { day: 6, name: "Tour Nhật Bản: Tokyo - Núi Phú Sĩ" },
-  { day: 11, name: "Tour Hà Lan: Cối xay gió & hoa tulip" },
-  { day: 14, name: "Tour Đà Nẵng: Cầu Vàng & Bà Nà Hills" },
-  { day: 20, name: "Tour Hà Nội: Phố cổ & Hồ Gươm" },
-];
-const tripDays = tripDaysInfo.map(t => t.day);
-
-function Calendar({ year, month, tripDays }) {
-  // month: 1-based (3 = March)
+// Calendar component
+function Calendar({ year, month, tripDaysInfo }) {
   const weeks = [];
-  const firstDay = new Date(year, month - 1, 1).getDay(); // 0: CN
+  const firstDay = new Date(year, month - 1, 1).getDay();
   const daysInMonth = new Date(year, month, 0).getDate();
   let day = 1 - firstDay;
   for (let w = 0; w < 6; w++) {
@@ -167,16 +64,147 @@ function Calendar({ year, month, tripDays }) {
 
 export default function Dashboard() {
   const { setTitle, setSubtitle } = useContext(AdminTitleContext);
-  
-    useEffect(() => {
-      setTitle("Trang chủ");
-      setSubtitle("Thông tin tổng quan hệ thống");
-    }, [setTitle, setSubtitle]);
+  const navigate = useNavigate();
 
+  // State
+  const [favoriteRoutes, setFavoriteRoutes] = useState([]);
+  const [favoritePlaces, setFavoritePlaces] = useState([]);
+  const [tripDaysInfo, setTripDaysInfo] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [recentTickets, setRecentTickets] = useState([]);
 
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = 3; // Tháng 3 (March)
+  useEffect(() => {
+    setTitle("Trang chủ");
+    setSubtitle("Thông tin tổng quan hệ thống");
+  }, [setTitle, setSubtitle]);
+
+  // Lấy top 5 tuyến du lịch được ưa thích (chỉ lấy 4 để hiển thị)
+  useEffect(() => {
+    fetchGet(
+      "/api/admin/tour/top-5-popular-tour-routes",
+      (res) => setFavoriteRoutes((res.data || []).slice(0, 4)),
+      () => setFavoriteRoutes([])
+    );
+  }, []);
+
+  // Lấy top 5 địa điểm du lịch được ưa thích
+  useEffect(() => {
+    fetchGet(
+      "/api/admin/tourist-attraction/top-5-favorite",
+      (res) => setFavoritePlaces(res.data || []),
+      () => setFavoritePlaces([])
+    );
+  }, []);
+
+  // Lấy danh sách đặt vé gần đây
+  useEffect(() => {
+    fetchGet(
+      "/api/admin/tour-booking/admin-home-bookings",
+      (res) => setRecentTickets(res.data || []),
+      () => setRecentTickets([])
+    );
+  }, []);
+
+  // Lấy danh sách chuyến đi trong tháng được chọn
+  useEffect(() => {
+    fetchGet(
+      "/api/admin/tour/get-all",
+      (res) => {
+        const data = res.data || [];
+        const month = selectedDate.getMonth() + 1;
+        const year = selectedDate.getFullYear();
+        const trips = data
+          .map(t => ({
+            day: new Date(t.depatureDate).getMonth() + 1 === month && new Date(t.depatureDate).getFullYear() === year
+              ? new Date(t.depatureDate).getDate()
+              : null,
+            name: t.tourRouteName || t.pickUpLocation || "Chuyến đi",
+          }))
+          .filter(t => t.day);
+        setTripDaysInfo(trips);
+      },
+      () => setTripDaysInfo([])
+    );
+  }, [selectedDate]); // Dependency thay đổi từ [] thành [selectedDate]
+
+  // Xử lý thay đổi tháng
+  const handleDateChange = (event) => {
+    const newDate = new Date(event.target.value + '-01');
+    setSelectedDate(newDate);
+  };
+
+  // Render favorite places with 4x3 grid layout
+  function renderFavoritePlaces() {
+    const defaultImg = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=400&q=80";
+    const places = [...favoritePlaces];
+    
+    // Ensure we have exactly 5 places
+    while (places.length < 5) {
+      places.push({ 
+        name: `Địa điểm ${places.length + 1}`, 
+        image: defaultImg 
+      });
+    }
+
+    return (
+      <div className="fav-places-image-grid">
+        {/* Header Section - Grid positions 1, 2 */}
+        <div className="fav-places-header-section">
+          <h3 className="fav-places-title">Địa điểm du lịch được yêu thích</h3>
+          <div className="fav-places-divider"></div>
+          <button
+            className="fav-places-btn-view-all"
+            onClick={() => navigate("/admin/destination-management")}
+          >
+            Xem toàn bộ
+          </button>
+        </div>
+
+        {/* Large square image - Grid positions 3, 4, 7, 8 */}
+        <div className={`fav-place-img-wrap fav-places-large-square`}>
+          <img src={places[0].image} alt={places[0].name} />
+          <div className="fav-place-overlay">
+            <span>{places[0].name}</span>
+          </div>
+        </div>
+
+        {/* Small square 1 - Grid position 5 */}
+        <div className={`fav-place-img-wrap fav-places-small-square-1`}>
+          <img src={places[1].image} alt={places[1].name} />
+          <div className="fav-place-overlay">
+            <span>{places[1].name}</span>
+          </div>
+        </div>
+
+        {/* Small square 2 - Grid position 9 */}
+        <div className={`fav-place-img-wrap fav-places-small-square-2`}>
+          <img src={places[2].image} alt={places[2].name} />
+          <div className="fav-place-overlay">
+            <span>{places[2].name}</span>
+          </div>
+        </div>
+
+        {/* Rectangle vertical - Grid positions 6, 10 */}
+        <div className={`fav-place-img-wrap fav-places-rectangle-vertical`}>
+          <img src={places[3].image} alt={places[3].name} />
+          <div className="fav-place-overlay">
+            <span>{places[3].name}</span>
+          </div>
+        </div>
+
+        {/* Rectangle horizontal - Grid positions 11, 12 */}
+        <div className={`fav-place-img-wrap fav-places-rectangle-horizontal`}>
+          <img src={places[4].image} alt={places[4].name} />
+          <div className="fav-place-overlay">
+            <span>{places[4].name}</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const year = selectedDate.getFullYear();
+  const month = selectedDate.getMonth() + 1;
 
   return (
     <div className="home-main-grid">
@@ -186,85 +214,121 @@ export default function Dashboard() {
           <div className="fav-routes-list">
             {favoriteRoutes.map((route) => (
               <div className="fav-route-item" key={route.id}>
-                <img src={route.image} alt={route.name} />
+                <img
+                  src={
+                    route.image?.startsWith("http")
+                      ? route.image
+                      : `${BE_ENDPOINT}/${route.image}`
+                  }
+                  alt={route.routeName}
+                />
                 <div className="fav-route-info">
-                  <div className="fav-route-location">{route.location}</div>
-                  <div className="fav-route-name">{route.name}</div>
+                  <div className="fav-route-location">
+                    {route.startLocation} → {route.endLocation}
+                  </div>
+                  <div className="fav-route-name">{route.routeName}</div>
+                  <div className="fav-route-duration">
+                    Thời gian: <b>{route.durationDays}N{route.durationDays - 1}Đ</b>
+                  </div>
+                  {route.recentStartDates && route.recentStartDates.length > 0 && (
+                    <div className="fav-route-start-date">
+                      Khởi hành: <b>{new Date(route.recentStartDates[0]).toLocaleDateString("vi-VN")}</b>
+                    </div>
+                  )}
                   <div className="fav-route-price">
-                    Giá: <b>{route.price.toLocaleString("vi-VN")}₫</b>
+                    Giá: <b>{Number(route.latestPrice).toLocaleString("vi-VN")}₫</b>
                   </div>
                 </div>
-                <button className="fav-route-detail-btn">Xem chi tiết</button>
+                <button
+                  className="fav-route-detail-btn"
+                  onClick={() => navigate(`/admin/tour-route/get/${route.id}`)}
+                >
+                  Xem chi tiết
+                </button>
               </div>
             ))}
           </div>
         </div>
         <div className="home-card home-recent-tickets">
           <h3>Đặt vé gần đây</h3>
-          <table>
-            <thead>
-              <tr>
-                <th></th>
-                <th>Tên tuyến du lịch</th>
-                <th>Số vé</th>
-                <th>Trạng thái</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentTickets.map((ticket) => (
-                <tr key={ticket.id}>
-                  <td>
-                    <img src={ticket.image} alt="" className="recent-ticket-img" />
-                  </td>
-                  <td>{ticket.route}</td>
-                  <td style={{ textAlign: "center" }}>{ticket.quantity}</td>
-                  <td>
-                    <span
-                      className="ticket-status"
-                      style={{
-                        background: statusColor[ticket.status] + "22",
-                        color: statusColor[ticket.status],
-                        border: `1px solid ${statusColor[ticket.status]}`
-                      }}
-                    >
-                      {ticket.status}
-                    </span>
-                  </td>
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Tên tuyến du lịch</th>
+                  <th>Số vé</th>
+                  <th>Trạng thái</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {recentTickets.map((ticket) => (
+                  <tr key={ticket.id}>
+                    <td>
+                      <img 
+                        src={
+                          ticket.image?.startsWith("http")
+                            ? ticket.image
+                            : `${BE_ENDPOINT}/${ticket.image}`
+                        } 
+                        alt="" 
+                        className="recent-ticket-img" 
+                      />
+                    </td>
+                    <td>{ticket.route}</td>
+                    <td style={{ textAlign: "center" }}>{ticket.quantity}</td>
+                    <td>
+                      <span
+                        className="ticket-status"
+                        style={{
+                          background: statusColor[getStatusText(ticket.status)] + "22",
+                          color: statusColor[getStatusText(ticket.status)],
+                          border: `1px solid ${statusColor[getStatusText(ticket.status)]}`
+                        }}
+                      >
+                        {getStatusText(ticket.status)}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
       <div className="home-right">
         <div className="home-card home-calendar">
           <div className="calendar-header">
             <span>Chuyến đi trong tháng</span>
-            <span className="calendar-icon">
-              <img src={CalendarLogo} alt="calendar" style={{ width: 34, height: 34, verticalAlign: "middle" }} />
-            </span>
+            <div className="calendar-icon" style={{ position: 'relative' }}>
+              <img 
+                src={CalendarLogo} 
+                alt="calendar" 
+                style={{ width: 34, height: 34, verticalAlign: "middle" }}
+              />
+              <input
+                type="month"
+                value={`${year}-${month.toString().padStart(2, '0')}`}
+                onChange={handleDateChange}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  opacity: 0,
+                  cursor: 'pointer'
+                }}
+              />
+            </div>
           </div>
           <div className="calendar-month">
-            Tháng 3, {year}
+            Tháng {month}, {year}
           </div>
-          <Calendar year={year} month={month} tripDays={tripDays} />
+          <Calendar year={year} month={month} tripDaysInfo={tripDaysInfo} />
         </div>
         <div className="home-card home-fav-places">
-            <div className="fav-places-header-centered">
-          <span className="fav-places-title">Địa điểm du lịch được yêu thích</span>
-          <hr className="fav-places-divider" />
-          <button className="fav-places-btn-centered">Xem toàn bộ</button>
-        </div>
-          <div className="fav-places-grid">
-            {favoritePlaces.map((place, idx) => (
-              <div className="fav-place-img-wrap" key={idx}>
-                <img src={place.image} alt={place.name} />
-                <div className="fav-place-overlay">
-                  <span>{place.name}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+          {renderFavoritePlaces()}
         </div>
       </div>
     </div>
