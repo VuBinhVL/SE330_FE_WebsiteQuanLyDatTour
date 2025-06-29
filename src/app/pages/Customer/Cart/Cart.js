@@ -33,10 +33,9 @@ export default function Cart() {
       uri,
       (res) => {
         setCart(res);
-        console.log(res);
       },
-      (err) => console.error(err),
-      () => console.error("Lỗi kết nối đến máy chủ")
+      (err) => toast.error(err),
+      () => toast.error("Lỗi kết nối đến máy chủ")
     );
   }, [userId]);
 
@@ -46,7 +45,6 @@ export default function Cart() {
       toast.error("Không có mục nào được chọn để xóa.");
       return;
     }
-    console.log("Xóa các mục:", ids);
     fetchDeleteWithBody(
       "/api/cart/items",
       ids,
@@ -54,7 +52,7 @@ export default function Cart() {
         // Cập nhật lại cart sau khi xóa
         setCart((prev) => prev.filter((item) => !ids.includes(item.id)));
         setSelected((prev) => prev.filter((id) => !ids.includes(id)));
-        console.log("Xóa thành công:", res);
+        toast.success(res.message || "Xóa thành công");
       },
       (err) => toast.error("Xóa thất bại:"),
       () => toast.error("Lỗi kết nối máy chủ")

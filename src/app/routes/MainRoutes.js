@@ -78,7 +78,7 @@ export default function MainRoutes() {
           <Route path="forget-password" element={<ForgetPassword />}></Route>
           <Route path="cart" element={<Cart />} />
           <Route path="bookings" element={<BookingHistory />} />
-          <Route path="tour-detail" element={<TourDetail />} />
+          <Route path="tour-detail/:id" element={<TourDetail />} />
         </Route>
       </Routes>
     </BrowserRouter>
