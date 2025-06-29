@@ -246,7 +246,9 @@ export default function TourDetail() {
                 setCurrentImage(0);
               }}
             >
-              <option value="">-- Chọn ngày --</option>
+              <option value="" disabled>
+                -- Chọn ngày --
+              </option>
               {data.tours.map((tour) => (
                 <option key={tour.idTour} value={tour.departureDate}>
                   {new Date(tour.departureDate).toLocaleDateString("vi-VN")}

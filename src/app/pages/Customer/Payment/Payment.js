@@ -5,27 +5,22 @@ import { LuAlarmClock } from "react-icons/lu";
 import { ImQrcode } from "react-icons/im";
 import { IoLocationOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
+import { fetchGet } from "../../../lib/httpHandler";
 
 export default function Payment() {
   const [orderItems, setOrderItems] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState("cash");
-  const [passengerData, setPassengerData] = useState(
-    orderItems.map((tour) => ({
-      tourId: tour.id,
-      routeName: tour.routeName,
-      contactIndex: 0, // mặc định chọn người đầu tiên
-      passengers: Array.from({ length: tour.quantity }, () => ({
-        fullname: "",
-        email: "",
-        phoneNumber: "",
-      })),
-    }))
-  );
+  const [userMember, setUserMember] = useState([]);
+  const userId = localStorage.getItem("userId");
+
+  const [passengerData, setPassengerData] = useState([]);
+
   // Tính tổng tiền
   const totalAmount = orderItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
+
   const handleChange = (tourIndex, passengerIndex, field, value) => {
     const updated = [...passengerData];
     updated[tourIndex].passengers[passengerIndex][field] = value;
@@ -38,14 +33,28 @@ export default function Payment() {
     setPassengerData(updated);
   };
 
-  //Lấy dữ liệu từ cart
+  // Lấy dữ liệu từ localStorage và API user member
   useEffect(() => {
+    if (!userId) {
+      toast.error("Vui lòng đăng nhập để tiếp tục");
+      return;
+    }
+
+    // API: Lấy user members
+    const uri = `/api/admin/user-member/user/${userId}`;
+    fetchGet(
+      uri,
+      (res) => setUserMember(res.data),
+      (err) => toast.error(err),
+      () => toast.error("Lỗi kết nối đến máy chủ")
+    );
+
+    // Lấy giỏ hàng
     const data = localStorage.getItem("selectedCart");
     if (data) {
       const items = JSON.parse(data);
       setOrderItems(items);
-      console.log("Order items:", items);
-      // tạo state hành khách tương ứng
+
       setPassengerData(
         items.map((tour) => ({
           tourId: tour.id,
@@ -55,23 +64,85 @@ export default function Payment() {
             fullname: "",
             email: "",
             phoneNumber: "",
+            memberId: null,
           })),
         }))
       );
     } else {
       toast.error("Không có dữ liệu giỏ hàng");
     }
-  }, []);
+  }, [userId]);
+
+  // Kiểm tra nếu dữ liệu hàng khách
+  const isPassengerDataValid = () => {
+    for (const tour of passengerData) {
+      for (const passenger of tour.passengers) {
+        if (
+          !passenger.fullname.trim() ||
+          !passenger.email.trim() ||
+          !passenger.phoneNumber.trim()
+        ) {
+          return false;
+        }
+
+        // Kiểm tra email hợp lệ
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(passenger.email)) {
+          return false;
+        }
+
+        // Kiểm tra số điện thoại chỉ là số, 10 số
+        const phoneRegex = /^\d{10}$/;
+        if (!phoneRegex.test(passenger.phoneNumber)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  };
+
+  //Xử lý nhấn nút hủy đơn hàng
+  const handleCancelOrder = () => {
+    // Xóa dữ liệu giỏ hàng trong localStorage
+    localStorage.removeItem("selectedCart");
+    // Cập nhật lại state
+    setOrderItems([]);
+    setPassengerData([]);
+    toast.success("Đã hủy đơn hàng", { autoClose: 100 });
+    setTimeout(() => {
+      window.location.href = "/cart"; // Quay về trang giỏ hàng
+    }, 500);
+  };
+
+  //Xử lý nhấn nút xác nhận đơn hàng
+  const handleConfirmOrder = () => {
+    if (orderItems.length === 0) {
+      toast.error("Không có sản phẩm nào trong đơn hàng");
+      return;
+    }
+
+    if (!isPassengerDataValid()) {
+      toast.error("Vui lòng điền đầy đủ và hợp lệ thông tin hành khách");
+      return;
+    }
+
+    // TODO: Gửi dữ liệu về server tại đây nếu cần
+
+    toast.success("Đặt hàng thành công", {
+      autoClose: 1000,
+    });
+
+    // Xóa giỏ hàng sau khi xác nhận
+    localStorage.removeItem("selectedCart");
+  };
 
   return (
     <div className="payment-container">
       <div className="contact-info">
         <h3>Thông tin hành khách</h3>
-
         {passengerData.map((tour, tourIndex) => (
           <div className="tour-passenger-block" key={tour.tourId}>
             <h4>{tour.routeName}</h4>
-
             {tour.passengers.map((p, i) => (
               <div className="passenger-section" key={i}>
                 <div className="passenger-contact-row">
@@ -89,6 +160,44 @@ export default function Payment() {
                   )}
                 </div>
                 <div className="passenger-info">
+                  <div className="input-group">
+                    <label>Chọn thành viên</label>
+                    <select
+                      onChange={(e) => {
+                        const selectedId = e.target.value;
+                        const member = userMember.find(
+                          (m) => m.id.toString() === selectedId
+                        );
+                        if (member) {
+                          handleChange(
+                            tourIndex,
+                            i,
+                            "fullname",
+                            member.fullname
+                          );
+                          handleChange(tourIndex, i, "email", member.email);
+                          handleChange(
+                            tourIndex,
+                            i,
+                            "phoneNumber",
+                            member.phoneNumber
+                          );
+                          handleChange(tourIndex, i, "memberId", member.id);
+                        }
+                      }}
+                      defaultValue=""
+                    >
+                      <option value="" disabled>
+                        -- Chọn thành viên --
+                      </option>
+                      {userMember.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.fullname}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
                   <div className="input-group">
                     <label>Họ tên</label>
                     <input
@@ -144,7 +253,7 @@ export default function Payment() {
                 <div className="order-row">
                   <p>
                     <ImQrcode className="icon" /> Mã tour:{" "}
-                    <b> TOUR{String(item.tourId).padStart(2, "0")}</b>
+                    <b>TOUR{String(item.tourId || item.id).padStart(2, "0")}</b>
                   </p>
                   <p>
                     <IoLocationOutline className="icon" /> Khởi hành:{" "}
@@ -176,7 +285,7 @@ export default function Payment() {
                 </p>
                 <div className="order-price">
                   <span>
-                    <b>Thành tiền:</b> {""}
+                    <b>Thành tiền:</b>
                   </span>
                   <b className="total-price">
                     {(item.price * item.quantity).toLocaleString()} đ
@@ -189,7 +298,6 @@ export default function Payment() {
 
         <div className="payment-method">
           <h4>Phương thức thanh toán</h4>
-
           <label>
             <input
               type="radio"
@@ -200,7 +308,6 @@ export default function Payment() {
             />
             <span>Tiền mặt</span>
           </label>
-
           <label>
             <input
               type="radio"
@@ -220,15 +327,19 @@ export default function Payment() {
           </div>
           <div className="summary">
             <div className="total-box">
-              Tổng thanh toán ({orderItems.length} sản phẩm):{" "}
+              Tổng thanh toán (
+              {orderItems.reduce((sum, i) => sum + i.quantity, 0)} sản phẩm):{" "}
               <span className="total-price">
                 {totalAmount.toLocaleString()} đ
               </span>
             </div>
-
             <div className="action-group">
-              <button className="confirm-order">Xác nhận đơn hàng</button>
-              <button className="cancel-order">Hủy đơn hàng</button>
+              <button className="confirm-order" onClick={handleConfirmOrder}>
+                Xác nhận đơn hàng
+              </button>
+              <button className="cancel-order" onClick={handleCancelOrder}>
+                Hủy đơn hàng
+              </button>
             </div>
           </div>
         </div>
