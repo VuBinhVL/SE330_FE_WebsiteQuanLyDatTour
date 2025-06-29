@@ -75,9 +75,10 @@
   border: 1px solid #ccc;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 10px 0;
+  padding: 8px 0;
   min-width: 180px;
   width: max-content;
+  z-index: 9999;
 }
 
 .header-admin .header-right .dropdown-wrapper .dropdown-menu-custom ul {
@@ -87,10 +88,14 @@
 }
 
 .header-admin .header-right .dropdown-wrapper .dropdown-menu-custom li {
-  padding: 8px 16px;
+  padding: 10px 16px;
   cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .header-admin .header-right .dropdown-wrapper .dropdown-menu-custom li:hover {
-  font-weight: 600;
+  background-color: #f5f5f5;
+  font-weight: 500;
 }

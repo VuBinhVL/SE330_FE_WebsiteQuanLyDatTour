@@ -113,6 +113,10 @@ export default function Account() {
               setAvatarFile(null);
               setEditInfo(false);
               setLoading(false);
+              
+              // Trigger event để cập nhật header ngay lập tức
+              window.dispatchEvent(new Event('userInfoUpdated'));
+              
               MySwal.fire({
                 icon: "success",
                 title: "Thành công",
@@ -130,6 +134,10 @@ export default function Account() {
           setUser(res.data);
           setEditInfo(false);
           setLoading(false);
+          
+          // Trigger event để cập nhật header ngay lập tức
+          window.dispatchEvent(new Event('userInfoUpdated'));
+          
           MySwal.fire({
             icon: "success",
             title: "Thành công",

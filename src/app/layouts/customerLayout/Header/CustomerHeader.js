@@ -17,6 +17,7 @@ export default function CustomerHeader() {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const [avatarKey, setAvatarKey] = useState(Date.now()); // Để force refresh avatar
   const dropdownRef = useRef(null);
   const searchRef = useRef(null);
   const navigate = useNavigate();
@@ -38,7 +39,15 @@ export default function CustomerHeader() {
         `/api/admin/user/get/${userId}`,
         (res) => {
           setUserInfo(res.data);
-          setUserRole(res.data.role_id === 1 ? "customer" : "admin");
+          if (res.data.role_id === 1) {
+            setUserRole("customer");
+          } else if (res.data.role_id === 2) {
+            setUserRole("admin");
+          } else if (res.data.role_id === 3) {
+            setUserRole("staff");
+          } else {
+            setUserRole("admin"); // fallback
+          }
         },
         () => console.error("Không thể lấy thông tin user")
       );
@@ -46,6 +55,40 @@ export default function CustomerHeader() {
       setUserInfo(null);
       setUserRole(null);
     }
+  }, [isLoggedIn]);
+
+  // Lắng nghe event cập nhật user info
+  useEffect(() => {
+    const handleUserUpdate = () => {
+      const userId = localStorage.getItem("userId");
+      if (userId && isLoggedIn) {
+        // Thêm delay nhỏ để đảm bảo API đã cập nhật
+        setTimeout(() => {
+          fetchGet(
+            `/api/admin/user/get/${userId}`,
+            (res) => {
+              setUserInfo(res.data);
+              if (res.data.role_id === 1) {
+                setUserRole("customer");
+              } else if (res.data.role_id === 2) {
+                setUserRole("admin");
+              } else if (res.data.role_id === 3) {
+                setUserRole("staff");
+              } else {
+                setUserRole("admin"); // fallback
+              }
+              setAvatarKey(Date.now()); // Force refresh avatar
+            },
+            () => console.error("Không thể lấy thông tin user")
+          );
+        }, 100);
+      }
+    };
+
+    window.addEventListener('userInfoUpdated', handleUserUpdate);
+    return () => {
+      window.removeEventListener('userInfoUpdated', handleUserUpdate);
+    };
   }, [isLoggedIn]);
 
   // Tìm kiếm tuyến du lịch từ API tour-route/search
@@ -256,7 +299,7 @@ export default function CustomerHeader() {
           </ul>
         </div>
       );
-    } else if (userRole === "admin") {
+    } else if (userRole === "admin" || userRole === "staff") {
       return (
         <div className="dropdown-menu-custom">
           <ul>
@@ -339,19 +382,23 @@ export default function CustomerHeader() {
             )}
             <div className="header-account" ref={dropdownRef}>
               <img 
+                key={`avatar-${avatarKey}`}
                 className="avatar" 
                 alt="Avatar" 
                 src={
                   userInfo?.avatar
                     ? userInfo.avatar.startsWith("http")
-                      ? userInfo.avatar
-                      : `${BE_ENDPOINT}${userInfo.avatar}`
+                      ? `${userInfo.avatar}?t=${avatarKey}`
+                      : `${BE_ENDPOINT}${userInfo.avatar}?t=${avatarKey}`
                     : avatar
                 } 
               />
               <div className="user-infor">
                 <p className="full-name">{userInfo?.fullname || "Đang tải..."}</p>
-                <p className="user-role">{userRole === "admin" ? "Quản trị viên" : "Khách hàng"}</p>
+                <p className="user-role">
+                  {userRole === "admin" ? "Quản trị viên" : 
+                   userRole === "staff" ? "Nhân viên" : "Khách hàng"}
+                </p>
               </div>
               <div className="dropdown-wrapper">
                 <span className="dropdown-icon" onClick={toggleDropdown}>
