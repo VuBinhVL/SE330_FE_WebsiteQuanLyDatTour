@@ -1,18 +1,12 @@
 import { useEffect, useState } from "react";
 import { CiCalendar } from "react-icons/ci";
-import {
-  FaArrowLeft,
-  FaArrowRight,
-  FaCartPlus,
-  FaHeart,
-  FaUser,
-} from "react-icons/fa";
+import { FaArrowLeft, FaArrowRight, FaCartPlus, FaHeart } from "react-icons/fa";
 import { IoLocationOutline } from "react-icons/io5";
 import { LuAlarmClockCheck, LuTicketCheck } from "react-icons/lu";
+import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import { fetchDelete, fetchGet, fetchPost } from "../../../lib/httpHandler";
 import "./TourDetail.css";
-import { toast } from "react-toastify";
-import { useParams } from "react-router-dom";
 
 export default function TourDetail() {
   const [currentImage, setCurrentImage] = useState(0);
@@ -31,8 +25,6 @@ export default function TourDetail() {
     itinerary: [],
   });
   const [selectedTour, setSelectedTour] = useState(null);
-  const availableDates = data.tours.map((tour) => tour.departureDate);
-
   //Hàm dung để lấy class cho biểu tượng trái tim
   const getHeartClass = (isFavorite) => {
     return isFavorite ? "liked" : "not-liked";
@@ -153,6 +145,48 @@ export default function TourDetail() {
     }
   };
 
+  //Hàm thêm tour vào giỏ hàng
+  const handleAddToCart = (tour) => {
+    if (!userId) {
+      toast.error("Bạn cần đăng nhập để thêm tour vào giỏ hàng!", {
+        autoClose: 5000,
+      });
+      return;
+    }
+
+    if (!tour || !tour.idTour) {
+      toast.error("Vui lòng chọn ngày đi trước!", { autoClose: 5000 });
+      return;
+    }
+
+    const requestData = {
+      userId: Number(userId),
+      tourId: tour.idTour,
+      quantity: quantity,
+      price: tour.price,
+      departureDay: tour.pickUpTime, // ISO string từ API
+    };
+
+    fetchPost(
+      "/api/cart/add",
+      requestData,
+      (res) => {
+        toast.success(res.message || "Đã thêm vào giỏ hàng!", {
+          autoClose: 5000,
+        });
+      },
+      (err) => {
+        console.error("Lỗi thêm giỏ hàng:", err);
+        toast.error(err?.data?.message || "Không thể thêm vào giỏ!", {
+          autoClose: 5000,
+        });
+      },
+      () => {
+        toast.error("Mất kết nối máy chủ!", { autoClose: 5000 });
+      }
+    );
+  };
+
   return (
     <div className="tour-detail-container">
       <h2 className="tour-title">{data.name || "Tour mới chưa có tên"}</h2>
@@ -202,6 +236,7 @@ export default function TourDetail() {
           <div className="booking-field">
             <label>Ngày đi:</label>
             <select
+              className="date-select"
               value={selectedTour?.departureDate || ""}
               onChange={(e) => {
                 const selected = data.tours.find(
@@ -211,7 +246,7 @@ export default function TourDetail() {
                 setCurrentImage(0);
               }}
             >
-              <option value="">-- Chọn ngày khởi hành --</option>
+              <option value="">-- Chọn ngày --</option>
               {data.tours.map((tour) => (
                 <option key={tour.idTour} value={tour.departureDate}>
                   {new Date(tour.departureDate).toLocaleDateString("vi-VN")}
@@ -222,7 +257,7 @@ export default function TourDetail() {
           <div className="booking-field">
             <label>Giá vé:</label>
             <span className="price">
-              {data.tours[0]?.price?.toLocaleString()} đ / Khách
+              {selectedTour?.price?.toLocaleString() || "0"} đ / Khách
             </span>
           </div>
           <div className="booking-field">
@@ -234,18 +269,37 @@ export default function TourDetail() {
               <span>
                 <strong>{quantity}</strong> người
               </span>
-              <button onClick={() => setQuantity(quantity + 1)}>+</button>
+              <button
+                onClick={() => {
+                  const availableSeats =
+                    selectedTour?.totalSeats - selectedTour?.bookedSeats || 0;
+                  if (quantity < availableSeats) {
+                    setQuantity(quantity + 1);
+                  }
+                }}
+                disabled={
+                  selectedTour
+                    ? quantity >=
+                      selectedTour.totalSeats - selectedTour.bookedSeats
+                    : false
+                }
+              >
+                +
+              </button>
             </div>
           </div>
           <div className="booking-field">
             <label>Tổng tiền:</label>
             <div className="booking-total">
-              {(data.tours[0]?.price * quantity).toLocaleString()} đ
+              {(selectedTour?.price * quantity || 0).toLocaleString()} đ
             </div>
           </div>
 
           <div className="booking-actions">
-            <button className="btn-cart">
+            <button
+              className="btn-cart"
+              onClick={() => handleAddToCart(selectedTour)}
+            >
               <FaCartPlus /> Thêm
             </button>
             <button className="btn-order">Đặt ngay ➜</button>
@@ -262,36 +316,43 @@ export default function TourDetail() {
             </h6>
             <p>
               <IoLocationOutline className="icon" /> Khởi hành:{" "}
-              <b>{data.startLocation}</b>
+              <b>{data?.startLocation}</b>
             </p>
             <p>
               <IoLocationOutline className="icon" /> Điểm đến:{" "}
-              <b>{data.endLocation}</b>
+              <b>{data?.endLocation}</b>
             </p>
             <p>
               <LuAlarmClockCheck /> Thời gian:{" "}
-              <b>{data.tours[0]?.duration} ngày</b>
+              <b>{selectedTour?.duration || data.tours[0]?.duration} ngày</b>
             </p>
             <p>
               <CiCalendar /> Ngày kết thúc:{" "}
               <b>
-                {new Date(data.tours[0]?.returnDate).toLocaleDateString(
-                  "vi-VN"
-                )}
+                {new Date(
+                  selectedTour?.returnDate || data.tours[0]?.returnDate
+                ).toLocaleDateString("vi-VN")}
               </b>
             </p>
             <p>
               <LuTicketCheck /> Số chỗ còn trống:{" "}
-              <b>{data.tours[0]?.totalSeats - data.tours[0]?.bookedSeats}</b>
+              <b>
+                {selectedTour?.totalSeats - selectedTour?.bookedSeats || ""}
+              </b>
             </p>
             <p>
               <IoLocationOutline className="icon" /> Điểm xuất phát:{" "}
-              <b> {data.tours[0]?.pickUpLocation}</b>
+              <b>
+                {" "}
+                {selectedTour?.pickUpLocation || data.tours[0]?.pickUpLocation}
+              </b>
             </p>
             <p>
               <LuAlarmClockCheck /> Giờ xuất phát:{" "}
               <b>
-                {new Date(data.tours[0]?.pickUpTime).toLocaleString("vi-VN", {
+                {new Date(
+                  selectedTour?.pickUpTime || data.tours[0]?.pickUpTime
+                ).toLocaleString("vi-VN", {
                   hour: "2-digit",
                   minute: "2-digit",
                   day: "2-digit",
