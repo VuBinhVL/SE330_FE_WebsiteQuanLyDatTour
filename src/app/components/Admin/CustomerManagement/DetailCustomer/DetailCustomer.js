@@ -1,7 +1,6 @@
-import React, { useEffect, useState , useContext} from "react";
+import React, { useEffect, useState, useContext } from "react";
 import "./DetailCustomer.css";
 import { AiOutlinePlus } from "react-icons/ai";
-import { useNavigate } from "react-router-dom";
 import { AdminTitleContext } from "../../../../layouts/adminLayout/AdminLayout/AdminLayout";
 import { PiPencilSimpleLineBold } from "react-icons/pi";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
@@ -19,7 +18,6 @@ const MySwal = withReactContent(Swal);
 export default function DetailCustomer({ customerId }) {
 
       const { setTitle, setSubtitle } = useContext(AdminTitleContext);
-      const navigate = useNavigate();
     
       useEffect(() => {
         setTitle("Chi tiết khách hàng");
@@ -268,7 +266,7 @@ export default function DetailCustomer({ customerId }) {
                 </div>
               </div>
             </div>
-            <div className="cus-detail-section">
+            <div className="cus-detail-section member-table-section">
               <div className="cus-detail-title-row">
                 <span>Thành viên</span>
                 <button
@@ -278,146 +276,151 @@ export default function DetailCustomer({ customerId }) {
                   <AiOutlinePlus /> Thêm thành viên
                 </button>
               </div>
-              <table className="cus-detail-table">
-                <thead>
-                  <tr>
-                    <th>STT</th>
-                    <th>Họ và tên</th>
-                    <th>Số điện thoại</th>
-                    <th>Email</th>
-                    <th>Xem</th>
-                    <th>Xóa</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {members.length === 0 ? (
+              <div className="cus-detail-table-container">
+                <table className="cus-detail-table-in-container member-table">
+                  <thead>
                     <tr>
-                      <td colSpan={6} style={{ textAlign: "center" }}>Chưa có thành viên</td>
+                      <th>STT</th>
+                      <th>Họ và tên</th>
+                      <th>Số điện thoại</th>
+                      <th>Email</th>
+                      <th>Xem</th>
+                      <th>Xóa</th>
                     </tr>
-                  ) : (
-                    members.map((m, idx) => (
-                      <tr key={m.id || idx}>
-                        <td>{idx + 1}</td>
-                        <td>{m.fullname}</td>
-                        <td>{m.phoneNumber}</td>
-                        <td>{m.email}</td>
-                        <td>
-                          <MdOutlineRemoveRedEye
-                            className="cus-detail-view-member"
-                            title="Xem chi tiết"
-                            onClick={() => {
-                              setSelectedMember(m);
-                              setShowDetailMember(true);
-                            }}
-                          />
-                        </td>
-                        <td>
-                          <GoTrash
-                            className="cus-detail-delete-member"
-                            title="Xóa thành viên"
-                            onClick={() => handleDeleteMember(m.id)}
-                          />
-                        </td>
+                  </thead>
+                  <tbody>
+                    {members.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} style={{ textAlign: "center" }}>Chưa có thành viên</td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                    ) : (
+                      members.map((m, idx) => (
+                        <tr key={m.id || idx}>
+                          <td>{idx + 1}</td>
+                          <td title={m.fullname}>{m.fullname}</td>
+                          <td title={m.phoneNumber}>{m.phoneNumber}</td>
+                          <td title={m.email}>{m.email}</td>
+                          <td>
+                            <MdOutlineRemoveRedEye
+                              className="cus-detail-view-member"
+                              title="Xem chi tiết"
+                              onClick={() => {
+                                setSelectedMember(m);
+                                setShowDetailMember(true);
+                              }}
+                            />
+                          </td>
+                          <td>
+                            <GoTrash
+                              className="cus-detail-delete-member"
+                              title="Xóa thành viên"
+                              onClick={() => handleDeleteMember(m.id)}
+                            />
+                          </td>
+                        </tr>
+                      ))
+                    )};
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
           <div className="cus-detail-right">
             <div className="cus-detail-section">
               <div className="cus-detail-title">Tuyến đi yêu thích</div>
-              <table className="cus-detail-table">
-                <thead>
-                  <tr>
-                    <th>Mã tuyến du lịch</th>
-                    <th>Tên tuyến</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {favorites.length === 0 ? (
+              <div className="cus-detail-table-container">
+                <table className="cus-detail-table-in-container">
+                  <thead>
                     <tr>
-                      <td colSpan={2} style={{ textAlign: "center" }}>Chưa có dữ liệu</td>
+                      <th>Mã tuyến du lịch</th>
+                      <th>Tên tuyến</th>
                     </tr>
-                  ) : (
-                    favorites.map((fav, idx) => (
+                  </thead>
+                  <tbody>
+                    {favorites.length === 0 ? (
+                      <tr>
+                        <td colSpan={2} style={{ textAlign: "center" }}>Chưa có dữ liệu</td>
+                      </tr>
+                    ) : (                    favorites.map((fav, idx) => (
                       <tr key={idx}>
-                        <td>{fav.tourRouteId || "N/A"}</td>
+                        <td title={fav.tourRouteId}>{fav.tourRouteId || "N/A"}</td>
                         <td title={fav.tourRouteName}>
-                          {fav.tourRouteName && fav.tourRouteName.length > 30
-                            ? `${fav.tourRouteName.substring(0, 30)}...`
-                            : fav.tourRouteName || "N/A"}
+                          {fav.tourRouteName || "N/A"}
                         </td>
                       </tr>
                     ))
-                  )}
-                </tbody>
-              </table>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
             <div className="cus-detail-section">
               <div className="cus-detail-title">Giỏ hàng</div>
-              <table className="cus-detail-table">
-                <thead>
-                  <tr>
-                    <th>Mã chuyến du lịch</th>
-                    <th>Tên tuyến</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {cartWithTourInfo.length === 0 ? (
+              <div className="cus-detail-table-container">
+                <table className="cus-detail-table-in-container">
+                  <thead>
                     <tr>
-                      <td colSpan={2} style={{ textAlign: "center" }}>Chưa có dữ liệu</td>
+                      <th>Mã chuyến du lịch</th>
+                      <th>Tên tuyến</th>
                     </tr>
-                  ) : (
-                    cartWithTourInfo.map((item, idx) => (
+                  </thead>
+                  <tbody>
+                    {cartWithTourInfo.length === 0 ? (
+                      <tr>
+                        <td colSpan={2} style={{ textAlign: "center" }}>Chưa có dữ liệu</td>
+                      </tr>
+                    ) : (                    cartWithTourInfo.map((item, idx) => (
                       <tr key={idx}>
-                        <td>{item.tourID || "N/A"}</td>
+                        <td title={item.tourID}>{item.tourID || "N/A"}</td>
                         <td title={item.tourRouteName}>
-                          {item.tourRouteName && item.tourRouteName.length > 30
-                            ? `${item.tourRouteName.substring(0, 30)}...`
-                            : item.tourRouteName || "N/A"}
+                          {item.tourRouteName || "N/A"}
                         </td>
                       </tr>
                     ))
-                  )}
-                </tbody>
-              </table>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
         <div className="cus-detail-section" style={{ marginTop: 18 }}>
           <div className="cus-detail-title">Lịch sử đặt tour</div>
-          <table className="cus-detail-table">
-            <thead>
-              <tr>
-                <th>Mã chuyến du lịch</th>
-                <th>Tên tuyến du lịch</th>
-                <th>Ngày đặt</th>
-                <th>Số lượng</th>
-                <th>Tổng tiền</th>
-                <th>Trạng thái thanh toán</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.length === 0 ? (
+          <div className="cus-detail-table-container">
+            <table className="cus-detail-table-in-container">
+              <thead>
                 <tr>
-                  <td colSpan={6} style={{ textAlign: "center" }}>Chưa có dữ liệu</td>
+                  <th>Mã chuyến du lịch</th>
+                  <th>Tên tuyến du lịch</th>
+                  <th>Ngày đặt</th>
+                  <th>Số lượng</th>
+                  <th>Tổng tiền</th>
+                  <th>Trạng thái thanh toán</th>
                 </tr>
-              ) : (
-                orders.map((o, idx) => (
+              </thead>
+              <tbody>
+                {orders.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} style={{ textAlign: "center" }}>Chưa có dữ liệu</td>
+                  </tr>
+                ) : (                orders.map((o, idx) => (
                   <tr key={idx}>
-                    <td>{o.tourCode}</td>
-                    <td>{o.tourName}</td>
-                    <td>{o.orderDate ? new Date(o.orderDate).toLocaleDateString() : ""}</td>
-                    <td>{o.quantity}</td>
-                    <td>{o.totalAmount?.toLocaleString("vi-VN")}₫</td>
-                    <td>{o.paymentStatus}</td>
+                    <td title={o.tourCode}>{o.tourCode}</td>
+                    <td title={o.tourName}>{o.tourName}</td>
+                    <td title={o.orderDate ? new Date(o.orderDate).toLocaleDateString() : ""}>
+                      {o.orderDate ? new Date(o.orderDate).toLocaleDateString() : ""}
+                    </td>
+                    <td title={o.quantity}>{o.quantity}</td>
+                    <td title={o.totalAmount?.toLocaleString("vi-VN") + "₫"}>
+                      {o.totalAmount?.toLocaleString("vi-VN")}₫
+                    </td>
+                    <td title={o.paymentStatus}>{o.paymentStatus}</td>
                   </tr>
                 ))
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 

@@ -29,16 +29,25 @@
 }
 
 .cus-detail-left, .cus-detail-right {
-  flex: 1;
   min-width: 0;
+}
+
+.cus-detail-left {
+  flex: 1.4; /* Tăng từ 1 lên 1.4 để rộng hơn */
+}
+
+.cus-detail-right {
+  flex: 0.6; /* Giảm từ 1 xuống 0.6 để nhỏ hơn */
 }
 
 .cus-detail-section {
   background: #fafbfc;
   border-radius: 8px;
   padding: 18px 18px 14px 18px;
-  margin-bottom: 18px;
+  margin-bottom: 24px;
   border: 1px solid #eee;
+  min-height: 0;
+  overflow: visible;
 }
 
 .cus-detail-title {
@@ -122,45 +131,314 @@
   margin-top: 6px;
 }
 
-.cus-detail-table th, .cus-detail-table td {
+.cus-detail-table-container {
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: auto;
   border: 1px solid #eaeaea;
-  padding: 8px 10px;
+  border-radius: 4px;
+  margin-top: 6px;
+}
+
+.cus-detail-table-container::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.cus-detail-table-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.cus-detail-table-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.cus-detail-table-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.cus-detail-table-in-container {
+  overflow-x: auto;
+  border: 1px solid #eaeaea;
+  border-radius: 4px;
+  margin-top: 6px;
+}
+
+.cus-detail-table-in-container table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+/* Member table specific styles */
+.member-table {
+  table-layout: auto; /* Let browser decide width */
+  width: auto; /* Let table shrink to content */
+}
+
+.member-table th,
+.member-table td {
+  white-space: nowrap; /* Prevent wrapping */
+  padding: 8px 12px; /* Adjust padding */
+  text-align: left;
+}
+
+.member-table th:nth-child(1),
+.member-table td:nth-child(1) {
+  width: 1%;
+  text-align: center;
+}
+
+.member-table th:nth-child(5),
+.member-table td:nth-child(5) {
+  width: 1%;
+  text-align: center;
+}
+
+.member-table th:nth-child(6),
+.member-table td:nth-child(6) {
+  width: 1%;
+  text-align: center;
+}
+
+/* General table styles for other tables */
+.cus-detail-table-in-container:not(:has(.member-table)) table {
+  table-layout: fixed;
+}
+
+.cus-detail-table-in-container:not(:has(.member-table)) td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Căn giữa cột STT và hành động cho các bảng khác nếu cần */
+.cus-detail-right .cus-detail-table-in-container th:nth-child(1),
+.cus-detail-right .cus-detail-table-in-container td:nth-child(1) {
+  text-align: center;
+}
+
+.cus-detail-right .cus-detail-table-in-container th:nth-child(5),
+.cus-detail-right .cus-detail-table-in-container td:nth-child(5) {
+  text-align: center;
+}
+
+.cus-detail-right .cus-detail-table-in-container th:nth-child(6),
+.cus-detail-right .cus-detail-table-in-container td:nth-child(6) {
+  text-align: center;
+}
+
+/* Favorite tours table - 2 columns - Scroll ngang, không truncate */
+.cus-detail-right .cus-detail-section:first-child .cus-detail-table-in-container th:nth-child(1),
+.cus-detail-right .cus-detail-section:first-child .cus-detail-table-in-container td:nth-child(1) {
+  width: 80px;
+  min-width: 80px;
+}
+
+.cus-detail-right .cus-detail-section:first-child .cus-detail-table-in-container th:nth-child(2),
+.cus-detail-right .cus-detail-section:first-child .cus-detail-table-in-container td:nth-child(2) {
+  width: 250px;
+  min-width: 200px;
+}
+
+/* Cart table - 2 columns - Scroll ngang, không truncate */
+.cus-detail-right .cus-detail-section:last-child .cus-detail-table-in-container th:nth-child(1),
+.cus-detail-right .cus-detail-section:last-child .cus-detail-table-in-container td:nth-child(1) {
+  width: 80px;
+  min-width: 80px;
+}
+
+.cus-detail-right .cus-detail-section:last-child .cus-detail-table-in-container th:nth-child(2),
+.cus-detail-right .cus-detail-section:last-child .cus-detail-table-in-container td:nth-child(2) {
+  width: 250px;
+  min-width: 200px;
+}
+
+/* History table - 6 columns - Scroll ngang, không truncate */
+.cus-detail-section:last-of-type .cus-detail-table-in-container th:nth-child(1),
+.cus-detail-section:last-of-type .cus-detail-table-in-container td:nth-child(1) {
+  width: 100px;
+  min-width: 100px;
+}
+
+.cus-detail-section:last-of-type .cus-detail-table-in-container th:nth-child(2),
+.cus-detail-section:last-of-type .cus-detail-table-in-container td:nth-child(2) {
+  width: 250px;
+  min-width: 200px;
+}
+
+.cus-detail-section:last-of-type .cus-detail-table-in-container th:nth-child(3),
+.cus-detail-section:last-of-type .cus-detail-table-in-container td:nth-child(3) {
+  width: 120px;
+  min-width: 100px;
+}
+
+.cus-detail-section:last-of-type .cus-detail-table-in-container th:nth-child(4),
+.cus-detail-section:last-of-type .cus-detail-table-in-container td:nth-child(4) {
+  width: 80px;
+  min-width: 60px;
+  text-align: center;
+}
+
+.cus-detail-section:last-of-type .cus-detail-table-in-container th:nth-child(5),
+.cus-detail-section:last-of-type .cus-detail-table-in-container td:nth-child(5) {
+  width: 120px;
+  min-width: 100px;
+  text-align: right;
+}
+
+.cus-detail-section:last-of-type .cus-detail-table-in-container th:nth-child(6),
+.cus-detail-section:last-of-type .cus-detail-table-in-container td:nth-child(6) {
+  width: 140px;
+  min-width: 120px;
+  text-align: center;
+}
+
+/* Ensure action buttons are always visible and ultra minimal */
+.cus-detail-view-member,
+.cus-detail-delete-member {
+  display: inline-block;
+  padding: 0px;
+  border-radius: 1px;
+  transition: all 0.18s;
+  font-size: 0.75rem;
+  line-height: 1;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+}
+
+.cus-detail-view-member:hover,
+.cus-detail-delete-member:hover {
+  background-color: rgba(195, 65, 65, 0.1);
+  transform: scale(1.1);
+}
+
+/* General table improvements */
+.cus-detail-table-in-container {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* CSS cho bảng thành viên - fit với nội dung */
+.member-table {
+  table-layout: auto !important;
+  width: auto !important;
+  border-collapse: collapse;
+}
+
+.member-table th,
+.member-table td {
+  padding: 2px 4px !important;
+  font-size: 14px !important;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+}
+
+/* STT và các cột hành động căn giữa */
+.member-table th:nth-child(1),
+.member-table td:nth-child(1),
+.member-table th:nth-child(5),
+.member-table td:nth-child(5),
+.member-table th:nth-child(6),
+.member-table td:nth-child(6) {
+  text-align: center;
+  padding: 1px 2px !important;
+}
+
+/* Container cho bảng thành viên */
+.member-table-section .cus-detail-table-container {
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: visible;
+}
+
+/* Các bảng khác dùng auto để scroll ngang */
+.cus-detail-right .cus-detail-table-in-container,
+.cus-detail-section:last-of-type .cus-detail-table-in-container {
+  table-layout: auto;
+  width: max-content;
+  min-width: 100%;
+}
+
+/* Tooltip for truncated content */
+.cus-detail-table-in-container td[title] {
+  cursor: help;
+}
+
+.cus-detail-table th, .cus-detail-table td,
+.cus-detail-table-in-container th, .cus-detail-table-in-container td {
+  border: 1px solid #eaeaea;
+  padding: 6px 8px;
   font-size: 15px;
   text-align: left;
 }
 
-.cus-detail-table th {
+/* Override padding cho bảng thông thường */
+.cus-detail-table-in-container th,
+.cus-detail-table-in-container td {
+  padding: 6px 8px;
+  font-size: 15px;
+}
+
+.cus-detail-table th,
+.cus-detail-table-in-container th {
   background: #f5f5f5;
   color: #444;
   font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
-.cus-detail-table tr:nth-child(even) {
+.cus-detail-table tr:nth-child(even),
+.cus-detail-table-in-container tr:nth-child(even) {
   background: #fafbfc;
 }
 
-.cus-detail-table tr:hover {
+.cus-detail-table tr:hover,
+.cus-detail-table-in-container tr:hover {
   background: #fbeeee;
 }
 
 .cus-detail-view-member {
   color: #5a3ea6;
-  font-size: 1.3rem;
+  font-size: 0.75rem !important;
   cursor: pointer;
   transition: color 0.18s;
+  display: inline-block;
+  padding: 0px;
+  border-radius: 1px;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+  line-height: 1;
 }
 .cus-detail-view-member:hover {
   color: #c34141;
+  background-color: rgba(195, 65, 65, 0.1);
+  transform: scale(1.1);
 }
 
 .cus-detail-delete-member {
   color: #c34141;
-  font-size: 1.2rem;
+  font-size: 0.75rem !important;
   cursor: pointer;
   transition: color 0.18s;
+  display: inline-block;
+  padding: 0px;
+  border-radius: 1px;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+  line-height: 1;
 }
 .cus-detail-delete-member:hover {
   color: #a93226;
+  background-color: rgba(195, 65, 65, 0.1);
+  transform: scale(1.1);
 }
 
 @media (max-width: 900px) {
