@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./Account.css";
-import { fetchPost, fetchPut, fetchUpload, BE_ENDPOINT } from "../../../lib/httpHandler";
+import { fetchPost, fetchPut, fetchUpload, BE_ENDPOINT, fetchGet } from "../../../lib/httpHandler";
 import { AiOutlineCamera, AiOutlineEye, AiOutlineEyeInvisible, AiOutlineCloseCircle } from "react-icons/ai";
 import { PiPencilSimpleLineBold } from "react-icons/pi";
 import Swal from "sweetalert2";
@@ -42,47 +42,47 @@ export default function Account() {
 
   const avatarInputRef = useRef();
 
-  useEffect(() => {
-    if (!userId) return;
-    fetchPost(
-      `/api/admin/user/get/${userId}`,
-      {},
-      (res) => {
-        setUser(res.data);
-        setInfo({
-          fullname: res.data.fullname || "",
-          sex: res.data.sex,
-          birthday: res.data.birthday || "",
-          email: res.data.email || "",
-          phoneNumber: res.data.phoneNumber || "",
-          address: res.data.address || "",
-          avatar: res.data.avatar || "",
-          account_id: res.data.account_id,
-        });
-        setAvatarPreview(
-          res.data.avatar
-            ? res.data.avatar.startsWith("http")
-              ? res.data.avatar
-              : BE_ENDPOINT + res.data.avatar
-            : "https://via.placeholder.com/120"
-        );
-        fetchPost(
-          `/api/admin/account/get/${res.data.account_id}`,
-          {},
-          (accRes) => {
-            setAccount(accRes.data);
-            setAccountInfo({
-              username: accRes.data.username,
-              newPassword: "",
-              confirmPassword: "",
-            });
-          },
-          () => MySwal.fire({ icon: "error", title: "Lỗi", text: "Không lấy được thông tin tài khoản" })
-        );
-      },
-      () => MySwal.fire({ icon: "error", title: "Lỗi", text: "Không lấy được thông tin user" })
-    );
-  }, [userId]);
+ useEffect(() => {
+  if (!userId) return;
+  fetchGet(
+    `/api/admin/user/get/${userId}`,
+    (res) => {
+      setUser(res.data);
+      setInfo({
+        fullname: res.data.fullname || "",
+        sex: res.data.sex,
+        birthday: res.data.birthday || "",
+        email: res.data.email || "",
+        phoneNumber: res.data.phoneNumber || "",
+        address: res.data.address || "",
+        avatar: res.data.avatar || "",
+        account_id: res.data.account_id,
+      });
+      setAvatarPreview(
+        res.data.avatar
+          ? res.data.avatar.startsWith("http")
+            ? res.data.avatar
+            : BE_ENDPOINT + res.data.avatar
+          : "https://via.placeholder.com/120"
+      );
+      fetchGet(
+        `/api/admin/account/get/${res.data.account_id}`,
+        (accRes) => {
+          setAccount(accRes.data);
+          setAccountInfo({
+            username: accRes.data.username,
+            newPassword: "",
+            confirmPassword: "",
+          });
+        },
+        () => MySwal.fire({ icon: "error", title: "Lỗi", text: "Không lấy được thông tin tài khoản" }),
+        () => MySwal.fire({ icon: "error", title: "Lỗi", text: "Có lỗi xảy ra khi gọi API tài khoản" })
+      );
+    },
+    () => MySwal.fire({ icon: "error", title: "Lỗi", text: "Không lấy được thông tin user" }),
+    () => MySwal.fire({ icon: "error", title: "Lỗi", text: "Có lỗi xảy ra khi gọi API user" })
+  );
+}, [userId]);
 
   const handleSaveInfo = async () => {
     if (!info.fullname || !info.email || !info.phoneNumber || !info.birthday || !info.address) {

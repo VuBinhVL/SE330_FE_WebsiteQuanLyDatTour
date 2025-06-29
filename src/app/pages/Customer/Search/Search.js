@@ -74,24 +74,39 @@ export default function Search() {
   const [date, setDate] = useState(params.get("date") || "");
   const [duration, setDuration] = useState(params.get("duration") || "");
   const [sort, setSort] = useState("default");
+  const [searchQuery, setSearchQuery] = useState(params.get("query") || "");
+
+  // Đồng bộ state với URL params khi location thay đổi
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    setBudget(params.get("budget") || "");
+    setDeparture(params.get("departure") || "");
+    setDestination(params.get("destination") || "");
+    setDate(params.get("date") || "");
+    setDuration(params.get("duration") || "");
+    setSort(params.get("sort") || "default");
+    setSearchQuery(params.get("query") || "");
+  }, [location.search]);
 
   // Khi filter thay đổi thì cập nhật URL
-useEffect(() => {
-  const params = new URLSearchParams();
-  if (budget) params.set("budget", budget);
-  if (departure) params.set("departure", departure);
-  if (destination) params.set("destination", destination);
-  if (date) params.set("date", date);
-  if (duration) params.set("duration", duration);
-  if (sort && sort !== "default") params.set("sort", sort);
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (budget) params.set("budget", budget);
+    if (departure) params.set("departure", departure);
+    if (destination) params.set("destination", destination);
+    if (date) params.set("date", date);
+    if (duration) params.set("duration", duration);
+    if (sort && sort !== "default") params.set("sort", sort);
+    if (searchQuery) params.set("query", searchQuery);
 
-  // Chỉ replace nếu khác với location.search hiện tại
-  const newSearch = params.toString();
-  if (newSearch !== location.search.replace(/^\?/, "")) {
-    navigate(`?${newSearch}`, { replace: true });
-  }
-  // eslint-disable-next-line
-}, [budget, departure, destination, date, duration, sort]);
+    // Chỉ replace nếu khác với location.search hiện tại
+    const newSearch = params.toString();
+    const currentSearch = location.search.replace(/^\?/, "");
+    if (newSearch !== currentSearch) {
+      navigate(`/search${newSearch ? `?${newSearch}` : ''}`, { replace: true });
+    }
+    // eslint-disable-next-line
+  }, [budget, departure, destination, date, duration, sort, searchQuery]);
 
   // Dữ liệu tour từ API
   const [tours, setTours] = useState([]);
@@ -156,6 +171,22 @@ useEffect(() => {
     // Chỉ show tour còn ngày hợp lệ
     result = result.filter((tour) => tour.validDates.length > 0);
 
+    // Lọc theo search query từ header - tìm kiếm trong nhiều trường
+    if (searchQuery) {
+      const queryLower = searchQuery.toLowerCase();
+      result = result.filter((tour) => {
+        // Tìm kiếm trong tên tour, mã tour, điểm đi, điểm đến
+        const searchFields = [
+          tour.name || '',
+          tour.code || '',
+          tour.departure || '',
+          tour.destination || ''
+        ].map(field => field.toLowerCase());
+        
+        return searchFields.some(field => field.includes(queryLower));
+      });
+    }
+
     if (budget) {
       const [min, max] = getBudgetRange(budget);
       result = result.filter((tour) => tour.price >= min && tour.price <= max);
@@ -189,7 +220,7 @@ useEffect(() => {
     }
 
     return result;
-  }, [tours, budget, departure, destination, date, duration, sort]);
+  }, [tours, budget, departure, destination, date, duration, sort, searchQuery]);
 
   // Xử lý chọn ngày với date picker
   function handleDateChange(e) {
@@ -207,6 +238,8 @@ useEffect(() => {
           delete newFav[tourRouteId];
           return newFav;
         });
+      }, (error) => {
+        console.error("Error removing favorite:", error);
       });
     } else {
       // Chưa tym, thêm
@@ -307,6 +340,18 @@ useEffect(() => {
       <div className="search-results">
         <div className="search-header">
           <h2>THÔNG TIN CÁC TOUR DU LỊCH PHÙ HỢP</h2>
+          {searchQuery && (
+            <div className="search-query-info">
+              Kết quả tìm kiếm cho: "<strong>{searchQuery}</strong>"
+              <button 
+                className="clear-search-btn"
+                onClick={() => setSearchQuery("")}
+                title="Xóa tìm kiếm"
+              >
+                ✕
+              </button>
+            </div>
+          )}
           <div>
             Tìm thấy được{" "}
             <span className="search-count">{filteredTours.length}</span> kết quả
