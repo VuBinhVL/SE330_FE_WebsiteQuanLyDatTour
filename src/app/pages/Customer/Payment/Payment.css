@@ -1,0 +1,235 @@
+.payment-container {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  background-color: #f9f9f9;
+}
+
+.contact-info,
+.order-info {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  flex: 1;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.08);
+}
+
+.contact-info {
+  max-width: 400px;
+}
+
+h3 {
+  color: #b30000;
+  margin-bottom: 1rem;
+  font-size: 20px;
+  text-transform: uppercase;
+}
+
+.tour-passenger-block h4 {
+  color: green;
+}
+
+.tour-passenger-block {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 1rem;
+}
+
+.passenger-section {
+  margin-top: 1rem;
+}
+
+.passenger-info {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.passenger-contact-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.contact-radio {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #333;
+}
+
+.input-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group label {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.input-group input {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.order-item {
+  display: flex;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+.order-image img {
+  width: 250px;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.order-details {
+  padding: 1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.order-details h4 {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.order-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin: 0.4rem 0;
+}
+
+.order-row .icon {
+  margin-right: 4px;
+}
+
+.departure-date {
+  background-color: #fdd;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #c00;
+  font-weight: bold;
+}
+
+.order-price {
+  text-align: right;
+  margin-top: 10px;
+}
+
+.total-price {
+  color: red;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.payment-method {
+  margin-top: 2rem;
+}
+
+.payment-method h4 {
+  margin-bottom: 1rem;
+}
+
+.payment-method label {
+  display: inline-block;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  padding: 10px 20px;
+  margin-right: 1rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  background-color: #f9f9f9;
+  user-select: none;
+}
+
+.payment-method input[type="radio"] {
+  display: none;
+}
+
+.payment-method input[type="radio"]:checked + span {
+  color: red;
+  border-color: #b30000;
+}
+
+.order-status {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.status-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-btn {
+  background: #b30000;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.total-box {
+  background-color: #f4f4f4;
+  padding: 5px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.action-group {
+  display: flex;
+  gap: 1rem;
+}
+
+.confirm-order {
+  background-color: #00cc44;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.cancel-order {
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}

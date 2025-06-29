@@ -153,10 +153,54 @@ export default function Cart() {
                   <div className="item-footer-left">
                     <label>Số lượng:</label>
                     <div className="quantity">
-                      <button>-</button>
-                      <input type="text" value={item.quantity} />
-                      <button>+</button>
+                      <button
+                        onClick={() => {
+                          setCart((prev) =>
+                            prev.map((p) =>
+                              p.id === item.id
+                                ? {
+                                    ...p,
+                                    quantity: Math.max(1, p.quantity - 1),
+                                  }
+                                : p
+                            )
+                          );
+                        }}
+                      >
+                        -
+                      </button>
+
+                      <input
+                        type="number"
+                        min={1}
+                        value={item.quantity}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value);
+                          if (!isNaN(value) && value >= 1) {
+                            setCart((prev) =>
+                              prev.map((p) =>
+                                p.id === item.id ? { ...p, quantity: value } : p
+                              )
+                            );
+                          }
+                        }}
+                      />
+
+                      <button
+                        onClick={() => {
+                          setCart((prev) =>
+                            prev.map((p) =>
+                              p.id === item.id
+                                ? { ...p, quantity: p.quantity + 1 }
+                                : p
+                            )
+                          );
+                        }}
+                      >
+                        +
+                      </button>
                     </div>
+
                     <label className="ticket-label">Vé</label>
                   </div>
                   <div className="item-footer-right">

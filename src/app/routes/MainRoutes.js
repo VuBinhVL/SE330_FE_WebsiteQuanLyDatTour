@@ -28,6 +28,7 @@ import Member from "../pages/Customer/Member";
 import DetailCustomerPage from "../components/Admin/CustomerManagement/DetailCustomerPage/DetailCustomerPage";
 import BookingHistory from "../pages/Customer/BookingHistory";
 import TourDetail from "../pages/Customer/TourDetail";
+import Payment from "../pages/Customer/Payment";
 
 export default function MainRoutes() {
   return (
@@ -84,6 +85,7 @@ export default function MainRoutes() {
           <Route path="bookings" element={<BookingHistory />} />
           <Route path="members" element={<Member />} />
           <Route path="tour-detail/:id" element={<TourDetail />} />
+          <Route path="tour/payment" element={<Payment />} />
         </Route>
       </Routes>
     </BrowserRouter>
