@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import "./Home.css";
-import { 
-  IconButton, 
-  FormControl, 
-  InputLabel, 
-  Select, 
-  MenuItem, 
-  Button, 
-  TextField 
+import {
+  IconButton,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Button,
+  TextField,
 } from "@mui/material";
 import { toast } from "react-toastify";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
@@ -16,7 +16,12 @@ import SearchIcon from "@mui/icons-material/Search";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { BE_ENDPOINT, fetchGet, fetchPost, fetchDelete } from "../../../lib/httpHandler";
+import {
+  BE_ENDPOINT,
+  fetchGet,
+  fetchPost,
+  fetchDelete,
+} from "../../../lib/httpHandler";
 import { useAuth } from "../../../lib/AuthContext";
 
 // Dữ liệu mẫu cho banner (ảnh tĩnh)
@@ -41,7 +46,6 @@ export default function Banner() {
   const [favorites, setFavorites] = useState({});
   const [favoriteDestinations, setFavoriteDestinations] = useState([]);
   const [popularChoices, setPopularChoices] = useState([]);
-
   const userId = localStorage.getItem("userId");
 
   const handlePrevBanner = () => {
@@ -83,9 +87,12 @@ export default function Banner() {
         },
         (err) => {
           console.log("Lỗi khi lấy danh sách tour yêu thích:", err);
-          toast.error(err?.data?.message || "Lấy danh sách tour yêu thích thất bại!", {
-            autoClose: 5000,
-          });
+          toast.error(
+            err?.data?.message || "Lấy danh sách tour yêu thích thất bại!",
+            {
+              autoClose: 5000,
+            }
+          );
         },
         () => {
           toast.error("Đã xảy ra lỗi mạng!", {
@@ -105,7 +112,9 @@ export default function Banner() {
           if (response?.data) {
             setFavoriteDestinations(response.data);
           } else {
-            toast.error("Dữ liệu API không đúng định dạng!", { autoClose: 5000 });
+            toast.error("Dữ liệu API không đúng định dạng!", {
+              autoClose: 5000,
+            });
           }
         },
         (err) => {
@@ -136,13 +145,19 @@ export default function Banner() {
               id: item.id,
               name: item.routeName,
               image: item.image || "https://via.placeholder.com/300",
-              dates: item.recentStartDates ? item.recentStartDates.map(formatDate) : [],
-              duration: item.durationDays ? `${item.durationDays} ngày` : "0 ngày",
+              dates: item.recentStartDates
+                ? item.recentStartDates.map(formatDate)
+                : [],
+              duration: item.durationDays
+                ? `${item.durationDays} ngày`
+                : "0 ngày",
               price: formatPrice(item.latestPrice),
             }));
             setPopularChoices(formattedData);
           } else {
-            toast.error("Dữ liệu API không đúng định dạng!", { autoClose: 5000 });
+            toast.error("Dữ liệu API không đúng định dạng!", {
+              autoClose: 5000,
+            });
           }
         },
         (err) => {
@@ -165,7 +180,9 @@ export default function Banner() {
   // Hàm xử lý toggle favorite
   const toggleFavorite = (tourRouteId) => {
     if (!isLoggedIn || !userId) {
-      toast.error("Bạn cần đăng nhập để thực hiện hành động này!", { autoClose: 5000 });
+      toast.error("Bạn cần đăng nhập để thực hiện hành động này!", {
+        autoClose: 5000,
+      });
       return;
     }
 
@@ -226,6 +243,14 @@ export default function Banner() {
     }
   };
 
+  //Mở trang chi tiết tour khi click vào ảnh
+  const handleTourDetail = (tourRouteId) => {
+    if (!tourRouteId) {
+      toast.error("ID tuyến tour không hợp lệ!", { autoClose: 5000 });
+      return;
+    }
+    window.location.href = `/tour-detail/${tourRouteId}`;
+  };
   return (
     <div className="banner-container">
       <div className="banner-wrapper">
@@ -329,13 +354,19 @@ export default function Banner() {
 
       {/* FormControl cho các lựa chọn du lịch */}
       <div className="popular-choices-container">
-        <h2 className="popular-choices-title">Lựa chọn du lịch được yêu thích</h2>
+        <h2 className="popular-choices-title">
+          Lựa chọn du lịch được yêu thích
+        </h2>
         <div className="popular-choices-items">
           {Array.isArray(popularChoices) && popularChoices.length > 0 ? (
             popularChoices.map((item) => (
               <div key={item.id} className="popular-choice-item">
                 <div className="image-wrapper">
-                  <img src={item.image} alt={item.name} className="item-image" />
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="item-image"
+                  />
                   <IconButton
                     onClick={() => toggleFavorite(item.id)}
                     style={{
@@ -348,13 +379,19 @@ export default function Banner() {
                       zIndex: 100,
                     }}
                   >
-                    {favorites[item.id] ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                    {favorites[item.id] ? (
+                      <FavoriteIcon />
+                    ) : (
+                      <FavoriteBorderIcon />
+                    )}
                   </IconButton>
                 </div>
                 <h3 className="item-name">{item.name}</h3>
                 <div className="item-dates">
                   {item.dates.map((date, index) => (
-                    <span key={index} className="date-chip">{date}</span>
+                    <span key={index} className="date-chip">
+                      {date}
+                    </span>
                   ))}
                 </div>
                 <div className="item-duration">
@@ -368,6 +405,7 @@ export default function Banner() {
                 <Button
                   variant="outlined"
                   className="book-now-button"
+                  onClick={() => handleTourDetail(item.id)}
                 >
                   Đặt ngay
                 </Button>
@@ -377,20 +415,19 @@ export default function Banner() {
             <p>Đang tải dữ liệu...</p>
           )}
         </div>
-        <Button
-          variant="outlined"
-          color="primary"
-          className="view-more-button"
-        >
+        <Button variant="outlined" color="primary" className="view-more-button">
           Xem thêm
         </Button>
       </div>
 
       {/* FormControl cho danh sách địa điểm du lịch */}
       <div className="favorite-destinations-container">
-        <h2 className="favorite-destinations-title">Danh sách địa điểm du lịch được ưa thích</h2>
+        <h2 className="favorite-destinations-title">
+          Danh sách địa điểm du lịch được ưa thích
+        </h2>
         <div className="favorite-destinations-items">
-          {Array.isArray(favoriteDestinations) && favoriteDestinations.length > 0 ? (
+          {Array.isArray(favoriteDestinations) &&
+          favoriteDestinations.length > 0 ? (
             favoriteDestinations.map((item) => (
               <div key={item.id} className="favorite-destination-item">
                 <img

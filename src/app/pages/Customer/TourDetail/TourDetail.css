@@ -52,9 +52,20 @@
   top: 10px;
   left: 10px;
   font-size: 20px;
+  cursor: pointer;
+}
+
+.tour-detail-container .heart-icon:hover {
+  transform: scale(1.2);
+}
+
+.heart-icon svg.not-liked {
   color: white;
 }
 
+.heart-icon svg.liked {
+  color: red; /* khi đã thích thì là đỏ */
+}
 .tour-detail-container .booking-panel {
   width: 320px;
   background: #f9f9f9;
@@ -79,6 +90,7 @@
   display: block;
   font-weight: bold;
   margin-bottom: 5px;
+  min-width: 80px;
 }
 
 .tour-detail-container .price {
@@ -220,7 +232,7 @@
 }
 
 .tour-detail-container .day-column .icon {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .tour-detail-container .day-column .tag {
@@ -229,5 +241,13 @@
   color: white;
   padding: 2px 10px;
   border-radius: 5px;
-  font-size: 12px;
+  font-size: 18px;
+}
+
+.tour-detail-container .date-select {
+  width: 90%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
 }

@@ -29,6 +29,7 @@ import DetailCustomerPage from "../components/Admin/CustomerManagement/DetailCus
 import BookingHistory from "../pages/Customer/BookingHistory";
 import TourDetail from "../pages/Customer/TourDetail";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
+import Payment from "../pages/Customer/Payment";
 
 export default function MainRoutes() {
   return (
@@ -119,7 +120,10 @@ export default function MainRoutes() {
 
           {/* Routes cho cả Admin và Staff - Quản lý hóa đơn */}
           <Route path="invoices" element={<OrderManagement />}></Route>
-          <Route path="invoices/detail/:invoiceId" element={<OrderDetail />}></Route>
+          <Route
+            path="invoices/detail/:invoiceId"
+            element={<OrderDetail />}
+          ></Route>
         </Route>
 
         {/* Customer */}
@@ -148,8 +152,9 @@ export default function MainRoutes() {
           } />
           <Route path="cart" element={<Cart />} />
           <Route path="bookings" element={<BookingHistory />} />
-          <Route path="tour-detail" element={<TourDetail />} />
           <Route path="members" element={<Member />} />
+          <Route path="tour-detail/:id" element={<TourDetail />} />
+          <Route path="payment" element={<Payment />} />
         </Route>
       </Routes>
     </BrowserRouter>
