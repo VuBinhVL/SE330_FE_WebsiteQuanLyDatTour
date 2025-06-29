@@ -1,11 +1,12 @@
 .user-sidebar {
-  width: 260px;
+  width: 280px;
   background-color: #fff;
   padding: 24px;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
   height: 100vh;
-  border: 1px solid #b3b0b0;
-  border-radius: 9px;
+  border-right: 1px solid #e9ecef;
+  overflow-y: auto;
+  flex-shrink: 0;
 }
 
 .user-sidebar .user-info {
