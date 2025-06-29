@@ -15,6 +15,11 @@ import {
   ComposedChart,
 } from "recharts";
 import { fetchGet } from "../../../lib/httpHandler";
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import html2canvas from 'html2canvas';
+import { FaFileExcel, FaFilePdf } from 'react-icons/fa';
 import "./Report.css";
 
 const COLORS = [
@@ -132,6 +137,545 @@ export default function Report() {
   const [error, setError] = useState(null);
   const [rawInvoices, setRawInvoices] = useState([]); // Store raw invoice data
 
+  // Hàm xuất Excel
+  const exportToExcel = async () => {
+    try {
+      // Hiển thị loading
+      const loadingMessage = document.createElement('div');
+      loadingMessage.innerHTML = '📊 Dang tao file Excel...';
+      loadingMessage.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #059669;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        z-index: 9999;
+        font-weight: bold;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      `;
+      document.body.appendChild(loadingMessage);
+      
+      // Timeout safety
+      setTimeout(() => {
+        const loadingEl = document.querySelector('div[style*="position: fixed"]');
+        if (loadingEl && document.body.contains(loadingEl)) {
+          document.body.removeChild(loadingEl);
+          alert('❌ Xuat Excel bi timeout. Vui long thu lai sau.');
+        }
+      }, 30000); // 30 seconds timeout for Excel
+      
+      const wb = XLSX.utils.book_new();
+      
+      // Sheet 1: Tổng quan
+      const overviewData = [
+        ['BÁO CÁO TỔNG QUAN'],
+        [`Quý ${quarter} năm ${year}`],
+        [`Xuất ngày: ${new Date().toLocaleDateString('vi-VN')}`],
+        [],
+        ['THỐNG KÊ CHÍNH'],
+        ['Chỉ số', 'Giá trị', 'Đơn vị'],
+        ['Tổng doanh thu', totalRevenue, 'VNĐ'],
+        ['Tổng lượt đặt', totalBookings, 'Lượt'],
+        ['Doanh thu TB/tuần', safeAverageRevenuePerWeek, 'VNĐ'],
+        ['Lượt đặt TB/tuần', Math.round(safeAverageBookingsPerWeek), 'Lượt'],
+        ['Doanh thu/lượt đặt', safeAverageRevenuePerBooking, 'VNĐ'],
+        ['Tuần đỉnh cao', `Tuần ${maxRevenueWeek?.week || 'N/A'}`, `${maxRevenueWeek?.revenue?.toLocaleString("vi-VN") || 0} VNĐ`]
+      ];
+      
+      const ws1 = XLSX.utils.aoa_to_sheet(overviewData);
+      
+      // Styling cho sheet tổng quan
+      ws1['!cols'] = [
+        { width: 25 },
+        { width: 20 },
+        { width: 15 }
+      ];
+      
+      // Styling cho các cell
+      if (ws1['A1']) ws1['A1'].s = { font: { bold: true, sz: 14 } };
+      if (ws1['A2']) ws1['A2'].s = { font: { bold: true, sz: 12 } };
+      if (ws1['A5']) ws1['A5'].s = { font: { bold: true, sz: 12 } };
+      
+      XLSX.utils.book_append_sheet(wb, ws1, 'Tổng quan');
+      
+      // Sheet 2: Chi tiết theo tuần
+      const weeklyHeaders = ['Tuần', 'Doanh thu (VNĐ)', 'Lượt đặt', 'Trung bình/Lượt đặt (VNĐ)', 'Tháng'];
+      const weeklyData = data.map(item => [
+        `Tuần ${item.week}`,
+        item.revenue,
+        item.bookings,
+        item.bookings > 0 ? Math.round(item.revenue / item.bookings) : 0,
+        `Tháng ${getMonthOfWeek(item.week, quarter)}`
+      ]);
+      
+      // Thêm tổng cộng
+      const totalWeeklyRevenue = data.reduce((sum, item) => sum + item.revenue, 0);
+      const totalWeeklyBookings = data.reduce((sum, item) => sum + item.bookings, 0);
+      const avgWeeklyRevenue = totalWeeklyBookings > 0 ? totalWeeklyRevenue / totalWeeklyBookings : 0;
+      
+      weeklyData.push([
+        'TỔNG CỘNG',
+        totalWeeklyRevenue,
+        totalWeeklyBookings,
+        Math.round(avgWeeklyRevenue),
+        `Quý ${quarter}`
+      ]);
+      
+      const ws2 = XLSX.utils.aoa_to_sheet([
+        [`CHI TIẾT THEO TUẦN - QUÝ ${quarter} NĂM ${year}`],
+        [],
+        weeklyHeaders,
+        ...weeklyData
+      ]);
+      
+      XLSX.utils.book_append_sheet(wb, ws2, 'Chi tiết theo tuần');
+      
+      // Sheet 3: Thống kê thanh toán (nếu có)
+      if (finalPaymentStatusData.length > 0) {
+        const paymentHeaders = ['Trạng thái', 'Số lượng', 'Tỷ lệ (%)', 'Doanh thu ước tính (VNĐ)'];
+        const paymentData = finalPaymentStatusData.map(item => {
+          const total = finalPaymentStatusData.reduce((sum, p) => sum + p.value, 0);
+          const percentage = total > 0 ? (item.value / total * 100).toFixed(1) : 0;
+          
+          // Ước tính doanh thu dựa trên tỷ lệ
+          let estimatedRevenue = 0;
+          if (item.name === 'Da thanh toan') {
+            estimatedRevenue = paidRevenue || (totalRevenue * 0.75);
+          } else {
+            estimatedRevenue = unpaidRevenue || (totalRevenue * 0.25);
+          }
+          
+          return [
+            item.name, 
+            item.value, 
+            `${percentage}%`,
+            Math.round(estimatedRevenue)
+          ];
+        });
+        
+        const ws3 = XLSX.utils.aoa_to_sheet([
+          [`THỐNG KÊ THANH TOÁN - QUÝ ${quarter} NĂM ${year}`],
+          [`Cập nhật: ${new Date().toLocaleDateString('vi-VN')}`],
+          [],
+          paymentHeaders,
+          ...paymentData,
+          [],
+          ['Ghi chú:', 'Doanh thu ước tính dựa trên dữ liệu hóa đơn hiện có']
+        ]);
+        XLSX.utils.book_append_sheet(wb, ws3, 'Thống kê thanh toán');
+      }
+      
+      // Sheet 4: Phương thức thanh toán (nếu có)
+      if (paymentMethodChartData.length > 0) {
+        const methodHeaders = ['Phương thức', 'Số giao dịch', 'Tỷ lệ (%)', 'Doanh thu (VNĐ)'];
+        const methodData = paymentMethodChartData.map(method => {
+          const total = paymentMethodChartData.reduce((sum, m) => sum + m.value, 0);
+          const percentage = total > 0 ? (method.value / total * 100).toFixed(1) : 0;
+          return [
+            method.name,
+            method.value,
+            `${percentage}%`,
+            method.revenue || 0
+          ];
+        });
+        
+        // Tổng cộng phương thức thanh toán
+        methodData.push([
+          'TỔNG CỘNG',
+          paymentMethodChartData.reduce((sum, m) => sum + m.value, 0),
+          '100%',
+          paymentMethodChartData.reduce((sum, m) => sum + (m.revenue || 0), 0)
+        ]);
+        
+        const ws4 = XLSX.utils.aoa_to_sheet([
+          [`PHƯƠNG THỨC THANH TOÁN - QUÝ ${quarter} NĂM ${year}`],
+          [],
+          methodHeaders,
+          ...methodData
+        ]);
+        XLSX.utils.book_append_sheet(wb, ws4, 'Phương thức thanh toán');
+      }
+      
+      // Sheet 5: Dữ liệu thô cho phân tích
+      if (data.length > 0) {
+        const rawHeaders = ['Tuần', 'Tháng', 'Quý', 'Năm', 'Doanh thu (VNĐ)', 'Lượt đặt', 'Doanh thu/Lượt đặt'];
+        const rawData = data.map(item => [
+          item.week,
+          getMonthOfWeek(item.week, quarter),
+          quarter,
+          year,
+          item.revenue,
+          item.bookings,
+          item.bookings > 0 ? (item.revenue / item.bookings) : 0
+        ]);
+        
+        const ws5 = XLSX.utils.aoa_to_sheet([
+          ['DỮ LIỆU THÔ CHO PHÂN TÍCH'],
+          [`Xuất ngày: ${new Date().toISOString()}`],
+          [],
+          rawHeaders,
+          ...rawData
+        ]);
+        XLSX.utils.book_append_sheet(wb, ws5, 'Dữ liệu thô');
+      }
+      
+      // Xóa loading message
+      if (document.body.contains(loadingMessage)) {
+        document.body.removeChild(loadingMessage);
+      }
+      
+      // Lưu file với tên chi tiết hơn
+      const fileName = `BaoCao_Excel_Quy${quarter}_${year}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+      
+    } catch (error) {
+      // Xóa loading message nếu có lỗi
+      const loadingMessage = document.querySelector('div[style*="position: fixed"]');
+      if (loadingMessage && document.body.contains(loadingMessage)) {
+        document.body.removeChild(loadingMessage);
+      }
+      
+      console.error('Error exporting to Excel:', error);
+      alert('❌ Co loi xay ra khi xuat Excel. Vui long thu lai.');
+    }
+  };
+
+  // Ham xuat PDF voi bieu do duoc cai thien
+  const exportToPDF = async () => {
+    try {
+      // Hien thi loading voi timeout safety
+      const loadingMessage = document.createElement('div');
+      loadingMessage.innerHTML = '📊 Dang tao file PDF... Vui long cho';
+      loadingMessage.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #3B82F6;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        z-index: 9999;
+        font-weight: bold;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      `;
+      document.body.appendChild(loadingMessage);
+      
+      // Timeout de dam bao khong bi treo
+      setTimeout(() => {
+        const loadingEl = document.querySelector('div[style*="position: fixed"]');
+        if (loadingEl && document.body.contains(loadingEl)) {
+          document.body.removeChild(loadingEl);
+          alert('❌ Xuat PDF bi timeout. Vui long thu lai sau.');
+        }
+      }, 30000); // 30 seconds timeout
+      
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      let yPosition = 20;
+      
+      // Thiet lap font co ban
+      pdf.setFont('times');
+      
+      // Tieu de - khong dau
+      pdf.setFontSize(18);
+      pdf.text('BAO CAO DOANH SO & THONG KE DAT TOUR', 105, yPosition, { align: 'center' });
+      yPosition += 10;
+      
+      pdf.setFontSize(14);
+      pdf.text(`Bao cao quy ${quarter} nam ${year}`, 105, yPosition, { align: 'center' });
+      yPosition += 20;
+      
+      // Thong ke tong quan - khong dau
+      pdf.setFontSize(12);
+      pdf.text('THONG KE TONG QUAN', 20, yPosition);
+      yPosition += 10;
+      
+      pdf.setFontSize(10);
+      const summaryItems = [
+        `Tong doanh thu: ${totalRevenue.toLocaleString("vi-VN")} VND`,
+        `Tong so luot dat: ${totalBookings} luot`,
+        `Doanh thu trung binh/tuan: ${safeAverageRevenuePerWeek.toLocaleString("vi-VN")} VND`,
+        `So luot dat trung binh/tuan: ${Math.round(safeAverageBookingsPerWeek)} luot`,
+        `Doanh thu trung binh/luot dat: ${safeAverageRevenuePerBooking.toLocaleString("vi-VN")} VND`,
+        `Tuan co doanh thu cao nhat: Tuan ${maxRevenueWeek?.week || 'N/A'} - ${maxRevenueWeek?.revenue?.toLocaleString("vi-VN") || 0} VND`
+      ];
+      
+      summaryItems.forEach((text, index) => {
+        pdf.text(text, 20, yPosition);
+        yPosition += 6;
+      });
+      yPosition += 10;
+      
+      // Capture bieu do chinh voi cai thien
+      try {
+        const chartElement = document.querySelector('.chart-container .recharts-wrapper');
+        if (chartElement) {
+          console.log('Tim thay bieu do chinh, dang capture...');
+          
+          // Doi de dam bao bieu do da render hoan toan
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
+          const chartCanvas = await html2canvas(chartElement, {
+            backgroundColor: '#ffffff',
+            scale: 1.0, // Giam scale de tranh memory issues
+            useCORS: true,
+            allowTaint: true,
+            logging: true, // Enable logging de debug
+            width: chartElement.offsetWidth,
+            height: chartElement.offsetHeight
+          });
+          
+          const chartImgData = chartCanvas.toDataURL('image/png', 0.8);
+          const chartWidth = 160; // width in mm
+          const chartHeight = Math.min((chartCanvas.height * chartWidth) / chartCanvas.width, 80); // Limit height
+          
+          // Kiem tra neu can trang moi
+          if (yPosition + chartHeight > 230) {
+            pdf.addPage();
+            yPosition = 20;
+          }
+          
+          pdf.setFontSize(12);
+          pdf.text('BIEU DO DOANH SO VA SO LUOT DAT THEO TUAN', 20, yPosition);
+          yPosition += 10;
+          
+          pdf.addImage(chartImgData, 'PNG', 20, yPosition, chartWidth, chartHeight);
+          yPosition += chartHeight + 15;
+          
+          console.log('Da them bieu do chinh vao PDF');
+        } else {
+          console.warn('Khong tim thay bieu do chinh');
+          pdf.setFontSize(10);
+          pdf.text('(Khong tim thay bieu do chinh)', 20, yPosition);
+          yPosition += 10;
+        }
+      } catch (chartError) {
+        console.error('Loi khi capture bieu do chinh:', chartError);
+        pdf.setFontSize(10);
+        pdf.text('(Loi khi capture bieu do chinh)', 20, yPosition);
+        yPosition += 10;
+      }
+      
+      // Kiem tra neu can trang moi cho bang
+      if (yPosition > 200) {
+        pdf.addPage();
+        yPosition = 20;
+      }
+      
+      // Bang chi tiet - thay the autoTable bang text don gian - khong dau
+      pdf.setFontSize(12);
+      pdf.text('CHI TIET THEO TUAN', 20, yPosition);
+      yPosition += 15;
+      
+      // Header bang - khong dau
+      pdf.setFontSize(8);
+      pdf.text('Tuan', 20, yPosition);
+      pdf.text('Doanh so (VND)', 50, yPosition);
+      pdf.text('So luot', 100, yPosition);
+      pdf.text('TB/Luot', 130, yPosition);
+      pdf.text('Thang', 170, yPosition);
+      yPosition += 8;
+      
+      // Du lieu bang
+      data.forEach(item => {
+        pdf.text(`Tuan ${item.week}`, 20, yPosition);
+        pdf.text(item.revenue.toLocaleString("vi-VN"), 50, yPosition);
+        pdf.text(item.bookings.toString(), 100, yPosition);
+        pdf.text(item.bookings > 0 ? Math.round(item.revenue / item.bookings).toLocaleString("vi-VN") : '0', 130, yPosition);
+        pdf.text(`Thang ${getMonthOfWeek(item.week, quarter)}`, 170, yPosition);
+        yPosition += 6;
+        
+        // Kiem tra neu can trang moi
+        if (yPosition > 270) {
+          pdf.addPage();
+          yPosition = 20;
+        }
+      });
+      
+      yPosition += 15;
+      
+      // Thong ke thanh toan - khong dau
+      if (finalPaymentStatusData.length > 0) {
+        if (yPosition > 220) {
+          pdf.addPage();
+          yPosition = 20;
+        }
+        
+        // Thong ke thanh toan - thay the autoTable
+        pdf.setFontSize(12);
+        pdf.text('THONG KE THANH TOAN', 20, yPosition);
+        yPosition += 15;
+        
+        pdf.setFontSize(8);
+        pdf.text('Trang thai', 20, yPosition);
+        pdf.text('So luong', 80, yPosition);
+        pdf.text('Ty le (%)', 130, yPosition);
+        yPosition += 8;
+        
+        finalPaymentStatusData.forEach(item => {
+          const total = finalPaymentStatusData.reduce((sum, p) => sum + p.value, 0);
+          const percentage = total > 0 ? (item.value / total * 100).toFixed(1) : 0;
+          
+          pdf.text(item.name, 20, yPosition);
+          pdf.text(item.value.toString(), 80, yPosition);
+          pdf.text(`${percentage}%`, 130, yPosition);
+          yPosition += 6;
+        });
+        
+        yPosition += 15;
+      }
+      
+      // Capture pie charts voi xu ly loi tot hon
+      console.log('Bat dau capture pie charts...');
+      const pieChartSelectors = [
+        { selector: '.report-pie-container .recharts-wrapper', title: 'Ty le doanh thu theo tuan' },
+        { selector: '.payment-status-container .recharts-wrapper', title: 'Ty le thanh toan' }
+      ];
+      
+      let chartsAdded = 0;
+      for (const chartInfo of pieChartSelectors) {
+        try {
+          const pieElement = document.querySelector(chartInfo.selector);
+          console.log(`Dang tim ${chartInfo.title}:`, pieElement ? 'Tim thay' : 'Khong tim thay');
+          
+          if (pieElement) {
+            // Kiem tra neu can trang moi
+            if (yPosition > 180) {
+              pdf.addPage();
+              yPosition = 20;
+            }
+            
+            // Doi de dam bao render
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            const pieCanvas = await html2canvas(pieElement, {
+              backgroundColor: '#ffffff',
+              scale: 1.0, // Giam scale
+              useCORS: true,
+              allowTaint: true,
+              logging: true,
+              width: pieElement.offsetWidth,
+              height: pieElement.offsetHeight
+            });
+            
+            const pieImgData = pieCanvas.toDataURL('image/png', 0.8);
+            const pieWidth = 70;
+            const pieHeight = Math.min((pieCanvas.height * pieWidth) / pieCanvas.width, 70); // Limit height
+            
+            const xPosition = chartsAdded === 0 ? 20 : 110;
+            
+            if (chartsAdded === 0) {
+              pdf.setFontSize(10);
+              pdf.text('Bieu do ty le:', 20, yPosition);
+              yPosition += 7;
+            }
+            
+            pdf.addImage(pieImgData, 'PNG', xPosition, yPosition, pieWidth, pieHeight);
+            console.log(`Da them ${chartInfo.title} vao PDF`);
+            
+            chartsAdded++;
+            if (chartsAdded === 2) {
+              yPosition += pieHeight + 15;
+            }
+          }
+        } catch (pieError) {
+          console.error(`Loi khi capture ${chartInfo.title}:`, pieError);
+          pdf.setFontSize(8);
+          pdf.text(`(Loi: ${chartInfo.title})`, 20, yPosition);
+          yPosition += 6;
+        }
+      }
+      
+      console.log(`Da them ${chartsAdded} pie charts vao PDF`);
+      
+      // Payment method chart neu co - khong dau
+      if (paymentMethodChartData.length > 0) {
+        try {
+          const methodElement = document.querySelector('.payment-method-container .recharts-wrapper');
+          if (methodElement) {
+            if (yPosition > 200) {
+              pdf.addPage();
+              yPosition = 20;
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            const methodCanvas = await html2canvas(methodElement, {
+              backgroundColor: '#ffffff',
+              scale: 1.2,
+              useCORS: true,
+              allowTaint: true,
+              logging: false
+            });
+            
+            const methodImgData = methodCanvas.toDataURL('image/png', 0.8);
+            const methodWidth = 100;
+            const methodHeight = Math.min((methodCanvas.height * methodWidth) / methodCanvas.width, 80);
+            
+            pdf.setFontSize(12);
+            pdf.text('PHUONG THUC THANH TOAN', 20, yPosition);
+            yPosition += 10;
+            
+            pdf.addImage(methodImgData, 'PNG', 55, yPosition, methodWidth, methodHeight);
+            yPosition += methodHeight + 10;
+            
+            // Bang phuong thuc thanh toan - thay the autoTable - khong dau
+            pdf.setFontSize(8);
+            pdf.text('Phuong thuc', 20, yPosition);
+            pdf.text('So giao dich', 80, yPosition);
+            pdf.text('Doanh so (VND)', 130, yPosition);
+            yPosition += 8;
+            
+            paymentMethodChartData.forEach(method => {
+              pdf.text(method.name, 20, yPosition);
+              pdf.text(method.value.toString(), 80, yPosition);
+              pdf.text(method.revenue ? method.revenue.toLocaleString("vi-VN") : 'N/A', 130, yPosition);
+              yPosition += 6;
+            });
+          }
+        } catch (methodError) {
+          console.error('Loi khi capture bieu do phuong thuc thanh toan:', methodError);
+        }
+      }
+      
+      // Footer cho tat ca cac trang - khong dau
+      const pageCount = pdf.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        pdf.setPage(i);
+        pdf.setFontSize(8);
+        pdf.text(`Tao ngay: ${new Date().toLocaleDateString('vi-VN')}`, 20, 285);
+        pdf.text('Website Quan ly Dat Tour', 130, 285);
+        pdf.text(`Trang ${i}/${pageCount}`, 180, 290);
+      }
+      
+      // Xóa loading message
+      if (document.body.contains(loadingMessage)) {
+        document.body.removeChild(loadingMessage);
+      }
+      
+      // Lưu file - chi luu khong thong bao
+      try {
+        const fileName = `BaoCao_PDF_Quy${quarter}_${year}_${new Date().toISOString().slice(0, 10)}.pdf`;
+        pdf.save(fileName);
+        
+      } catch (saveError) {
+        console.error('Loi khi luu PDF:', saveError);
+        throw new Error('Khong the luu file PDF. Vui long thu lai.');
+      }
+      
+    } catch (error) {
+      // Cleanup loading message
+      const loadingMessageCleanup = document.querySelector('div[style*="position: fixed"]');
+      if (loadingMessageCleanup && document.body.contains(loadingMessageCleanup)) {
+        document.body.removeChild(loadingMessageCleanup);
+      }
+      
+      console.error('Error exporting to PDF:', error);
+      alert('❌ Co loi xay ra khi xuat PDF. Vui long thu lai.');
+    }
+  };
+
   // Tính toán các thống kê tổng quan (tránh NaN)
   const totalRevenue = data.reduce((sum, item) => sum + (item.revenue || 0), 0);
   const totalBookings = data.reduce((sum, item) => sum + (item.bookings || 0), 0);
@@ -168,15 +712,15 @@ export default function Report() {
 
   // Dữ liệu cho biểu đồ tỷ lệ thanh toán (từ API thực)
   const paymentStatusData = [
-    { name: 'Đã thanh toán', value: paidInvoices.length, color: '#DC2626' },
-    { name: 'Chưa thanh toán', value: unpaidInvoices.length, color: '#F59E0B' }
+    { name: 'Da thanh toan', value: paidInvoices.length, color: '#DC2626' },
+    { name: 'Chua thanh toan', value: unpaidInvoices.length, color: '#F59E0B' }
   ];
 
   // Nếu không có dữ liệu từ API, sử dụng tỷ lệ ước tính từ tổng số bookings
   const finalPaymentStatusData = (paidInvoices.length + unpaidInvoices.length) === 0 
     ? [
-        { name: 'Đã thanh toán', value: Math.round(totalBookings * 0.75), color: '#DC2626' },
-        { name: 'Chưa thanh toán', value: Math.round(totalBookings * 0.25), color: '#F59E0B' }
+        { name: 'Da thanh toan', value: Math.round(totalBookings * 0.75), color: '#DC2626' },
+        { name: 'Chua thanh toan', value: Math.round(totalBookings * 0.25), color: '#F59E0B' }
       ]
     : paymentStatusData;
 
@@ -328,6 +872,27 @@ export default function Report() {
             ))}
           </select>
         </label>
+        
+        <div className="export-controls">
+          <button 
+            className="export-button export-excel" 
+            onClick={exportToExcel}
+            disabled={loading || data.length === 0}
+            title="Xuất file Excel"
+          >
+            <FaFileExcel />
+            Xuất Excel
+          </button>
+          <button 
+            className="export-button export-pdf" 
+            onClick={exportToPDF}
+            disabled={loading || data.length === 0}
+            title="Xuất file PDF"
+          >
+            <FaFilePdf />
+            Xuất PDF
+          </button>
+        </div>
       </div>
 
       {loading ? (

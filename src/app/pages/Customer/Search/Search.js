@@ -253,10 +253,9 @@ export default function Search() {
     }
   }
 
-  // Chuyển sang trang chi tiết tour (chưa làm)
+  // Chuyển sang trang chi tiết tour
   function handleBookNow(tourId) {
-    // navigate(`/tour/${tourId}`);
-    alert("Chức năng xem chi tiết tour chưa được phát triển.");
+    navigate(`/tour-detail/${tourId}`);
   }
 
   return (

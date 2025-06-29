@@ -45,6 +45,71 @@
   box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.1);
 }
 
+/* Export Buttons */
+.export-controls {
+  display: flex;
+  gap: 12px;
+  margin-left: auto;
+  align-items: center;
+}
+
+.export-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.export-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.export-button:active {
+  transform: translateY(0);
+}
+
+.export-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.export-button:disabled:hover {
+  transform: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.export-excel {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  color: white;
+}
+
+.export-excel:hover {
+  background: linear-gradient(135deg, #15803d, #166534);
+}
+
+.export-pdf {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: white;
+}
+
+.export-pdf:hover {
+  background: linear-gradient(135deg, #b91c1c, #991b1b);
+}
+
+.export-button svg {
+  width: 16px;
+  height: 16px;
+}
+
 /* Summary Cards */
 .report-summary {
   display: grid;
@@ -72,6 +137,7 @@
   font-size: 14px;
   font-weight: 500;
   opacity: 0.9;
+  color: #ffffff;
 }
 
 .summary-value {
@@ -98,7 +164,7 @@
 
 .chart-container h3 {
   margin: 0 0 20px 0;
-  color: #B91C1C;
+  color: #ffffff;
   font-size: 18px;
   font-weight: 600;
 }
@@ -141,7 +207,7 @@
 
 .report-table-container h3 {
   margin: 0 0 20px 0;
-  color: #B91C1C;
+  color: #ffffff;
   font-size: 18px;
   font-weight: 600;
 }
@@ -215,7 +281,7 @@
 .payment-status-container h3,
 .payment-method-container h3 {
   margin: 0 0 20px 0;
-  color: #B91C1C;
+  color: #ffffff;
   font-size: 18px;
   text-align: center;
   font-weight: 600;
@@ -257,6 +323,43 @@
   border-radius: 8px;
 }
 
+/* Export loading message styles */
+.export-loading {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  z-index: 9999;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  animation: pulse 2s infinite;
+}
+
+.export-loading.excel {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+}
+
+.export-loading.pdf {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .report-container {
@@ -283,6 +386,16 @@
     gap: 12px;
   }
   
+  .export-controls {
+    margin-left: 0;
+    justify-content: center;
+  }
+  
+  .export-button {
+    flex: 1;
+    min-width: 120px;
+  }
+  
   .report-table {
     font-size: 14px;
   }
@@ -296,6 +409,7 @@
   .payment-status-container h3,
   .payment-method-container h3 {
     font-size: 16px;
+    color: #ffffff;
   }
   
   .payment-summary,

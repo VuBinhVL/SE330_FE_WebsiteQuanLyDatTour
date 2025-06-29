@@ -83,9 +83,23 @@ export default function CustomerMainPage() {
           MySwal.fire({
             icon: "warning",
             title: "Không thể xóa khách hàng",
-            text: "Khách hàng này có lịch sử đặt tour. Không thể xóa!",
-            confirmButtonText: "Đóng",
-            confirmButtonColor: "#3085d6",
+            html: `
+              <div style="text-align: left; margin: 10px 0;">
+                <p><strong>Khách hàng này có lịch sử đặt tour và không thể xóa!</strong></p>
+                <p style="margin: 10px 0;">📋 <strong>Lý do:</strong></p>
+                <ul style="margin: 5px 0; padding-left: 20px;">
+                  <li>Có <strong>${bookings.length}</strong> booking đã tạo</li>
+                  <li>Có thể liên quan đến giao dịch tài chính</li>
+                  <li>Cần giữ lại để tra cứu lịch sử</li>
+                </ul>
+                <p style="color: #0066cc; font-weight: 500; margin-top: 10px;">
+                  💡 <strong>Gợi ý:</strong> Bạn có thể khóa tài khoản thay vì xóa.
+                </p>
+              </div>
+            `,
+            confirmButtonText: "Đã hiểu",
+            confirmButtonColor: "#0066cc",
+            width: '480px'
           });
           return;
         }
@@ -93,13 +107,29 @@ export default function CustomerMainPage() {
         // Nếu không có booking, tiếp tục xác nhận xóa
         MySwal.fire({
           icon: "warning",
-          title: "Xác nhận xóa",
-          text: "Bạn có chắc muốn xóa khách hàng này? Tất cả thành viên và tài khoản liên quan cũng sẽ bị xóa!",
+          title: "Xác nhận xóa khách hàng",
+          html: `
+            <div style="text-align: left; margin: 10px 0;">
+              <p><strong>Bạn có chắc muốn xóa khách hàng này?</strong></p>
+              <p style="margin: 10px 0;"><strong>Các dữ liệu sau sẽ bị xóa vĩnh viễn:</strong></p>
+              <ul style="margin: 5px 0; padding-left: 20px;">
+                <li>✗ Tài khoản đăng nhập</li>
+                <li>✗ Thông tin cá nhân</li>
+                <li>✗ Danh sách thành viên</li>
+                <li>✗ Tour yêu thích</li>
+                <li>✗ Giỏ hàng</li>
+              </ul>
+              <p style="color: #dc3545; font-weight: 500; margin-top: 10px;">
+                ⚠️ Hành động này không thể hoàn tác!
+              </p>
+            </div>
+          `,
           showCancelButton: true,
-          confirmButtonText: "Xóa",
-          cancelButtonText: "Hủy",
-          confirmButtonColor: "#c34141",
-          cancelButtonColor: "#aaa",
+          confirmButtonText: "Xóa khách hàng",
+          cancelButtonText: "Hủy bỏ",
+          confirmButtonColor: "#dc3545",
+          cancelButtonColor: "#6c757d",
+          width: '500px'
         }).then((result) => {
           if (!result.isConfirmed) return;
 
@@ -146,55 +176,93 @@ export default function CustomerMainPage() {
             })
           )
         ).then(() => {
-          // 3. Lấy accountId của khách hàng
+          // 3. Xóa favorite tours của user
+          console.log("Cleaning up favorite tours for user:", id);
           fetchGet(
-            `/api/admin/customer/get/${id}`,
-            (res2) => {
-              console.log("Customer data:", res2.data);
-              const accountId = res2.data?.account_id;
+            `/api/admin/favorite-tour/user/${id}`,
+            (favRes) => {
+              const favorites = favRes.data || [];
+              console.log("Favorite tours to delete:", favorites);
               
-              if (accountId) {
-                console.log("Deleting account:", accountId);
-                // 4. Xóa account (sẽ tự động xóa customer theo cascade)
+              Promise.all(
+                favorites.map((fav) =>
+                  new Promise((resolve) => {
+                    fetchDelete(
+                      `/api/admin/favorite-tour/remove/${fav.id}`,
+                      () => {
+                        console.log(`Deleted favorite tour ${fav.id}`);
+                        resolve();
+                      },
+                      (error) => {
+                        console.error(`Failed to delete favorite tour ${fav.id}:`, error);
+                        resolve();
+                      },
+                      (exception) => {
+                        console.error(`Exception deleting favorite tour ${fav.id}:`, exception);
+                        resolve();
+                      }
+                    );
+                  })
+                )
+              ).then(() => {
+                // 4. Xóa cart items của user
+                console.log("Cleaning up cart for user:", id);
                 fetchDelete(
-                  `/api/admin/account/delete/${accountId}`,
+                  `/api/admin/cart/user/${id}/clear`,
                   () => {
-                    console.log("Account deleted successfully (customer also deleted by cascade)");
-                    // Cập nhật danh sách trên FE
-                    setCustomers((prev) => {
-                      const newList = prev.filter((c) => c.id !== id);
-                      console.log("Updated customer list:", newList);
-                      return newList;
-                    });
-                    MySwal.fire({
-                      icon: "success",
-                      title: "Đã xóa khách hàng!",
-                      timer: 1200,
-                      showConfirmButton: false,
-                    });
+                    console.log("Cart cleared successfully");
+                    proceedWithAccountDeletion(id);
                   },
                   (error) => {
-                    console.error("Error deleting account:", error);
-                    MySwal.fire("Lỗi", "Xóa account thất bại!", "error");
+                    console.error("Error clearing cart:", error);
+                    // Vẫn tiếp tục xóa user dù cart clear thất bại
+                    proceedWithAccountDeletion(id);
                   },
                   (exception) => {
-                    console.error("Exception deleting account:", exception);
-                    MySwal.fire("Lỗi", "Lỗi kết nối khi xóa account!", "error");
+                    console.error("Exception clearing cart:", exception);
+                    // Vẫn tiếp tục xóa user dù cart clear thất bại
+                    proceedWithAccountDeletion(id);
                   }
                 );
-              } else {
-                console.log("No account to delete, proceeding to delete customer");
-                // Nếu không có account, chỉ xóa customer
-                deleteCustomerFinal(id);
-              }
+              });
             },
             (error) => {
-              console.error("Error getting customer info:", error);
-              MySwal.fire("Lỗi", "Không lấy được thông tin khách hàng!", "error");
+              console.error("Error getting favorite tours:", error);
+              // Nếu không lấy được favorite tours, vẫn tiếp tục clear cart
+              fetchDelete(
+                `/api/admin/cart/user/${id}/clear`,
+                () => {
+                  console.log("Cart cleared successfully");
+                  proceedWithAccountDeletion(id);
+                },
+                (error) => {
+                  console.error("Error clearing cart:", error);
+                  proceedWithAccountDeletion(id);
+                },
+                (exception) => {
+                  console.error("Exception clearing cart:", exception);
+                  proceedWithAccountDeletion(id);
+                }
+              );
             },
             (exception) => {
-              console.error("Exception getting customer info:", exception);
-              MySwal.fire("Lỗi", "Lỗi kết nối khi lấy thông tin khách hàng!", "error");
+              console.error("Exception getting favorite tours:", exception);
+              // Nếu không lấy được favorite tours, vẫn tiếp tục clear cart
+              fetchDelete(
+                `/api/admin/cart/user/${id}/clear`,
+                () => {
+                  console.log("Cart cleared successfully");
+                  proceedWithAccountDeletion(id);
+                },
+                (error) => {
+                  console.error("Error clearing cart:", error);
+                  proceedWithAccountDeletion(id);
+                },
+                (exception) => {
+                  console.error("Exception clearing cart:", exception);
+                  proceedWithAccountDeletion(id);
+                }
+              );
             }
           );
         });
@@ -206,6 +274,62 @@ export default function CustomerMainPage() {
       (exception) => {
         console.error("Exception getting user members:", exception);
         MySwal.fire("Lỗi", "Lỗi kết nối khi lấy danh sách thành viên!", "error");
+      }
+    );
+  };
+
+  // Hàm riêng để xử lý xóa account/customer sau khi đã clean up
+  const proceedWithAccountDeletion = (id) => {
+    // Lấy accountId của khách hàng
+    fetchGet(
+      `/api/admin/customer/get/${id}`,
+      (res2) => {
+        console.log("Customer data:", res2.data);
+        const accountId = res2.data?.account_id;
+        
+        if (accountId) {
+          console.log("Deleting account:", accountId);
+          // Xóa account (sẽ tự động xóa customer theo cascade)
+          fetchDelete(
+            `/api/admin/account/delete/${accountId}`,
+            () => {
+              console.log("Account deleted successfully (customer also deleted by cascade)");
+              // Cập nhật danh sách trên FE
+              setCustomers((prev) => {
+                const newList = prev.filter((c) => c.id !== id);
+                console.log("Updated customer list:", newList);
+                return newList;
+              });
+              MySwal.fire({
+                icon: "success",
+                title: "Đã xóa khách hàng!",
+                text: "Đã xóa khách hàng cùng tất cả dữ liệu liên quan (thành viên, tour yêu thích, giỏ hàng)",
+                timer: 2000,
+                showConfirmButton: false,
+              });
+            },
+            (error) => {
+              console.error("Error deleting account:", error);
+              MySwal.fire("Lỗi", "Xóa account thất bại!", "error");
+            },
+            (exception) => {
+              console.error("Exception deleting account:", exception);
+              MySwal.fire("Lỗi", "Lỗi kết nối khi xóa account!", "error");
+            }
+          );
+        } else {
+          console.log("No account to delete, proceeding to delete customer");
+          // Nếu không có account, chỉ xóa customer
+          deleteCustomerFinal(id);
+        }
+      },
+      (error) => {
+        console.error("Error getting customer info:", error);
+        MySwal.fire("Lỗi", "Không lấy được thông tin khách hàng!", "error");
+      },
+      (exception) => {
+        console.error("Exception getting customer info:", exception);
+        MySwal.fire("Lỗi", "Lỗi kết nối khi lấy thông tin khách hàng!", "error");
       }
     );
   };

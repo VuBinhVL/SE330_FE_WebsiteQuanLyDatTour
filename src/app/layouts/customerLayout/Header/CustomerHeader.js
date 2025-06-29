@@ -243,9 +243,10 @@ export default function CustomerHeader() {
 
   // Xử lý khi nhấn nút Search
   const handleSearchSubmit = () => {
+    const currentPath = window.location.pathname;
+    
     if (searchQuery.trim()) {
       // Navigate đến trang search với query, tránh URL stacking
-      const currentPath = window.location.pathname;
       if (currentPath === "/search") {
         // Nếu đang ở trang search, thay thế URL hiện tại
         navigate(`/search?query=${encodeURIComponent(searchQuery.trim())}`, {
@@ -255,10 +256,18 @@ export default function CustomerHeader() {
         // Nếu không ở trang search, tạo entry mới
         navigate(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
       }
-      // Xóa input và đóng dropdown
-      setSearchQuery("");
-      setShowSearchResults(false);
+    } else {
+      // Nếu không có từ khóa, vẫn chuyển đến trang search
+      if (currentPath === "/search") {
+        navigate("/search", { replace: true });
+      } else {
+        navigate("/search");
+      }
     }
+    
+    // Xóa input và đóng dropdown
+    setSearchQuery("");
+    setShowSearchResults(false);
   };
 
   // Navigate trang Home
