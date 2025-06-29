@@ -187,6 +187,37 @@ export default function TourDetail() {
     );
   };
 
+  //Hàm chuyển hướng đến trang đặt tour
+  const handleOrderNow = (tour) => {
+    if (!userId) {
+      toast.error("Bạn cần đăng nhập để đặt tour!", { autoClose: 5000 });
+      return;
+    }
+
+    if (!tour || !tour.idTour) {
+      toast.error("Vui lòng chọn ngày đi trước!", { autoClose: 5000 });
+      return;
+    }
+
+    const selectedItems = [
+      {
+        id: tour.idTour,
+        tourId: tour.idTour,
+        routeName: data.name,
+        routeImage: tour.galleries?.[0] || "",
+        quantity: quantity,
+        price: tour.price,
+        departureDates: tour.departureDate,
+        startLocation: data.startLocation,
+        endLocation: data.endLocation,
+        duration: tour.duration,
+      },
+    ];
+
+    localStorage.setItem("selectedCart", JSON.stringify(selectedItems));
+    window.location.href = "/payment";
+  };
+
   return (
     <div className="tour-detail-container">
       <h2 className="tour-title">{data.name || "Tour mới chưa có tên"}</h2>
@@ -304,7 +335,12 @@ export default function TourDetail() {
             >
               <FaCartPlus /> Thêm
             </button>
-            <button className="btn-order">Đặt ngay ➜</button>
+            <button
+              className="btn-order"
+              onClick={() => handleOrderNow(selectedTour)}
+            >
+              Đặt ngay ➜
+            </button>
           </div>
 
           {/* <button className="btn-passenger">

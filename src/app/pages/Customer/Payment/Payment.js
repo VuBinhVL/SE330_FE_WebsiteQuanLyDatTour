@@ -341,7 +341,8 @@ export default function Payment() {
                 </p>
                 <div className="order-price">
                   <span>
-                    <b>Thành tiền:</b>
+                    <b>Thành tiền: </b>
+                    {""}
                   </span>
                   <b className="total-price">
                     {(item.price * item.quantity).toLocaleString()} đ
@@ -364,7 +365,7 @@ export default function Payment() {
             />
             <span>Tiền mặt</span>
           </label>
-          <label>
+          {/* <label>
             <input
               type="radio"
               name="payment"
@@ -373,7 +374,7 @@ export default function Payment() {
               onChange={() => setPaymentMethod("momo")}
             />
             <span>Chuyển qua Momo</span>
-          </label>
+          </label> */}
         </div>
 
         <div className="order-status">
