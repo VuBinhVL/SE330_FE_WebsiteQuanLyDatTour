@@ -71,6 +71,14 @@ export default function Cart() {
     window.location.href = "/payment";
   };
 
+  //Hàm chuyển sang trang chi tiết tour khi click vào ảnh
+  const handleTourDetail = (tourRouteId) => {
+    if (!tourRouteId) {
+      toast.error("ID tuyến tour không hợp lệ!", { autoClose: 5000 });
+      return;
+    }
+    window.location.href = `/tour-detail/${tourRouteId}`;
+  };
   return (
     <div className="cart-container">
       <UserSidebar />
@@ -118,7 +126,11 @@ export default function Cart() {
                   checked={selected.includes(item.id)}
                   onChange={() => toggleSelect(item.id)}
                 />
-                <img src={item.routeImage} alt="tour" />
+                <img
+                  src={item.routeImage}
+                  alt="tour"
+                  onClick={() => handleTourDetail(item.tourRouteId)}
+                />
               </div>
               <div className="item-info">
                 <div className="item-header">
