@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import "./OrderDetail.css";
 import { ReactComponent as ViewIcon } from "../../../assets/icons/admin/Frame 23.svg";
 import { ReactComponent as EditIcon } from "../../../assets/icons/admin/Nút sửa.svg";
@@ -7,25 +7,42 @@ import { ReactComponent as CoinsHand } from "../../../assets/icons/admin/coins-h
 import { ReactComponent as Bank } from "../../../assets/icons/admin/bank-note-03.svg";
 import { ReactComponent as Wallet } from "../../../assets/icons/admin/wallet-02.svg";
 import EditCustomerPopup from "./EditCustomerPopup";
+import { fetchGet } from "../../../lib/httpHandler";
 
 export default function OrderDetail() {
-  const location = useLocation();
+  const { invoiceId } = useParams();
   const navigate = useNavigate();
-  const { order } = location.state || {};
 
+  const [order, setOrder] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [orderStatus, setOrderStatus] = useState(order?.status || "");
+  const [orderStatus, setOrderStatus] = useState("");
   const [customerData, setCustomerData] = useState({
-    name: order?.customerName || "",
-    gender: order?.customerGender || "",
-    birthdate: order?.customerBirthdate || "",
-    email: order?.customerEmail || "",
-    address: order?.customerAddress || "",
+    name: "",
+    gender: "",
+    birthdate: "",
+    email: "",
+    address: "",
   });
 
-  if (!order) {
-    return <p>Không có thông tin đơn hàng. Vui lòng quay lại trang quản lý đơn hàng.</p>;
-  }
+  useEffect(() => {
+    fetchGet(
+      `/api/admin/invoice/get/${invoiceId}`,
+      (res) => {
+        const data = res.data;
+        setOrder(data);
+        setOrderStatus(data.paymentStatus ? "Đã thanh toán" : "Chưa thanh toán");
+        setCustomerData({
+          name: data.customerName || "",
+          gender: data.user?.sex ? "Nam" : "Nữ" || "",
+          birthdate: data.user?.birthday || "",
+          email: data.user?.email || "",
+          address: data.user?.address || "",
+        });
+      },
+      () => setOrder(null),
+      () => alert("Không thể tải thông tin đơn hàng.")
+    );
+  }, [invoiceId]);
 
   const handleViewBooking = () => {
     navigate(`/admin/tour-bookings/detail-booking/${order.tourCode}`, {
@@ -49,6 +66,10 @@ export default function OrderDetail() {
     alert("Thanh toán thành công!");
     // Thực hiện xử lý thanh toán thật tại đây nếu cần
   };
+
+  if (!order) {
+    return <p>Đang tải thông tin đơn hàng...</p>;
+  }
 
   return (
     <div className="order-detail-container">
@@ -74,7 +95,11 @@ export default function OrderDetail() {
             <label>Ngày sinh:</label>
             <input
               type="text"
-              value={new Date(customerData.birthdate).toLocaleDateString("vi-VN")}
+              value={
+                customerData.birthdate
+                  ? new Date(customerData.birthdate).toLocaleDateString("vi-VN")
+                  : ""
+              }
               readOnly
             />
           </div>
@@ -103,15 +128,19 @@ export default function OrderDetail() {
           <div className="grid-form">
             <div className="form-group">
               <label>Mã đơn hàng:</label>
-              <input type="text" value={order.orderCode} readOnly />
+              <input type="text" value={order.id} readOnly />
             </div>
             <div className="form-group">
               <label>Ngày tạo:</label>
-              <input type="text" value={order.orderDate} readOnly />
+              <input
+                type="text"
+                value={new Date(order.createdAt).toLocaleString("vi-VN")}
+                readOnly
+              />
             </div>
             <div className="form-group">
               <label>Số lượng tour:</label>
-              <input type="text" value={order.seats} readOnly />
+              <input type="text" value={order.tourCount} readOnly />
             </div>
             <div className="form-group">
               <label>Tổng tiền:</label>
@@ -131,7 +160,6 @@ export default function OrderDetail() {
           </div>
         </div>
 
-        {/* Phương thức thanh toán luôn hiển thị */}
         <div className="payment-method">
           <h3>Chọn phương thức thanh toán</h3>
           <div className="payment-options">
@@ -210,7 +238,6 @@ export default function OrderDetail() {
         </table>
       </div>
 
-      {/* Nút hủy đơn hàng – chỉ hiện nếu chưa bị hủy */}
       {orderStatus !== "Đã hủy" && (
         <div className="actions">
           <button className="cancel-btn" onClick={handleCancelOrder}>

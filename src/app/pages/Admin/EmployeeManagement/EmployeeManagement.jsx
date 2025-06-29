@@ -5,36 +5,19 @@ import ViewEditEmployeePopup from "./ViewEditEmployeePopup";
 import { ReactComponent as ViewIcon } from "../../../assets/icons/admin/Frame 23.svg";
 import { fetchGet } from "../../../lib/httpHandler";
 
-// Hàm gửi POST JSON
-const fetchPostJson = (url, body, onSuccess, onError, onException) => {
-  fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  })
-    .then((res) => res.json())
-    .then(onSuccess)
-    .catch((err) => {
-      console.error(err);
-      onException();
-    });
-};
-
-// Hàm xử lý class tình trạng tài khoản
-const getStatusClass = (status) => {
-  switch (status) {
-    case "Đang mở":
-      return "status-open";
-    case "Đã khóa":
-      return "status-locked";
-    default:
-      return "";
-  }
-};
-
-// Chuẩn hóa chuỗi tìm kiếm
+// Hàm chuẩn hóa tìm kiếm – FIXED
 const normalize = (str) =>
-  str?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  (str ?? "") // nếu là null/undefined thì chuyển thành chuỗi rỗng
+    .toString() // ép về chuỗi để tránh lỗi khi là số
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+
+// Class CSS cho trạng thái
+const getStatusClass = (isLock) => {
+  return isLock ? "status-locked" : "status-open";
+};
 
 export default function EmployeeManagement() {
   const [employees, setEmployees] = useState([]);
@@ -46,7 +29,6 @@ export default function EmployeeManagement() {
     fetchEmployees();
   }, []);
 
-  // Load danh sách nhân viên
   const fetchEmployees = () => {
     fetchGet(
       "/api/admin/staff/get-all",
@@ -56,35 +38,16 @@ export default function EmployeeManagement() {
     );
   };
 
-  // Thêm nhân viên mới
-  const handleAddEmployee = (data) => {
-    fetchPostJson(
-      "/api/admin/staff/create",
-      data,
-      () => {
-        fetchEmployees();
-        setShowAddPopup(false);
-      },
-      () => alert("Tạo nhân viên thất bại!"),
-      () => alert("Có lỗi xảy ra khi tạo nhân viên!")
-    );
+  const handleAddEmployee = () => {
+    fetchEmployees();
+    setShowAddPopup(false);
   };
 
-  // Cập nhật nhân viên
   const handleUpdateEmployee = (data, id) => {
-    fetchPostJson(
-      `/api/admin/staff/update/${id}`,
-      data,
-      () => {
-        fetchEmployees();
-        setSelectedEmployee(null);
-      },
-      () => alert("Cập nhật nhân viên thất bại!"),
-      () => alert("Có lỗi xảy ra khi cập nhật nhân viên!")
-    );
+    fetchEmployees();
+    setSelectedEmployee(null);
   };
 
-  // Lọc tìm kiếm
   const filteredEmployees = employees.filter((emp) =>
     [emp.fullname, emp.id, emp.email].some((field) =>
       normalize(field).includes(normalize(searchTerm))
@@ -131,55 +94,55 @@ export default function EmployeeManagement() {
               </td>
             </tr>
           ) : (
-            filteredEmployees.map((emp) => (
-              <tr key={emp.id}>
-                <td>{emp.id}</td>
-                <td>{emp.fullname}</td>
-                <td>{emp.sex ? "Nam" : "Nữ"}</td>
-                <td>{emp.phoneNumber}</td>
-                <td>{emp.email}</td>
-                <td>
-                  <span
-                    className={`status ${getStatusClass(
-                      emp.account?.isLock ? "Đã khóa" : "Đang mở"
-                    )}`}
-                  >
-                    {emp.account?.isLock ? "Đã khóa" : "Đang mở"}
-                  </span>
-                </td>
-                <td>
-                  <button
-                    className="view-btn"
-                    onClick={() => setSelectedEmployee(emp)}
-                    title="Xem/Sửa nhân viên"
-                  >
-                    <ViewIcon className="icon-svg" />
-                  </button>
-                </td>
-              </tr>
-            ))
+            filteredEmployees.map((emp) => {
+              const isLocked = emp.account?.isLock === true;
+              return (
+                <tr key={emp.id}>
+                  <td>{emp.id}</td>
+                  <td>{emp.fullname}</td>
+                  <td>{emp.sex ? "Nam" : "Nữ"}</td>
+                  <td>{emp.phoneNumber}</td>
+                  <td>{emp.email}</td>
+                  <td>
+                    {emp.account ? (
+                      <span className={`status ${getStatusClass(isLocked)}`}>
+                        {isLocked ? "Đã khóa" : "Đang mở"}
+                      </span>
+                    ) : (
+                      <span className="status status-null">Không có</span>
+                    )}
+                  </td>
+                  <td>
+                    <button
+                      className="view-btn"
+                      onClick={() => setSelectedEmployee(emp)}
+                      title="Xem/Sửa nhân viên"
+                    >
+                      <ViewIcon className="icon-svg" />
+                    </button>
+                  </td>
+                </tr>
+              );
+            })
           )}
         </tbody>
       </table>
 
-      {/* Popup thêm nhân viên */}
       <AddEmployeePopup
         isOpen={showAddPopup}
         onClose={() => setShowAddPopup(false)}
         onSubmit={handleAddEmployee}
       />
 
-      {/* Popup xem/sửa nhân viên */}
-      {selectedEmployee && (
+      {selectedEmployee?.id && (
         <ViewEditEmployeePopup
-          isOpen={!!selectedEmployee}
+          isOpen={true}
           onClose={() => setSelectedEmployee(null)}
-          onSubmit={(formData) =>
-            handleUpdateEmployee(formData, selectedEmployee.id)
-          }
-          initialData={selectedEmployee}
+          onSubmit={handleUpdateEmployee}
+          employeeId={selectedEmployee.id}
         />
       )}
+
     </div>
   );
 }

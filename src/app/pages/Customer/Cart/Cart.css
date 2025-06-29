@@ -4,7 +4,7 @@
   min-height: 100vh;
 }
 
-.cart-main {
+.cart-container .cart-main {
   flex: 1;
   padding: 30px;
   background-color: #fff;
@@ -14,7 +14,7 @@
   margin-left: 9px;
 }
 
-.cart-title {
+.cart-container .cart-title {
   text-align: center;
   font-size: 24px;
   font-weight: bold;
@@ -22,7 +22,7 @@
   margin-bottom: 30px;
 }
 
-.cart-controls {
+.cart-container .cart-controls {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -34,7 +34,7 @@
   font-size: 15px;
 }
 
-.cart-controls .left {
+.cart-container .cart-controls .left {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -42,12 +42,12 @@
   color: #d33b3b;
 }
 
-.cart-controls .left input[type="checkbox"] {
+.cart-container .cart-controls .left input[type="checkbox"] {
   width: 16px;
   height: 16px;
 }
 
-.cart-controls .delete-all {
+.cart-container .cart-controls .delete-all {
   border: 1px solid #ccc;
   border-radius: 20px;
   background: #fff;
@@ -58,11 +58,11 @@
   transition: background 0.2s;
 }
 
-.cart-controls .delete-all:hover {
+.cart-container .cart-controls .delete-all:hover {
   background: #f3f3f3;
 }
 
-.cart-controls .right {
+.cart-container .cart-controls .right {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -71,7 +71,7 @@
   color: #c34141;
 }
 
-.cart-controls .order-btn {
+.cart-container .cart-controls .order-btn {
   background: #5b3df3;
   color: white;
   padding: 10px 22px;
@@ -87,17 +87,17 @@
   transition: background 0.2s;
 }
 
-.cart-controls .order-btn:hover {
+.cart-container .cart-controls .order-btn:hover {
   background: #4a2dd9;
 }
 
-.cart-list {
+.cart-container .cart-list {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.cart-item {
+.cart-container .cart-item {
   display: flex;
   background: white;
   border-radius: 14px;
@@ -106,18 +106,18 @@
   border: 1px solid #e3e3e3;
 }
 
-.item-img {
+.cart-container .item-img {
   position: relative;
 }
 
-.item-img img {
+.cart-container .item-img img {
   width: 240px;
   height: 100%;
   object-fit: cover;
   border-radius: 14px 0 0 14px;
 }
 
-.item-check {
+.cart-container .item-check {
   position: absolute;
   top: 12px;
   left: 12px;
@@ -126,7 +126,7 @@
   accent-color: #c34141;
 }
 
-.item-info {
+.cart-container .item-info {
   flex: 1;
   padding: 20px 24px;
   display: flex;
@@ -134,25 +134,25 @@
   gap: 12px;
 }
 
-.item-header {
+.cart-container .item-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.item-header h3 {
+.cart-container .item-header h3 {
   font-size: 18px;
   font-weight: bold;
   margin: 0;
 }
 
-.delete-icon {
+.cart-container .delete-icon {
   color: #999;
   font-size: 20px;
   cursor: pointer;
 }
 
-.item-details {
+.cart-container .item-details {
   display: flex;
   flex-direction: column;
   font-size: 14px;
@@ -160,15 +160,15 @@
   color: #333;
 }
 
-.detail-row {
+.cart-container .detail-row {
   display: flex;
   gap: 200px;
   align-items: center;
 }
-.detail-row span {
+.cart-container .detail-row span {
   font-weight: normal;
 }
-.detail-row p {
+.cart-container .detail-row p {
   display: flex;
   align-items: center;
   min-width: 200px;
@@ -177,13 +177,13 @@
   font-weight: 700;
 }
 
-.detail-row:last-child {
+.cart-container .detail-row:last-child {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.info-btn {
+.cart-container .info-btn {
   background: #5b3df3;
   color: white;
   border: none;
@@ -194,7 +194,7 @@
   font-weight: 500;
 }
 
-.item-footer {
+.cart-container .item-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -203,24 +203,24 @@
   margin-top: 10px;
 }
 
-.item-footer-left {
+.cart-container .item-footer-left {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.item-footer label {
+.cart-container .item-footer label {
   font-size: 14px;
 }
 
-.quantity {
+.cart-container .quantity {
   display: flex;
   border: 1px solid #ccc;
   border-radius: 6px;
   overflow: hidden;
 }
 
-.quantity button {
+.cart-container .quantity button {
   padding: 6px 12px;
   background: #f0f0f0;
   border: none;
@@ -228,7 +228,7 @@
   font-size: 16px;
 }
 
-.quantity input {
+.cart-container .quantity input {
   width: 36px;
   text-align: center;
   border: none;
@@ -236,21 +236,21 @@
   font-size: 14px;
 }
 
-.item-price {
+.cart-container .item-price {
   font-size: 16px;
   font-weight: bold;
   color: #c34141;
 }
 
-.item-footer .ticket-label {
+.cart-container .item-footer .ticket-label {
   font-size: 16px;
   font-weight: bold;
 }
 
-.icon {
+.cart-container .icon {
   font-size: 20px;
 }
 
-.item-footer-right label {
+.cart-container .item-footer-right label {
   font-weight: 600;
 }

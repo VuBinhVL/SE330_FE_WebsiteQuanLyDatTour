@@ -1,40 +1,101 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./EmployeePopup.css";
 import { ReactComponent as CameraIcon } from "../../../assets/icons/admin/Icon1.svg";
 import { ReactComponent as EditIcon } from "../../../assets/icons/admin/Nút sửa.svg";
+import { fetchPost, fetchPut, fetchUpload } from "../../../lib/httpHandler";
 
-const ViewEditEmployeePopup = ({ isOpen, onClose, onSubmit, initialData }) => {
-  const [formData, setFormData] = useState(initialData || {});
+const ViewEditEmployeePopup = ({ isOpen, onClose, onSubmit, employeeId }) => {
+  const [formData, setFormData] = useState({});
+  const [originalData, setOriginalData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
-    if (initialData) {
-      setFormData(initialData);
+    if (employeeId && isOpen) {
+      fetchPost(
+        `/api/admin/staff/get/${employeeId}`,
+        null,
+        (res) => {
+          const emp = res.data;
+          const data = {
+            id: emp.id,
+            fullname: emp.fullname || "",
+            sex: emp.sex ? "Nam" : "Nữ",
+            birthday: emp.birthday || "",
+            phoneNumber: emp.phoneNumber || "",
+            email: emp.email || "",
+            address: emp.address || "",
+            avatar: emp.avatar || "",
+            isLock: emp.account?.isLock ? "Đã khóa" : "Đang mở",
+            accountId: emp.account?.id, 
+          };
+          setFormData(data);
+          setOriginalData(data);
+        },
+        () => alert("Không thể tải dữ liệu nhân viên"),
+        () => alert("Lỗi hệ thống khi tải nhân viên")
+      );
     }
-  }, [initialData]);
+  }, [employeeId, isOpen]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData((prev) => ({ ...prev, avatar: file }));
-    }
-  };
-
   const handleCancelEdit = () => {
-    setFormData(initialData);
+    setFormData(originalData);
     setIsEditing(false);
   };
+
+  const handleImageChange = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const formDataData = new FormData();
+    formDataData.append("file", file);
+
+    fetchUpload(
+      `/api/admin/staff/update-avatar/${employeeId}`, // sử dụng prop employeeId
+      formDataData,
+      (res) => {
+        setFormData((prev) => ({ ...prev, avatar: res.data }));
+      },
+      () => alert("Không thể cập nhật ảnh"),
+      () => alert("Lỗi hệ thống khi cập nhật ảnh")
+    );
+  }
+};
+
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
-    setIsEditing(false);
-    onClose();
+
+    const dataToUpdate = {
+      fullname: formData.fullname,
+      sex: formData.sex === "Nam",
+      birthday: formData.birthday,
+      phoneNumber: formData.phoneNumber,
+      email: formData.email,
+      address: formData.address,
+      avatar: formData.avatar,
+      account: {
+        id: formData.accountId,
+        isLock: formData.isLock === "Đã khóa",
+      },
+    };
+
+
+    fetchPut(
+      `/api/admin/staff/update/${formData.id}`,
+      dataToUpdate,
+      () => {
+        onSubmit();
+        setIsEditing(false);
+        onClose();
+      },
+      () => alert("Không thể cập nhật thông tin nhân viên"),
+      () => alert("Lỗi hệ thống khi cập nhật")
+    );
   };
 
   if (!isOpen) return null;
@@ -46,15 +107,9 @@ const ViewEditEmployeePopup = ({ isOpen, onClose, onSubmit, initialData }) => {
           &times;
         </span>
         <div className="popup-header">
-          <h2>
-            {isEditing ? "SỬA THÔNG TIN NHÂN VIÊN" : "XEM THÔNG TIN NHÂN VIÊN"}
-          </h2>
+          <h2>{isEditing ? "SỬA THÔNG TIN NHÂN VIÊN" : "XEM THÔNG TIN NHÂN VIÊN"}</h2>
           {!isEditing && (
-            <button
-              type="button"
-              className="edit-btn"
-              onClick={() => setIsEditing(true)}
-            >
+            <button type="button" className="edit-btn" onClick={() => setIsEditing(true)}>
               <EditIcon className="icon-svg" />
             </button>
           )}
@@ -72,21 +127,11 @@ const ViewEditEmployeePopup = ({ isOpen, onClose, onSubmit, initialData }) => {
             />
             <div
               className="avatar-placeholder"
-              onClick={() =>
-                isEditing && document.getElementById("avatarInput").click()
-              }
+              onClick={() => isEditing && document.getElementById("avatarInput").click()}
               style={{ cursor: isEditing ? "pointer" : "default" }}
             >
               {formData.avatar ? (
-                <img
-                  src={
-                    typeof formData.avatar === "string"
-                      ? formData.avatar
-                      : URL.createObjectURL(formData.avatar)
-                  }
-                  alt="Avatar"
-                  className="avatar-image"
-                />
+                <img src={formData.avatar} alt="Avatar" className="avatar-image" />
               ) : (
                 <CameraIcon className="avatar-camera-icon" />
               )}
@@ -95,54 +140,48 @@ const ViewEditEmployeePopup = ({ isOpen, onClose, onSubmit, initialData }) => {
 
           <form onSubmit={handleSubmit}>
             <label>Mã Nhân Viên</label>
-            <input
-              type="text"
-              name="id"
-              value={formData.id}
-              disabled
-            />
+            <input type="text" name="id" value={formData.id || ""} disabled />
 
             <label>Họ và tên</label>
             <input
               type="text"
-              name="name"
-              value={formData.name}
+              name="fullname"
+              value={formData.fullname || ""}
               onChange={handleChange}
               disabled={!isEditing}
             />
 
             <div className="row">
-                <div>
-                    <label>Giới tính</label>
-                    <select
-                    name="gender"
-                    value={formData.gender}
-                    onChange={handleChange}
-                    disabled={!isEditing}
-                    >
-                    <option value="Nam">Nam</option>
-                    <option value="Nữ">Nữ</option>
-                    </select>
-                </div>
+              <div>
+                <label>Giới tính</label>
+                <select
+                  name="sex"
+                  value={formData.sex || ""}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                >
+                  <option value="Nam">Nam</option>
+                  <option value="Nữ">Nữ</option>
+                </select>
+              </div>
 
-                <div>
-                    <label>Ngày sinh</label>
-                    <input
-                    type="date"
-                    name="birthdate"
-                    value={formData.birthdate || ""}
-                    onChange={handleChange}
-                    disabled={!isEditing}
-                    />
-                </div>
+              <div>
+                <label>Ngày sinh</label>
+                <input
+                  type="date"
+                  name="birthday"
+                  value={formData.birthday || ""}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                />
+              </div>
             </div>
-
 
             <label>Số điện thoại</label>
             <input
               type="tel"
-              name="phone"
-              value={formData.phone}
+              name="phoneNumber"
+              value={formData.phoneNumber || ""}
               onChange={handleChange}
               disabled={!isEditing}
             />
@@ -151,15 +190,24 @@ const ViewEditEmployeePopup = ({ isOpen, onClose, onSubmit, initialData }) => {
             <input
               type="email"
               name="email"
-              value={formData.email}
+              value={formData.email || ""}
+              onChange={handleChange}
+              disabled={!isEditing}
+            />
+
+            <label>Địa chỉ</label>
+            <input
+              type="text"
+              name="address"
+              value={formData.address || ""}
               onChange={handleChange}
               disabled={!isEditing}
             />
 
             <label>Tình trạng</label>
             <select
-              name="status"
-              value={formData.status}
+              name="isLock"
+              value={formData.isLock || ""}
               onChange={handleChange}
               disabled={!isEditing}
             >
@@ -170,11 +218,7 @@ const ViewEditEmployeePopup = ({ isOpen, onClose, onSubmit, initialData }) => {
             <div className="actions">
               {isEditing && (
                 <>
-                  <button
-                    type="button"
-                    className="cancel-btn"
-                    onClick={handleCancelEdit}
-                  >
+                  <button type="button" className="cancel-btn" onClick={handleCancelEdit}>
                     Hủy
                   </button>
                   <button type="submit" className="confirm-btn">
@@ -183,7 +227,6 @@ const ViewEditEmployeePopup = ({ isOpen, onClose, onSubmit, initialData }) => {
                 </>
               )}
             </div>
-
           </form>
         </div>
       </div>

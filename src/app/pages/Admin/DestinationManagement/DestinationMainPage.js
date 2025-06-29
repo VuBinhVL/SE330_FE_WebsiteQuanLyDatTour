@@ -7,7 +7,7 @@ import { GoTrash } from "react-icons/go";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import AddDestination from "../../../components/Admin/DestinationManagement/AddDestination/AddDestination";
 import DetailDestination from "../../../components/Admin/DestinationManagement/DetailDestination/DetailDestination";
-import { fetchDelete, fetchGet } from "../../../lib/httpHandler";
+import { fetchDeleteWithBody, fetchGet } from "../../../lib/httpHandler";
 import { toast } from "react-toastify";
 
 export default function DestinationMainPage() {
@@ -23,6 +23,7 @@ export default function DestinationMainPage() {
   const [destinationList, setDestinationList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDestination, setSelectedDestination] = useState(null);
+
   // Hàm để lấy danh sách địa điểm tham quan từ API
   const fetchGetDestinationList = () => {
     const uri = "/api/admin/tourist-attraction";
@@ -60,7 +61,7 @@ export default function DestinationMainPage() {
   //Hàm chức năng xóa
   const handleDeleteDestination = (id) => {
     const uri = `/api/admin/tourist-attraction/${id}`;
-    fetchDelete(
+    fetchDeleteWithBody(
       uri,
       id,
       (sus) => {

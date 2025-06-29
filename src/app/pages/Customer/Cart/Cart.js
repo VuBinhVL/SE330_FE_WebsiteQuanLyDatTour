@@ -1,43 +1,17 @@
-import { useState } from "react";
-import { MdDelete, MdKeyboardArrowRight } from "react-icons/md";
-import { ImQrcode } from "react-icons/im";
-import { LuAlarmClock } from "react-icons/lu";
+import { useEffect, useState } from "react";
 import { CiCalendar } from "react-icons/ci";
+import { ImQrcode } from "react-icons/im";
 import { IoLocationOutline } from "react-icons/io5";
-import { FiUserPlus } from "react-icons/fi";
-
+import { LuAlarmClock } from "react-icons/lu";
+import { MdDelete, MdKeyboardArrowRight } from "react-icons/md";
+import { toast } from "react-toastify";
 import UserSidebar from "../../../components/Customer/UserSidebar/UserSidebar";
+import { fetchDeleteWithBody, fetchGet } from "../../../lib/httpHandler";
 import "./Cart.css";
 
-const dummyCart = [
-  {
-    id: 1,
-    code: "DNSG838",
-    name: "Vịnh Hạ Long - Đà Nẵng",
-    start: "TP. Hồ Chí Minh",
-    destination: "Đà Nẵng",
-    date: "01/03",
-    duration: "5N4Đ",
-    price: 8189000,
-    quantity: 1,
-    img: "https://hnm.1cdn.vn/2024/01/12/images1283642_2.jpg",
-  },
-  {
-    id: 2,
-    code: "DNSG838",
-    name: "Vịnh Hạ Long - Đà Nẵng",
-    start: "TP. Hồ Chí Minh",
-    destination: "Đà Nẵng",
-    date: "01/03",
-    duration: "5N4Đ",
-    price: 8189000,
-    quantity: 1,
-    img: "https://hnm.1cdn.vn/2024/01/12/images1283642_2.jpg",
-  },
-];
-
 export default function Cart() {
-  const [cart, setCart] = useState(dummyCart);
+  const [cart, setCart] = useState([]);
+  const userId = localStorage.getItem("userId");
   const [selected, setSelected] = useState([]);
 
   const toggleSelect = (id) => {
@@ -46,10 +20,46 @@ export default function Cart() {
     );
   };
 
+  //Đếm tổng tiền của các mục đã chọn
   const total = selected.reduce((sum, id) => {
     const item = cart.find((i) => i.id === id);
-    return sum + (item?.price || 0);
+    return sum + (item?.price * item?.quantity || 0);
   }, 0);
+
+  //Gọi API để lấy giỏ hàng của người dùng
+  useEffect(() => {
+    const uri = `/api/cart/${userId}`;
+    fetchGet(
+      uri,
+      (res) => {
+        setCart(res);
+        console.log(res);
+      },
+      (err) => console.error(err),
+      () => console.error("Lỗi kết nối đến máy chủ")
+    );
+  }, [userId]);
+
+  //Hàm xóa
+  const handleDeleteCartItems = (ids) => {
+    if (!ids || ids.length === 0) {
+      toast.error("Không có mục nào được chọn để xóa.");
+      return;
+    }
+    console.log("Xóa các mục:", ids);
+    fetchDeleteWithBody(
+      "/api/cart/items",
+      ids,
+      (res) => {
+        // Cập nhật lại cart sau khi xóa
+        setCart((prev) => prev.filter((item) => !ids.includes(item.id)));
+        setSelected((prev) => prev.filter((id) => !ids.includes(id)));
+        console.log("Xóa thành công:", res);
+      },
+      (err) => toast.error("Xóa thất bại:"),
+      () => toast.error("Lỗi kết nối máy chủ")
+    );
+  };
 
   return (
     <div className="cart-container">
@@ -67,7 +77,12 @@ export default function Cart() {
               }
             />
             <span>Chọn tất cả</span>
-            <button className="delete-all">Xóa các mục đã chọn</button>
+            <button
+              className="delete-all"
+              onClick={() => handleDeleteCartItems(selected)}
+            >
+              Xóa các mục đã chọn
+            </button>
           </div>
           <div className="right">
             <span>
@@ -90,46 +105,49 @@ export default function Cart() {
                   checked={selected.includes(item.id)}
                   onChange={() => toggleSelect(item.id)}
                 />
-                <img src={item.img} alt="tour" />
+                <img src={item.routeImage} alt="tour" />
               </div>
               <div className="item-info">
                 <div className="item-header">
-                  <h3>{item.name}</h3>
-                  <MdDelete className="delete-icon" />
+                  <h3>{item.routeName}</h3>
+                  <MdDelete
+                    className="delete-icon"
+                    onClick={() => handleDeleteCartItems([item.id])}
+                  />
                 </div>
 
                 <div className="item-details">
                   <div className="detail-row">
                     <p>
-                      <ImQrcode className="icon" /> <span>Mã tour:</span>{" "}
-                      {item.code}
+                      <ImQrcode className="icon" /> <span>Mã tour:</span>
+                      TOUR{String(item.id).padStart(2, "0")}
                     </p>
                     <p>
-                      <IoLocationOutline className="icon" />{" "}
-                      <span>Khởi hành:</span> {item.start}
+                      <IoLocationOutline className="icon" />
+                      <span>Khởi hành:</span> {item.startLocation}
                     </p>
                   </div>
 
                   <div className="detail-row">
                     <p>
-                      <LuAlarmClock className="icon" /> <span>Thời gian:</span>{" "}
+                      <LuAlarmClock className="icon" /> <span>Thời gian:</span>
                       {item.duration}
                     </p>
                     <p>
                       <IoLocationOutline className="icon" />{" "}
                       <span>Điểm đến:</span>
-                      {item.destination}
+                      {item.endLocation}
                     </p>
                   </div>
 
                   <div className="detail-row">
                     <p>
                       <CiCalendar className="icon" />
-                      <span>Ngày khởi hành:</span> {item.date}
+                      <span>Ngày khởi hành:</span>{" "}
+                      {new Date(item.departureDates).toLocaleDateString(
+                        "vi-VN"
+                      )}
                     </p>
-                    <button className="info-btn">
-                      <FiUserPlus className="icon" /> Nhập thông tin hành khách
-                    </button>
                   </div>
                 </div>
 
@@ -138,7 +156,7 @@ export default function Cart() {
                     <label>Số lượng:</label>
                     <div className="quantity">
                       <button>-</button>
-                      <input type="text" value={item.quantity} readOnly />
+                      <input type="text" value={item.quantity} />
                       <button>+</button>
                     </div>
                     <label className="ticket-label">Vé</label>
@@ -146,7 +164,7 @@ export default function Cart() {
                   <div className="item-footer-right">
                     <label>Tổng tiền:</label>
                     <p className="item-price">
-                      {item.price.toLocaleString()} đ
+                      {(item.price * item.quantity).toLocaleString()} đ
                     </p>
                   </div>
                 </div>

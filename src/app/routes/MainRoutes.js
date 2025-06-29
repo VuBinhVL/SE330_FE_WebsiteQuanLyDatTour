@@ -26,6 +26,8 @@ import Account from "../pages/Other/Account";
 import Cart from "../pages/Customer/Cart";
 import Member from "../pages/Customer/Member";
 import DetailCustomerPage from "../components/Admin/CustomerManagement/DetailCustomerPage/DetailCustomerPage";
+import BookingHistory from "../pages/Customer/BookingHistory";
+import TourDetail from "../pages/Customer/TourDetail";
 
 export default function MainRoutes() {
   return (
@@ -59,12 +61,12 @@ export default function MainRoutes() {
             element={<TourBookingManagement />}
           ></Route>
           <Route
-            path="tour-bookings/detail-booking/:id"
+            path="tour-bookings/detail-booking/:bookingId"
             element={<BookingDetail />}
           ></Route>
 
           <Route path="invoices" element={<OrderManagement />}></Route>
-          <Route path="invoices/detail/:id" element={<OrderDetail />}></Route>
+          <Route path="invoices/detail/:invoiceId" element={<OrderDetail />}></Route>
         </Route>
 
         {/* Customer */}
@@ -76,6 +78,8 @@ export default function MainRoutes() {
           <Route path="account" element={<Account />}></Route>
           <Route path="forget-password" element={<ForgetPassword />}></Route>
           <Route path="cart" element={<Cart />} />
+          <Route path="bookings" element={<BookingHistory />} />
+          <Route path="tour-detail" element={<TourDetail />} />
           <Route path="members" element={<Member />} />
         </Route>
       </Routes>

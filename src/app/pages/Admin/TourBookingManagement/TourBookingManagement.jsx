@@ -2,19 +2,22 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ReactComponent as ViewIcon } from "../../../assets/icons/admin/Frame 23.svg";
 import { ReactComponent as DeleteIcon } from "../../../assets/icons/admin/Frame 24.svg";
-import { fetchGet } from "../../../lib/httpHandler";
+import { fetchGet, fetchDelete } from "../../../lib/httpHandler";
 import "./TourBookingManagement.css";
 
-const getStatusClass = (status) => {
+// Hàm chuyển đổi trạng thái tour từ int sang chuỗi hiển thị
+const getTourStatusLabel = (status) => {
   switch (status) {
-    case "Đã thanh toán":
-      return "status-paid";
-    case "Đang chờ":
-      return "status-pending";
-    case "Đã hủy":
-      return "status-cancelled";
+    case 0:
+      return "Hoạt động";
+    case 1:
+      return "Đã hủy";
+    case 2:
+      return "Hết vé";
+    case 3:
+      return "Hoàn thành";
     default:
-      return "";
+      return "Không xác định";
   }
 };
 
@@ -29,7 +32,7 @@ export default function TourBookingManagement() {
 
   const fetchBookings = () => {
     fetchGet(
-      "/api/admin/tour-booking",
+      "/api/admin/tour-booking/get-all",
       (res) => setBookings(res.data || []),
       () => setBookings([]),
       () => alert("Có lỗi xảy ra khi tải danh sách đơn đặt tour!")
@@ -42,19 +45,21 @@ export default function TourBookingManagement() {
     });
   };
 
-  const handleDelete = async (id) => {
-    const confirm = window.confirm("Bạn có chắc muốn xóa đơn đặt tour này?");
-    if (confirm) {
-      try {
-        const res = await fetch(`/api/admin/tour-booking/${id}`, {
-          method: "DELETE",
-        });
-        if (!res.ok) throw new Error();
-        setBookings((prev) => prev.filter((b) => b.id !== id));
-      } catch (error) {
-        console.error("Lỗi khi xóa booking:", error);
-        alert("Xóa thất bại!");
-      }
+  const handleDelete = (id) => {
+    const confirmDelete = window.confirm("Bạn có chắc muốn xóa đơn đặt tour này?");
+    if (confirmDelete) {
+      fetchDelete(
+        `/api/admin/tour-booking/delete/${id}`,
+        () => {
+          setBookings((prev) => prev.filter((b) => b.id !== id));
+        },
+        () => {
+          alert("Xóa đơn đặt tour thất bại!");
+        },
+        () => {
+          alert("Có lỗi xảy ra khi kết nối đến máy chủ!");
+        }
+      );
     }
   };
 
@@ -63,10 +68,7 @@ export default function TourBookingManagement() {
   };
 
   const filteredBookings = bookings.filter((b) =>
-    `${b.seatsBooked} ${b.totalPrice} ${b.id}`
-      .toString()
-      .toLowerCase()
-      .includes(searchTerm)
+    `${b.seatsBooked} ${b.totalPrice} ${b.id}`.toLowerCase().includes(searchTerm)
   );
 
   return (
@@ -87,6 +89,9 @@ export default function TourBookingManagement() {
         <thead>
           <tr>
             <th>ID</th>
+            <th>Khách hàng</th>
+            <th>Tuyến du lịch</th>
+            <th>Trạng thái tour</th>
             <th>Số chỗ đặt</th>
             <th>Tổng tiền</th>
             <th>Ngày tạo</th>
@@ -94,10 +99,14 @@ export default function TourBookingManagement() {
             <th>Delete</th>
           </tr>
         </thead>
+
         <tbody>
           {filteredBookings.map((booking) => (
             <tr key={booking.id}>
               <td>{booking.id}</td>
+              <td>{booking.user?.fullname || "Không có dữ liệu"}</td>
+              <td>{booking.tourRoute?.routeName || "Không có dữ liệu"}</td>
+              <td>{getTourStatusLabel(booking.tour?.status)}</td>
               <td>{booking.seatsBooked}</td>
               <td>
                 {new Intl.NumberFormat("vi-VN", {
@@ -120,7 +129,7 @@ export default function TourBookingManagement() {
           ))}
           {filteredBookings.length === 0 && (
             <tr>
-              <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
+              <td colSpan="9" style={{ textAlign: "center", padding: "20px" }}>
                 Không tìm thấy đơn đặt tour phù hợp.
               </td>
             </tr>
