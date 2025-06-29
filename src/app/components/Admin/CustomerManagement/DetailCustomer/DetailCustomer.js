@@ -27,23 +27,40 @@ export default function DetailCustomer({ customerId }) {
       }, [setTitle, setSubtitle]);
 
   const [customer, setCustomer] = useState(null);
+  const [account, setAccount] = useState(null);
   const [members, setMembers] = useState([]);
+  const [imageRefreshKey, setImageRefreshKey] = useState(Date.now());
   const [showEditCustomer, setShowEditCustomer] = useState(false);
   const [showAddMember, setShowAddMember] = useState(false);
   const [showDetailMember, setShowDetailMember] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [orders, setOrders] = useState([]);
-  const [favorites] = useState([]); // Chưa có API
-  const [cart] = useState([]);      // Chưa có API
+  const [favorites, setFavorites] = useState([]);
+  const [cartWithTourInfo, setCartWithTourInfo] = useState([]);
 
-  // Lấy thông tin khách hàng, thành viên, lịch sử đặt tour
+  // Lấy thông tin khách hàng, thành viên, lịch sử đặt tour, tài khoản, yêu thích, giỏ hàng
   const fetchAll = () => {
     fetchGet(`/api/admin/user/get/${customerId}`, (res) => {
       setCustomer(res.data);
+      
+      // Fetch account info after getting user data
+      if (res.data && res.data.account_id) {
+        fetchGet(`/api/admin/account/get/${res.data.account_id}`, (accountRes) => {
+          setAccount(accountRes.data);
+        }, (error) => {
+          console.error("Error fetching account data:", error);
+        });
+      }
+    }, (error) => {
+      console.error("Error fetching customer data:", error);
     });
+    
     fetchGet(`/api/admin/user-member/user/${customerId}`, (res) => {
       setMembers(res.data || []);
+    }, (error) => {
+      console.error("Error fetching members:", error);
     });
+    
     fetchGet(`/api/admin/tour-booking/history/${customerId}`, (res) => {
       setOrders(
         (res.data || []).map((o) => ({
@@ -56,6 +73,103 @@ export default function DetailCustomer({ customerId }) {
           paymentStatus: o.paymentStatus ? "Đã thanh toán" : "Chưa thanh toán",
         }))
       );
+    }, (error) => {
+      console.error("Error fetching booking history:", error);
+    });
+    
+    // Fetch favorite tours
+    fetchGet(`/api/admin/favorite-tour/user/${customerId}/response`, (res) => {
+      setFavorites(res.data || []);
+    }, (error) => {
+      console.error("Error fetching favorite tours:", error);
+      setFavorites([]); // Set empty array on error
+    });
+    
+    // Fetch cart items
+    fetchGet(`/api/admin/cart/user/${customerId}/items`, (res) => {
+      const cartItems = res.data || [];
+      
+      // Fetch tour information for each cart item
+      if (cartItems.length > 0) {
+        const cartWithTours = [];
+        let fetchedCount = 0;
+        
+        cartItems.forEach((item, index) => {
+          if (item.tourID) {
+            // First fetch tour info
+            fetchGet(`/api/admin/tour/get/${item.tourID}`, (tourRes) => {
+              const tourData = tourRes.data;
+              
+              // Then fetch tour route info to get route name
+              if (tourData && tourData.tourRouteId) {
+                fetchGet(`/api/admin/tour-route/get/${tourData.tourRouteId}`, (routeRes) => {
+                  cartWithTours[index] = {
+                    ...item,
+                    tourInfo: tourData,
+                    tourRouteName: routeRes.data?.routeName || "N/A"
+                  };
+                  fetchedCount++;
+                  
+                  if (fetchedCount === cartItems.length) {
+                    setCartWithTourInfo([...cartWithTours]);
+                  }
+                }, (error) => {
+                  console.error(`Error fetching tour route ${tourData.tourRouteId}:`, error);
+                  cartWithTours[index] = {
+                    ...item,
+                    tourInfo: tourData,
+                    tourRouteName: "N/A"
+                  };
+                  fetchedCount++;
+                  
+                  if (fetchedCount === cartItems.length) {
+                    setCartWithTourInfo([...cartWithTours]);
+                  }
+                });
+              } else {
+                cartWithTours[index] = {
+                  ...item,
+                  tourInfo: tourData,
+                  tourRouteName: "N/A"
+                };
+                fetchedCount++;
+                
+                if (fetchedCount === cartItems.length) {
+                  setCartWithTourInfo([...cartWithTours]);
+                }
+              }
+            }, (error) => {
+              console.error(`Error fetching tour ${item.tourID}:`, error);
+              cartWithTours[index] = {
+                ...item,
+                tourInfo: null,
+                tourRouteName: "N/A"
+              };
+              fetchedCount++;
+              
+              if (fetchedCount === cartItems.length) {
+                setCartWithTourInfo([...cartWithTours]);
+              }
+            });
+          } else {
+            cartWithTours[index] = {
+              ...item,
+              tourInfo: null,
+              tourRouteName: "N/A"
+            };
+            fetchedCount++;
+            
+            if (fetchedCount === cartItems.length) {
+              setCartWithTourInfo([...cartWithTours]);
+            }
+          }
+        });
+      } else {
+        setCartWithTourInfo([]);
+      }
+    }, (error) => {
+      console.error("Error fetching cart items:", error);
+      setCartWithTourInfo([]); // Set empty array on error
     });
   };
 
@@ -68,7 +182,11 @@ export default function DetailCustomer({ customerId }) {
   // Xử lý cập nhật sau khi đóng popup
   const handleUpdatedCustomer = (updated) => {
     setCustomer(updated);
-    fetchAll();
+    setImageRefreshKey(Date.now()); // Force image refresh
+    // Force re-render by updating state
+    setTimeout(() => {
+      fetchAll();
+    }, 100);
   };
   const handleAddedMember = () => {
     fetchAll();
@@ -132,8 +250,8 @@ export default function DetailCustomer({ customerId }) {
                   src={
                     customer?.avatar
                       ? customer.avatar.startsWith("http")
-                        ? customer.avatar
-                        : BE_ENDPOINT + customer.avatar
+                        ? `${customer.avatar}?t=${imageRefreshKey}`
+                        : `${BE_ENDPOINT}${customer.avatar}?t=${imageRefreshKey}`
                       : defaultAvatar
                   }
                   alt="avatar"
@@ -146,7 +264,7 @@ export default function DetailCustomer({ customerId }) {
                   <div><b>Địa chỉ:</b> {customer?.address || ""}</div>
                   <div><b>Số điện thoại:</b> {customer?.phoneNumber || ""}</div>
                   <div><b>Email:</b> {customer?.email || ""}</div>
-                  <div><b>Trạng thái:</b> {customer?.isLock ? "Đã khóa" : "Hoạt động"}</div>
+                  <div><b>Trạng thái:</b> {account?.isLock ? "Đã khóa" : "Hoạt động"}</div>
                 </div>
               </div>
             </div>
@@ -213,14 +331,27 @@ export default function DetailCustomer({ customerId }) {
               <table className="cus-detail-table">
                 <thead>
                   <tr>
-                    <th>Mã chuyến du lịch</th>
+                    <th>Mã tuyến du lịch</th>
                     <th>Tên tuyến</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td colSpan={2} style={{ textAlign: "center" }}>Chưa có dữ liệu</td>
-                  </tr>
+                  {favorites.length === 0 ? (
+                    <tr>
+                      <td colSpan={2} style={{ textAlign: "center" }}>Chưa có dữ liệu</td>
+                    </tr>
+                  ) : (
+                    favorites.map((fav, idx) => (
+                      <tr key={idx}>
+                        <td>{fav.tourRouteId || "N/A"}</td>
+                        <td title={fav.tourRouteName}>
+                          {fav.tourRouteName && fav.tourRouteName.length > 30
+                            ? `${fav.tourRouteName.substring(0, 30)}...`
+                            : fav.tourRouteName || "N/A"}
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -234,9 +365,22 @@ export default function DetailCustomer({ customerId }) {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td colSpan={2} style={{ textAlign: "center" }}>Chưa có dữ liệu</td>
-                  </tr>
+                  {cartWithTourInfo.length === 0 ? (
+                    <tr>
+                      <td colSpan={2} style={{ textAlign: "center" }}>Chưa có dữ liệu</td>
+                    </tr>
+                  ) : (
+                    cartWithTourInfo.map((item, idx) => (
+                      <tr key={idx}>
+                        <td>{item.tourID || "N/A"}</td>
+                        <td title={item.tourRouteName}>
+                          {item.tourRouteName && item.tourRouteName.length > 30
+                            ? `${item.tourRouteName.substring(0, 30)}...`
+                            : item.tourRouteName || "N/A"}
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

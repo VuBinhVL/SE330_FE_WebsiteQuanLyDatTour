@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./EditCustomer.css";
 import { AiOutlineClose, AiOutlineCamera } from "react-icons/ai";
 import { PiPencilSimpleLineBold } from "react-icons/pi";
-import { BE_ENDPOINT, fetchUpload, fetchPut } from "../../../../lib/httpHandler";
+import { BE_ENDPOINT, fetchUpload, fetchPut, fetchGet } from "../../../../lib/httpHandler";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
@@ -13,14 +13,34 @@ export default function EditCustomer({ customer, onCloseEditForm, onUpdated }) {
   const [editForm, setEditForm] = useState({ ...customer });
   const [avatarFile, setAvatarFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [accountInfo, setAccountInfo] = useState(null);
 
   const isValidPhone = (phone) => /^\d{10,11}$/.test(phone);
   const isValidEmail = (mail) =>
     /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(mail);
 
+  // Lấy thông tin account khi component mount
+  useEffect(() => {
+    if (customer.account_id) {
+      fetchGet(
+        `/api/admin/account/get/${customer.account_id}`,
+        (res) => {
+          setAccountInfo(res.data);
+          setEditForm(prev => ({
+            ...prev,
+            isLock: res.data.isLock
+          }));
+        },
+        () => {
+          console.error("Failed to fetch account info");
+        }
+      );
+    }
+  }, [customer.account_id]);
+
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
-    setEditForm({ ...customer });
+    setEditForm({ ...customer, isLock: accountInfo?.isLock });
     setAvatarFile(null);
   };
 
@@ -28,7 +48,8 @@ export default function EditCustomer({ customer, onCloseEditForm, onUpdated }) {
     const { name, value, type } = e.target;
     setEditForm((prev) => ({
       ...prev,
-      [name]: type === "radio" ? value === "true" : value,
+      [name]: type === "radio" ? value === "true" : 
+              name === "isLock" ? value === "true" : value,
     }));
   };
 
@@ -73,6 +94,7 @@ export default function EditCustomer({ customer, onCloseEditForm, onUpdated }) {
 
     setLoading(true);
 
+    // Cập nhật thông tin user trước
     fetchPut(
       `/api/admin/user/update/${customer.id}`,
       {
@@ -80,50 +102,115 @@ export default function EditCustomer({ customer, onCloseEditForm, onUpdated }) {
         avatar: customer.avatar,
       },
       (res) => {
-        // Nếu có avatar mới
-        if (avatarFile) {
-          const formData = new FormData();
-          formData.append("file", avatarFile);
-          fetchUpload(
-            `/api/admin/user/update-avatar/${customer.id}`,
-            formData,
-            (res2) => {
-              setLoading(false);
-              MySwal.fire({
-                icon: "success",
-                title: "Cập nhật thành công!",
-              }).then(() => {
-                onUpdated &&
-                  onUpdated({
-                    ...editForm,
-                    avatar: res2.data,
-                    id: customer.id,
-                  });
-                onCloseEditForm();
-              });
+        // Cập nhật trạng thái account nếu có thay đổi
+        if (accountInfo && editForm.isLock !== accountInfo.isLock) {
+          fetchPut(
+            `/api/admin/account/update/${customer.account_id}`,
+            {
+              ...accountInfo,
+              isLock: editForm.isLock
+            },
+            () => {
+              // Nếu có avatar mới
+              if (avatarFile) {
+                const formData = new FormData();
+                formData.append("file", avatarFile);
+                fetchUpload(
+                  `/api/admin/user/update-avatar/${customer.id}`,
+                  formData,
+                  (res2) => {
+                    setLoading(false);
+                    MySwal.fire({
+                      icon: "success",
+                      title: "Cập nhật thành công!",
+                    }).then(() => {
+                      onUpdated &&
+                        onUpdated({
+                          ...editForm,
+                          avatar: res2.data,
+                          id: customer.id,
+                        });
+                      onCloseEditForm();
+                    });
+                  },
+                  () => {
+                    setLoading(false);
+                    MySwal.fire({
+                      icon: "error",
+                      title: "Lỗi upload ảnh!",
+                    });
+                  }
+                );
+              } else {
+                setLoading(false);
+                MySwal.fire({
+                  icon: "success",
+                  title: "Cập nhật thành công!",
+                }).then(() => {
+                  onUpdated &&
+                    onUpdated({
+                      ...editForm,
+                      avatar: customer.avatar,
+                      id: customer.id,
+                    });
+                  onCloseEditForm();
+                });
+              }
             },
             () => {
               setLoading(false);
               MySwal.fire({
                 icon: "error",
-                title: "Lỗi upload ảnh!",
+                title: "Cập nhật trạng thái tài khoản thất bại!",
               });
             }
           );
         } else {
-          setLoading(false);
-          MySwal.fire({
-            icon: "success",
-            title: "Cập nhật thành công!",
-          }).then(() => {
-            onUpdated &&
-              onUpdated({
-                ...editForm,
-                avatar: customer.avatar,
-                id: customer.id,
-              });
-            onCloseEditForm();
-          });
+          // Không có thay đổi account, chỉ xử lý avatar
+          if (avatarFile) {
+            const formData = new FormData();
+            formData.append("file", avatarFile);
+            fetchUpload(
+              `/api/admin/user/update-avatar/${customer.id}`,
+              formData,
+              (res2) => {
+                setLoading(false);
+                MySwal.fire({
+                  icon: "success",
+                  title: "Cập nhật thành công!",
+                }).then(() => {
+                  onUpdated &&
+                    onUpdated({
+                      ...editForm,
+                      avatar: res2.data,
+                      id: customer.id,
+                    });
+                  onCloseEditForm();
+                });
+              },
+              () => {
+                setLoading(false);
+                MySwal.fire({
+                  icon: "error",
+                  title: "Lỗi upload ảnh!",
+                });
+              }
+            );
+          } else {
+            setLoading(false);
+            MySwal.fire({
+              icon: "success",
+              title: "Cập nhật thành công!",
+            }).then(() => {
+              onUpdated &&
+                onUpdated({
+                  ...editForm,
+                  avatar: customer.avatar,
+                  id: customer.id,
+                });
+              onCloseEditForm();
+            });
+          }
         }
       },
       () => {
@@ -275,28 +362,24 @@ export default function EditCustomer({ customer, onCloseEditForm, onUpdated }) {
               </div>
             </div>
             <div className="form-group">
-              <label>Role ID</label>
-              <input
-                type="number"
-                name="role_id"
-                value={editForm.role_id}
-                onChange={handleChange}
-                readOnly={true}
-                required
-                min={1}
-              />
-            </div>
-            <div className="form-group">
-              <label>Account ID</label>
-              <input
-                type="number"
-                name="account_id"
-                value={editForm.account_id}
-                onChange={handleChange}
-                readOnly={true}
-                required
-                min={1}
-              />
+              <label>Trạng thái tài khoản</label>
+              {isEditing ? (
+                <select
+                  name="isLock"
+                  value={editForm.isLock?.toString() || "false"}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="false">Hoạt động</option>
+                  <option value="true">Bị khóa</option>
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  value={editForm.isLock === true || editForm.isLock === "true" ? "Bị khóa" : "Hoạt động"}
+                  readOnly
+                />
+              )}
             </div>
           </div>
         </div>

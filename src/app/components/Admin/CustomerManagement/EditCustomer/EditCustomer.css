@@ -129,6 +129,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding-bottom: 20px;
 }
 
 .edit-customer-form .form-group {
@@ -146,7 +147,8 @@
 .edit-customer-form .form-group input[type="text"],
 .edit-customer-form .form-group input[type="email"],
 .edit-customer-form .form-group input[type="date"],
-.edit-customer-form .form-group input[type="number"] {
+.edit-customer-form .form-group input[type="number"],
+.edit-customer-form .form-group select {
   padding: 7px 10px;
   border-radius: 6px;
   border: 1px solid #ece3fa;
@@ -155,9 +157,19 @@
   transition: border 0.18s;
 }
 
-.edit-customer-form .form-group input:focus {
+.edit-customer-form .form-group input:focus,
+.edit-customer-form .form-group select:focus {
   border-color: #c34141;
   outline: none;
+}
+
+.edit-customer-form .form-group select {
+  cursor: pointer;
+}
+
+.edit-customer-form .form-group select:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .edit-customer-form .form-group .radio-group {

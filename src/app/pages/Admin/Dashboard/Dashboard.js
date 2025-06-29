@@ -11,44 +11,10 @@ const statusColor = {
   "Đã huỷ": "#F44336",
 };
 
-// Fake API cho đặt vé gần đây
-const recentTickets = [
-  {
-    id: 1,
-    route: "Nhật Bản: Fukushima - Tochigi - Công viên Ashikaga - Tokyo - Núi Phú Sĩ - Làng",
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=80&q=80",
-    quantity: 3,
-    status: "Hoàn tất",
-  },
-  {
-    id: 2,
-    route: "Nhật Bản: Fukushima - Tochigi - Công viên Ashikaga - Tokyo - Núi Phú Sĩ - Làng",
-    image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=80&q=80",
-    quantity: 2,
-    status: "Đang chờ",
-  },
-  {
-    id: 3,
-    route: "Nhật Bản: Fukushima - Tochigi - Công viên Ashikaga - Tokyo - Núi Phú Sĩ - Làng",
-    image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=80&q=80",
-    quantity: 1,
-    status: "Hoàn tất",
-  },
-  {
-    id: 4,
-    route: "Nhật Bản: Fukushima - Tochigi - Công viên Ashikaga - Tokyo - Núi Phú Sĩ - Làng",
-    image: "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=crop&w=80&q=80",
-    quantity: 7,
-    status: "Đã huỷ",
-  },
-  {
-    id: 5,
-    route: "Nhật Bản: Fukushima - Tochigi - Công viên Ashikaga - Tokyo - Núi Phú Sĩ - Làng",
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=80&q=80",
-    quantity: 5,
-    status: "Hoàn tất",
-  },
-];
+// Helper function to convert status boolean to Vietnamese text
+const getStatusText = (status) => {
+  return status ? "Hoàn tất" : "Đang chờ";
+};
 
 // Calendar component
 function Calendar({ year, month, tripDaysInfo }) {
@@ -105,6 +71,7 @@ export default function Dashboard() {
   const [favoritePlaces, setFavoritePlaces] = useState([]);
   const [tripDaysInfo, setTripDaysInfo] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [recentTickets, setRecentTickets] = useState([]);
 
   useEffect(() => {
     setTitle("Trang chủ");
@@ -126,6 +93,15 @@ export default function Dashboard() {
       "/api/admin/tourist-attraction/top-5-favorite",
       (res) => setFavoritePlaces(res.data || []),
       () => setFavoritePlaces([])
+    );
+  }, []);
+
+  // Lấy danh sách đặt vé gần đây
+  useEffect(() => {
+    fetchGet(
+      "/api/admin/tour-booking/admin-home-bookings",
+      (res) => setRecentTickets(res.data || []),
+      () => setRecentTickets([])
     );
   }, []);
 
@@ -275,39 +251,49 @@ export default function Dashboard() {
         </div>
         <div className="home-card home-recent-tickets">
           <h3>Đặt vé gần đây</h3>
-          <table>
-            <thead>
-              <tr>
-                <th></th>
-                <th>Tên tuyến du lịch</th>
-                <th>Số vé</th>
-                <th>Trạng thái</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentTickets.map((ticket) => (
-                <tr key={ticket.id}>
-                  <td>
-                    <img src={ticket.image} alt="" className="recent-ticket-img" />
-                  </td>
-                  <td>{ticket.route}</td>
-                  <td style={{ textAlign: "center" }}>{ticket.quantity}</td>
-                  <td>
-                    <span
-                      className="ticket-status"
-                      style={{
-                        background: statusColor[ticket.status] + "22",
-                        color: statusColor[ticket.status],
-                        border: `1px solid ${statusColor[ticket.status]}`
-                      }}
-                    >
-                      {ticket.status}
-                    </span>
-                  </td>
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Tên tuyến du lịch</th>
+                  <th>Số vé</th>
+                  <th>Trạng thái</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {recentTickets.map((ticket) => (
+                  <tr key={ticket.id}>
+                    <td>
+                      <img 
+                        src={
+                          ticket.image?.startsWith("http")
+                            ? ticket.image
+                            : `${BE_ENDPOINT}/${ticket.image}`
+                        } 
+                        alt="" 
+                        className="recent-ticket-img" 
+                      />
+                    </td>
+                    <td>{ticket.route}</td>
+                    <td style={{ textAlign: "center" }}>{ticket.quantity}</td>
+                    <td>
+                      <span
+                        className="ticket-status"
+                        style={{
+                          background: statusColor[getStatusText(ticket.status)] + "22",
+                          color: statusColor[getStatusText(ticket.status)],
+                          border: `1px solid ${statusColor[getStatusText(ticket.status)]}`
+                        }}
+                      >
+                        {getStatusText(ticket.status)}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
       <div className="home-right">

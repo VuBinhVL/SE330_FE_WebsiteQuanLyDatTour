@@ -106,15 +106,74 @@
   color: #fff;
 }
 
+.home-recent-tickets {
+  display: flex;
+  flex-direction: column;
+}
+
+.home-recent-tickets .table-container {
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: 1px solid #ece3fa;
+}
+
+.home-recent-tickets .table-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.home-recent-tickets .table-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.home-recent-tickets .table-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.home-recent-tickets .table-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
 .home-recent-tickets table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
+  table-layout: fixed;
+}
+
+.home-recent-tickets thead {
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 10;
 }
 
 .home-recent-tickets th, .home-recent-tickets td {
   padding: 10px 10px;
   font-size: 15px;
+}
+
+.home-recent-tickets th:nth-child(1), .home-recent-tickets td:nth-child(1) {
+  width: 60px;
+}
+
+.home-recent-tickets th:nth-child(2), .home-recent-tickets td:nth-child(2) {
+  width: auto;
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-recent-tickets th:nth-child(3), .home-recent-tickets td:nth-child(3) {
+  width: 80px;
+}
+
+.home-recent-tickets th:nth-child(4), .home-recent-tickets td:nth-child(4) {
+  width: 120px;
 }
 
 .home-recent-tickets th {
@@ -285,39 +344,54 @@
 }
 
 .calendar-table th, .calendar-table td {
-  padding: 7px 0;
   font-size: 15px;
+  position: relative;
+}
+
+.calendar-table th {
+  padding: 8px 0;
+  color: #666;
+  font-weight: 600;
 }
 
 .calendar-table td {
+  padding: 0;
+  width: 42px;
+  height: 42px;
   transition: background 0.18s, color 0.18s, box-shadow 0.18s;
   cursor: pointer;
-  width: 32px;
-  height: 32px;
+  vertical-align: middle;
+  text-align: center;
 }
 
-.calendar-table td:not(:empty):hover {
+.calendar-table td .calendar-day-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  transition: background 0.18s, color 0.18s;
+  font-weight: 500;
+}
+
+.calendar-table td:not(:empty):hover .calendar-day-number {
   background: #ffe3f0;
   color: #e62490;
-  border-radius: 50%;
-  line-height: 16px;
 }
 
 .calendar-trip-day {
   position: relative;
-  background: #F1968C;
-  color: #fff;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: inline-block;
-  line-height: 16px;
-  transition: background 0.18s, color 0.18s;
 }
 
-.calendar-trip-day-hover:hover {
-  background: #e62490;
-  color: #fff;
+.calendar-trip-day .calendar-day-number {
+  background: #F1968C !important;
+  color: #fff !important;
+}
+
+.calendar-trip-day-hover:hover .calendar-day-number {
+  background: #e62490 !important;
+  color: #fff !important;
 }
 
 .calendar-trip-tooltip {
