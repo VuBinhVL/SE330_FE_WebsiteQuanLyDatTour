@@ -12,7 +12,7 @@ export default function Payment() {
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [userMember, setUserMember] = useState([]);
   const userId = localStorage.getItem("userId");
-
+  const [loading, setLoading] = useState(false);
   const [passengerData, setPassengerData] = useState([]);
 
   // Tính tổng tiền
@@ -146,6 +146,7 @@ export default function Payment() {
       toast.error("Vui lòng điền đầy đủ và hợp lệ thông tin hành khách");
       return;
     }
+    setLoading(true);
 
     const invoicePayload = {
       userId: Number(userId),
@@ -170,10 +171,19 @@ export default function Payment() {
       (res) => {
         toast.success("Đặt hàng thành công!", { autoClose: 1000 });
         localStorage.removeItem("selectedCart");
-        setTimeout(() => (window.location.href = "/bookings"), 1000);
+        setTimeout(() => {
+          setLoading(false);
+          window.location.href = "/bookings";
+        }, 1000);
       },
-      (err) => toast.error(err),
-      () => toast.error("Lỗi kết nối tới máy chủ")
+      (err) => {
+        setLoading(false);
+        toast.error(err.message || "Lỗi khi đặt hàng");
+      },
+      () => {
+        toast.error("Lỗi kết nối tới máy chủ");
+        setLoading(false);
+      }
     );
     // Xóa giỏ hàng sau khi xác nhận
     localStorage.removeItem("selectedCart");
@@ -249,6 +259,7 @@ export default function Payment() {
                       onChange={(e) =>
                         handleChange(tourIndex, i, "fullname", e.target.value)
                       }
+                      disabled
                     />
                   </div>
                   <div className="input-group">
@@ -259,6 +270,7 @@ export default function Payment() {
                       onChange={(e) =>
                         handleChange(tourIndex, i, "email", e.target.value)
                       }
+                      disabled
                     />
                   </div>
                   <div className="input-group">
@@ -274,6 +286,7 @@ export default function Payment() {
                           e.target.value
                         )
                       }
+                      disabled
                     />
                   </div>
                 </div>
@@ -387,6 +400,12 @@ export default function Payment() {
           </div>
         </div>
       </div>
+      {loading && (
+        <div className="loading-overlay">
+          <div className="spinner" />
+          <p>Đang xử lý đơn hàng...</p>
+        </div>
+      )}
     </div>
   );
 }

@@ -5,8 +5,8 @@
   background-color: #f9f9f9;
 }
 
-.contact-info,
-.order-info {
+.payment-container .contact-info,
+.payment-container .order-info {
   background: #fff;
   border-radius: 12px;
   padding: 20px;
@@ -14,44 +14,44 @@
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.08);
 }
 
-.contact-info {
+.payment-container .contact-info {
   max-width: 400px;
 }
 
-h3 {
+.payment-container h3 {
   color: #b30000;
   margin-bottom: 1rem;
   font-size: 20px;
   text-transform: uppercase;
 }
 
-.tour-passenger-block h4 {
+.payment-container .tour-passenger-block h4 {
   color: green;
 }
 
-.tour-passenger-block {
+.payment-container .tour-passenger-block {
   margin-bottom: 2rem;
   border-bottom: 1px solid #ddd;
   padding-bottom: 1rem;
 }
 
-.passenger-section {
+.payment-container .passenger-section {
   margin-top: 1rem;
 }
 
-.passenger-info {
+.payment-container .passenger-info {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
 }
 
-.passenger-contact-row {
+.payment-container .passenger-contact-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.contact-radio {
+.payment-container .contact-radio {
   font-size: 14px;
   display: flex;
   align-items: center;
@@ -59,30 +59,30 @@ h3 {
   color: #333;
 }
 
-.input-group {
+.payment-container .input-group {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.input-group label {
+.payment-container .input-group label {
   font-weight: bold;
   margin-bottom: 4px;
 }
 
-.input-group input {
+.payment-container .input-group input {
   padding: 8px;
   border-radius: 6px;
   border: 1px solid #ccc;
 }
 
-.order-list {
+.payment-container .order-list {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.order-item {
+.payment-container .order-item {
   display: flex;
   border: 1px solid #ddd;
   border-radius: 12px;
@@ -90,14 +90,14 @@ h3 {
   background-color: #fff;
 }
 
-.order-image img {
+.payment-container .order-image img {
   width: 250px;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.order-details {
+.payment-container .order-details {
   padding: 1rem;
   flex: 1;
   display: flex;
@@ -105,24 +105,24 @@ h3 {
   justify-content: space-between;
 }
 
-.order-details h4 {
+.payment-container .order-details h4 {
   font-weight: bold;
   margin-bottom: 0.5rem;
   text-align: center;
 }
 
-.order-row {
+.payment-container .order-row {
   gap: 5rem;
   display: flex;
   font-size: 14px;
   margin: 0.4rem 0;
 }
 
-.order-row .icon {
+.payment-container .order-row .icon {
   margin-right: 4px;
 }
 
-.departure-date {
+.payment-container .departure-date {
   background-color: #fdd;
   padding: 0.2rem 0.5rem;
   border-radius: 6px;
@@ -131,26 +131,26 @@ h3 {
   font-weight: bold;
 }
 
-.order-price {
+.payment-container .order-price {
   text-align: right;
   margin-top: 10px;
 }
 
-.total-price {
+.payment-container .total-price {
   color: red;
   font-weight: bold;
   font-size: 18px;
 }
 
-.payment-method {
+.payment-container .payment-method {
   margin-top: 2rem;
 }
 
-.payment-method h4 {
+.payment-container .payment-method h4 {
   margin-bottom: 1rem;
 }
 
-.payment-method label {
+.payment-container .payment-method label {
   display: inline-block;
   border: 2px solid #ccc;
   border-radius: 8px;
@@ -163,16 +163,16 @@ h3 {
   user-select: none;
 }
 
-.payment-method input[type="radio"] {
+.payment-container .payment-method input[type="radio"] {
   display: none;
 }
 
-.payment-method input[type="radio"]:checked + span {
+.payment-container .payment-method input[type="radio"]:checked + span {
   color: red;
   border-color: #b30000;
 }
 
-.order-status {
+.payment-container .order-status {
   margin-top: 2rem;
   display: flex;
   justify-content: space-between;
@@ -180,13 +180,13 @@ h3 {
   flex-wrap: wrap;
 }
 
-.status-label {
+.payment-container .status-label {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.status-btn {
+.payment-container .status-btn {
   background: #b30000;
   color: #fff;
   border: none;
@@ -195,14 +195,14 @@ h3 {
   font-weight: bold;
 }
 
-.summary {
+.payment-container .summary {
   display: flex;
   align-items: center;
   gap: 1rem;
   margin-top: 1rem;
 }
 
-.total-box {
+.payment-container .total-box {
   background-color: #f4f4f4;
   padding: 5px;
   border-radius: 8px;
@@ -210,12 +210,12 @@ h3 {
   font-size: 16px;
 }
 
-.action-group {
+.payment-container .action-group {
   display: flex;
   gap: 1rem;
 }
 
-.confirm-order {
+.payment-container .confirm-order {
   background-color: #00cc44;
   color: white;
   padding: 8px 16px;
@@ -225,11 +225,43 @@ h3 {
   cursor: pointer;
 }
 
-.cancel-order {
+.payment-container .cancel-order {
   background-color: white;
   border: 1px solid #ccc;
   padding: 8px 16px;
   border-radius: 6px;
   font-weight: bold;
   cursor: pointer;
+}
+
+.payment-container .loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 18px;
+}
+
+.payment-container .spinner {
+  width: 48px;
+  height: 48px;
+  border: 5px solid #fff;
+  border-top: 5px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
