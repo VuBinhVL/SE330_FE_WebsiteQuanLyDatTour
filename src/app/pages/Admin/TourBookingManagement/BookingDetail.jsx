@@ -4,6 +4,7 @@ import "./BookingDetail.css";
 import ModalPassengerEdit from "./ModalPassengerEdit";
 import { ReactComponent as EditIcon } from "../../../assets/icons/admin/Nút sửa.svg";
 import { fetchGet } from "../../../lib/httpHandler";
+import { toast } from "react-toastify";
 
 const BookingDetail = () => {
   const { bookingId } = useParams();
@@ -21,7 +22,7 @@ const BookingDetail = () => {
         `/api/admin/tour-booking/get/${bookingId}`,
         (res) => setBooking(res.data),
         () => setBooking(null),
-        () => alert("Không thể tải thông tin booking.")
+        () => toast.error("Không thể tải thông tin booking.")
       );
 
       // Fetch real passenger details
@@ -67,7 +68,9 @@ const BookingDetail = () => {
   return (
     <div className="booking-detail-container">
       <div className="tour-info-card">
-        <p className="tour-title"><strong>{booking.tourRoute?.routeName}</strong></p>
+        <p className="tour-title">
+          <strong>{booking.tourRoute?.routeName}</strong>
+        </p>
         <div className="grid-form">
           <div className="form-group">
             <label>Mã chuyến du lịch:</label>
@@ -77,7 +80,9 @@ const BookingDetail = () => {
             <label>Ngày khởi hành:</label>
             <input
               type="text"
-              value={new Date(booking.tour?.depatureDate).toLocaleDateString("vi-VN")}
+              value={new Date(booking.tour?.depatureDate).toLocaleDateString(
+                "vi-VN"
+              )}
               readOnly
             />
           </div>
@@ -85,7 +90,9 @@ const BookingDetail = () => {
             <label>Ngày trở về:</label>
             <input
               type="text"
-              value={new Date(booking.tour?.returnDate).toLocaleDateString("vi-VN")}
+              value={new Date(booking.tour?.returnDate).toLocaleDateString(
+                "vi-VN"
+              )}
               readOnly
             />
           </div>
@@ -93,10 +100,13 @@ const BookingDetail = () => {
             <label>Giờ xuất phát:</label>
             <input
               type="text"
-              value={new Date(booking.tour?.pickUpTime).toLocaleTimeString("vi-VN", {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
+              value={new Date(booking.tour?.pickUpTime).toLocaleTimeString(
+                "vi-VN",
+                {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }
+              )}
               readOnly
             />
           </div>
@@ -108,7 +118,10 @@ const BookingDetail = () => {
             <label>Giá:</label>
             <input
               type="text"
-              value={new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(booking.tour?.price)}
+              value={new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+              }).format(booking.tour?.price)}
               readOnly
             />
           </div>
@@ -120,7 +133,10 @@ const BookingDetail = () => {
             <label>Tổng tiền:</label>
             <input
               type="text"
-              value={new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(booking.totalPrice)}
+              value={new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+              }).format(booking.totalPrice)}
               readOnly
             />
           </div>
@@ -175,16 +191,16 @@ const BookingDetail = () => {
 
       <div className="footer-btns">
         <button
-          className="invoice-btn"
-          onClick={() => {
-            if (booking.invoiceId) {
-              navigate(`/admin/invoices/detail/${booking.invoiceId}`, {
-                state: { order: booking.invoice },
-              });
-            } else {
-              alert("Không tìm thấy thông tin hóa đơn.");
-            }
-          }}
+              className="invoice-btn"
+              onClick={() => {
+                if (booking.invoiceId) {
+                  navigate(`/admin/invoices/detail/${booking.invoiceId}`, {
+                    state: { order: booking.invoice },
+                  });
+                } else {
+                  alert("Không tìm thấy thông tin hóa đơn.");
+                }
+              }}
         >
           Xem thông tin hóa đơn
         </button>

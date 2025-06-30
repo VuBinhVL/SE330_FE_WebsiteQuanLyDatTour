@@ -33,7 +33,7 @@ export default function Login() {
         if (sus.success) {
           localStorage.setItem("userId", sus.userId);
           setIsLoggedIn(true);
-          if (sus.role === "ADMIN") {
+          if (sus.role === "ADMIN" || sus.role === "STAFF") {
             navigate("/admin/dashboard");
           } else if (sus.role === "CUSTOMER") {
             navigate("/");

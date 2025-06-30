@@ -15,7 +15,7 @@ import "./Navigation.css";
 
 export default function Navigation() {
   const [userRole, setUserRole] = useState(null);
-  const userId = localStorage.getItem('userId');
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
     if (userId) {
@@ -25,7 +25,7 @@ export default function Navigation() {
           setUserRole(res.data.role_id);
         },
         (error) => {
-          console.error('Error fetching user role:', error);
+          console.error("Error fetching user role:", error);
         }
       );
     }
@@ -49,20 +49,21 @@ export default function Navigation() {
           Trang chủ
         </NavLink>
 
+        <NavLink
+          to="/admin/customers"
+          className={({ isActive }) => "nav-item" + (isActive ? " active" : "")}
+        >
+          <img src={customer} alt="Customer Icon" className="icon" />
+          Quản lý khách hàng
+        </NavLink>
         {/* Chỉ Admin mới thấy các mục quản lý này */}
         {isAdmin && (
           <>
             <NavLink
-              to="/admin/customers"
-              className={({ isActive }) => "nav-item" + (isActive ? " active" : "")}
-            >
-              <img src={customer} alt="Customer Icon" className="icon" />
-              Quản lý khách hàng
-            </NavLink>
-
-            <NavLink
               to="/admin/staff"
-              className={({ isActive }) => "nav-item" + (isActive ? " active" : "")}
+              className={({ isActive }) =>
+                "nav-item" + (isActive ? " active" : "")
+              }
             >
               <img src={staff} alt="Staff Icon" className="icon" />
               Quản lý nhân viên
@@ -70,23 +71,24 @@ export default function Navigation() {
 
             <NavLink
               to="/admin/tour-route"
-              className={({ isActive }) => "nav-item" + (isActive ? " active" : "")}
+              className={({ isActive }) =>
+                "nav-item" + (isActive ? " active" : "")
+              }
             >
               <img src={tour_route} alt="Tour Route Icon" className="icon" />
               Quản lý tuyến du lịch
-            </NavLink>
-
-            <NavLink
-              to="/admin/tour"
-              className={({ isActive }) => "nav-item" + (isActive ? " active" : "")}
-            >
-              <img src={trip} alt="Trip Icon" className="icon" />
-              Quản lý chuyến du lịch
             </NavLink>
           </>
         )}
 
         {/* Cả Admin và Staff đều thấy các mục này */}
+        <NavLink
+          to="/admin/tour"
+          className={({ isActive }) => "nav-item" + (isActive ? " active" : "")}
+        >
+          <img src={trip} alt="Trip Icon" className="icon" />
+          Quản lý chuyến du lịch
+        </NavLink>
         <NavLink
           to="/admin/tour-bookings"
           className={({ isActive }) => "nav-item" + (isActive ? " active" : "")}
@@ -108,7 +110,9 @@ export default function Navigation() {
           <>
             <NavLink
               to="/admin/destination-management"
-              className={({ isActive }) => "nav-item" + (isActive ? " active" : "")}
+              className={({ isActive }) =>
+                "nav-item" + (isActive ? " active" : "")
+              }
             >
               <img src={destination} alt="Destination Icon" className="icon" />
               Quản lý địa điểm
@@ -116,7 +120,9 @@ export default function Navigation() {
 
             <NavLink
               to="/admin/reports"
-              className={({ isActive }) => "nav-item" + (isActive ? " active" : "")}
+              className={({ isActive }) =>
+                "nav-item" + (isActive ? " active" : "")
+              }
             >
               <img src={report} alt="Report Icon" className="icon" />
               Báo cáo doanh thu

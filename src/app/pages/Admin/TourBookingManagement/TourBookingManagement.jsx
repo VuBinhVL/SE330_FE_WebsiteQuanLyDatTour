@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { ReactComponent as ViewIcon } from "../../../assets/icons/admin/Frame 23.svg";
 import { ReactComponent as DeleteIcon } from "../../../assets/icons/admin/Frame 24.svg";
 import { fetchGet, fetchDelete } from "../../../lib/httpHandler";
 import "./TourBookingManagement.css";
+import { AdminTitleContext } from "../../../layouts/adminLayout/AdminLayout/AdminLayout";
+import { toast } from "react-toastify";
 
 // Hàm chuyển đổi trạng thái tour từ int sang chuỗi hiển thị
 const getTourStatusLabel = (status) => {
@@ -25,7 +27,12 @@ export default function TourBookingManagement() {
   const [bookings, setBookings] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
+  const { setTitle, setSubtitle } = useContext(AdminTitleContext);
 
+  useEffect(() => {
+    setTitle("Tất cả phiếu đặt tour");
+    setSubtitle("Thông tin tất cả phiếu đặt tour");
+  }, [setTitle, setSubtitle]);
   useEffect(() => {
     fetchBookings();
   }, []);
@@ -35,7 +42,7 @@ export default function TourBookingManagement() {
       "/api/admin/tour-booking/get-all",
       (res) => setBookings(res.data || []),
       () => setBookings([]),
-      () => alert("Có lỗi xảy ra khi tải danh sách đơn đặt tour!")
+      () => toast.error("Có lỗi xảy ra khi tải danh sách đơn đặt tour!")
     );
   };
 
@@ -46,18 +53,21 @@ export default function TourBookingManagement() {
   };
 
   const handleDelete = (id) => {
-    const confirmDelete = window.confirm("Bạn có chắc muốn xóa đơn đặt tour này?");
+    const confirmDelete = window.confirm(
+      "Bạn có chắc muốn xóa đơn đặt tour này?"
+    );
     if (confirmDelete) {
       fetchDelete(
         `/api/admin/tour-booking/delete/${id}`,
         () => {
           setBookings((prev) => prev.filter((b) => b.id !== id));
+          toast.success("Xóa đơn đặt tour thành công!", { autoClose: 3000 });
         },
         () => {
-          alert("Xóa đơn đặt tour thất bại!");
+          toast.error("Xóa đơn đặt tour thất bại!");
         },
         () => {
-          alert("Có lỗi xảy ra khi kết nối đến máy chủ!");
+          toast.error("Có lỗi xảy ra khi kết nối đến máy chủ!");
         }
       );
     }
@@ -68,7 +78,9 @@ export default function TourBookingManagement() {
   };
 
   const filteredBookings = bookings.filter((b) =>
-    `${b.seatsBooked} ${b.totalPrice} ${b.id}`.toLowerCase().includes(searchTerm)
+    `${b.seatsBooked} ${b.totalPrice} ${b.id}`
+      .toLowerCase()
+      .includes(searchTerm)
   );
 
   return (
@@ -116,12 +128,18 @@ export default function TourBookingManagement() {
               </td>
               <td>{booking.createdAt?.split("T")[0]}</td>
               <td>
-                <button className="view-btn" onClick={() => handleView(booking)}>
+                <button
+                  className="view-btn"
+                  onClick={() => handleView(booking)}
+                >
                   <ViewIcon className="icon-svg" />
                 </button>
               </td>
               <td>
-                <button className="delete-btn" onClick={() => handleDelete(booking.id)}>
+                <button
+                  className="delete-btn"
+                  onClick={() => handleDelete(booking.id)}
+                >
                   <DeleteIcon className="icon-svg" />
                 </button>
               </td>

@@ -229,7 +229,7 @@ export default function DetailCustomer({ customerId }) {
 
   return (
     <div className="cus-detail-page">
-      <div className="cus-detail-popup" style={{ position: "static", boxShadow: "none", margin: "24px auto" }}>
+      <div className="cus-detail-popup" style={{ position: "static", boxShadow: "none", margin: "16px auto" }}>
         <div className="cus-detail-content">
           <div className="cus-detail-left">
             <div className="cus-detail-section">
@@ -266,6 +266,7 @@ export default function DetailCustomer({ customerId }) {
                 </div>
               </div>
             </div>
+            
             <div className="cus-detail-section member-table-section">
               <div className="cus-detail-title-row">
                 <span>Thành viên</span>
@@ -319,12 +320,13 @@ export default function DetailCustomer({ customerId }) {
                           </td>
                         </tr>
                       ))
-                    )};
+                    )}
                   </tbody>
                 </table>
               </div>
             </div>
           </div>
+          
           <div className="cus-detail-right">
             <div className="cus-detail-section">
               <div className="cus-detail-title">Tuyến đi yêu thích</div>
@@ -341,19 +343,21 @@ export default function DetailCustomer({ customerId }) {
                       <tr>
                         <td colSpan={2} style={{ textAlign: "center" }}>Chưa có dữ liệu</td>
                       </tr>
-                    ) : (                    favorites.map((fav, idx) => (
-                      <tr key={idx}>
-                        <td title={fav.tourRouteId}>{fav.tourRouteId || "N/A"}</td>
-                        <td title={fav.tourRouteName}>
-                          {fav.tourRouteName || "N/A"}
-                        </td>
-                      </tr>
-                    ))
+                    ) : (
+                      favorites.map((fav, idx) => (
+                        <tr key={idx}>
+                          <td title={fav.tourRouteId}>{fav.tourRouteId || "N/A"}</td>
+                          <td title={fav.tourRouteName}>
+                            {fav.tourRouteName || "N/A"}
+                          </td>
+                        </tr>
+                      ))
                     )}
                   </tbody>
                 </table>
               </div>
             </div>
+            
             <div className="cus-detail-section">
               <div className="cus-detail-title">Giỏ hàng</div>
               <div className="cus-detail-table-container">
@@ -369,14 +373,15 @@ export default function DetailCustomer({ customerId }) {
                       <tr>
                         <td colSpan={2} style={{ textAlign: "center" }}>Chưa có dữ liệu</td>
                       </tr>
-                    ) : (                    cartWithTourInfo.map((item, idx) => (
-                      <tr key={idx}>
-                        <td title={item.tourID}>{item.tourID || "N/A"}</td>
-                        <td title={item.tourRouteName}>
-                          {item.tourRouteName || "N/A"}
-                        </td>
-                      </tr>
-                    ))
+                    ) : (
+                      cartWithTourInfo.map((item, idx) => (
+                        <tr key={idx}>
+                          <td title={item.tourID}>{item.tourID || "N/A"}</td>
+                          <td title={item.tourRouteName}>
+                            {item.tourRouteName || "N/A"}
+                          </td>
+                        </tr>
+                      ))
                     )}
                   </tbody>
                 </table>
@@ -384,7 +389,8 @@ export default function DetailCustomer({ customerId }) {
             </div>
           </div>
         </div>
-        <div className="cus-detail-section" style={{ marginTop: 18 }}>
+        
+        <div className="cus-detail-section" style={{ marginTop: 16 }}>
           <div className="cus-detail-title">Lịch sử đặt tour</div>
           <div className="cus-detail-table-container">
             <table className="cus-detail-table-in-container">
@@ -403,20 +409,21 @@ export default function DetailCustomer({ customerId }) {
                   <tr>
                     <td colSpan={6} style={{ textAlign: "center" }}>Chưa có dữ liệu</td>
                   </tr>
-                ) : (                orders.map((o, idx) => (
-                  <tr key={idx}>
-                    <td title={o.tourCode}>{o.tourCode}</td>
-                    <td title={o.tourName}>{o.tourName}</td>
-                    <td title={o.orderDate ? new Date(o.orderDate).toLocaleDateString() : ""}>
-                      {o.orderDate ? new Date(o.orderDate).toLocaleDateString() : ""}
-                    </td>
-                    <td title={o.quantity}>{o.quantity}</td>
-                    <td title={o.totalAmount?.toLocaleString("vi-VN") + "₫"}>
-                      {o.totalAmount?.toLocaleString("vi-VN")}₫
-                    </td>
-                    <td title={o.paymentStatus}>{o.paymentStatus}</td>
-                  </tr>
-                ))
+                ) : (
+                  orders.map((o, idx) => (
+                    <tr key={idx}>
+                      <td title={o.tourCode}>{o.tourCode}</td>
+                      <td title={o.tourName}>{o.tourName}</td>
+                      <td title={o.orderDate ? new Date(o.orderDate).toLocaleDateString() : ""}>
+                        {o.orderDate ? new Date(o.orderDate).toLocaleDateString() : ""}
+                      </td>
+                      <td title={o.quantity}>{o.quantity}</td>
+                      <td title={o.totalAmount?.toLocaleString("vi-VN") + "₫"}>
+                        {o.totalAmount?.toLocaleString("vi-VN")}₫
+                      </td>
+                      <td title={o.paymentStatus}>{o.paymentStatus}</td>
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>

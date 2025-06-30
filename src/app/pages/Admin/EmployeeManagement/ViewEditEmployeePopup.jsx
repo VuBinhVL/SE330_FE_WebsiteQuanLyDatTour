@@ -3,6 +3,7 @@ import "./EmployeePopup.css";
 import { ReactComponent as CameraIcon } from "../../../assets/icons/admin/Icon1.svg";
 import { ReactComponent as EditIcon } from "../../../assets/icons/admin/Nút sửa.svg";
 import { fetchPost, fetchPut, fetchUpload } from "../../../lib/httpHandler";
+import { toast } from "react-toastify";
 
 const ViewEditEmployeePopup = ({ isOpen, onClose, onSubmit, employeeId }) => {
   const [formData, setFormData] = useState({});
@@ -33,8 +34,8 @@ const ViewEditEmployeePopup = ({ isOpen, onClose, onSubmit, employeeId }) => {
           setOriginalData(data);
           setAvatar(null); // reset ảnh mới chọn
         },
-        () => alert("Không thể tải dữ liệu nhân viên"),
-        () => alert("Lỗi hệ thống khi tải nhân viên")
+        () => toast.error("Không thể tải dữ liệu nhân viên"),
+        () => toast.error("Lỗi hệ thống khi tải nhân viên")
       );
     }
   }, [employeeId, isOpen]);
@@ -94,8 +95,8 @@ const ViewEditEmployeePopup = ({ isOpen, onClose, onSubmit, employeeId }) => {
               setIsEditing(false);
               onClose();
             },
-            () => alert("Không thể cập nhật ảnh"),
-            () => alert("Lỗi hệ thống khi cập nhật ảnh")
+            () => toast.error("Không thể cập nhật ảnh"),
+            () => toast.error("Lỗi hệ thống khi cập nhật ảnh")
           );
         } else {
           onSubmit();
@@ -103,8 +104,8 @@ const ViewEditEmployeePopup = ({ isOpen, onClose, onSubmit, employeeId }) => {
           onClose();
         }
       },
-      () => alert("Không thể cập nhật thông tin nhân viên"),
-      () => alert("Lỗi hệ thống khi cập nhật")
+      () => toast.error("Không thể cập nhật thông tin nhân viên"),
+      () => toast.error("Lỗi hệ thống khi cập nhật")
     );
   };
 
@@ -123,9 +124,15 @@ const ViewEditEmployeePopup = ({ isOpen, onClose, onSubmit, employeeId }) => {
           &times;
         </span>
         <div className="popup-header">
-          <h2>{isEditing ? "SỬA THÔNG TIN NHÂN VIÊN" : "XEM THÔNG TIN NHÂN VIÊN"}</h2>
+          <h2>
+            {isEditing ? "SỬA THÔNG TIN NHÂN VIÊN" : "XEM THÔNG TIN NHÂN VIÊN"}
+          </h2>
           {!isEditing && (
-            <button type="button" className="edit-btn" onClick={() => setIsEditing(true)}>
+            <button
+              type="button"
+              className="edit-btn"
+              onClick={() => setIsEditing(true)}
+            >
               <EditIcon className="icon-svg" />
             </button>
           )}
@@ -143,11 +150,17 @@ const ViewEditEmployeePopup = ({ isOpen, onClose, onSubmit, employeeId }) => {
             />
             <div
               className="avatar-placeholder"
-              onClick={() => isEditing && document.getElementById("avatarInput").click()}
+              onClick={() =>
+                isEditing && document.getElementById("avatarInput").click()
+              }
               style={{ cursor: isEditing ? "pointer" : "default" }}
             >
               {avatarPreview ? (
-                <img src={avatarPreview} alt="Avatar" className="avatar-image" />
+                <img
+                  src={avatarPreview}
+                  alt="Avatar"
+                  className="avatar-image"
+                />
               ) : (
                 <CameraIcon className="avatar-camera-icon" />
               )}
@@ -234,7 +247,11 @@ const ViewEditEmployeePopup = ({ isOpen, onClose, onSubmit, employeeId }) => {
             <div className="actions">
               {isEditing && (
                 <>
-                  <button type="button" className="cancel-btn" onClick={handleCancelEdit}>
+                  <button
+                    type="button"
+                    className="cancel-btn"
+                    onClick={handleCancelEdit}
+                  >
                     Hủy
                   </button>
                   <button type="submit" className="confirm-btn">
