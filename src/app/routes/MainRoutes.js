@@ -36,42 +36,61 @@ export default function MainRoutes() {
     <BrowserRouter>
       <Routes>
         {/* Admin */}
-        <Route path="/admin" element={
-          <ProtectedRoute requireStaffOrAdmin={true}>
-            <AdminLayout />
-          </ProtectedRoute>
-        }>
-          {/* Routes cho cả Admin và Staff */}
-          <Route path="dashboard" index element={
+        <Route
+          path="/admin"
+          element={
             <ProtectedRoute requireStaffOrAdmin={true}>
-              <Dashboard />
+              <AdminLayout />
             </ProtectedRoute>
-          } />
-          <Route path="reports" element={
-            <ProtectedRoute requireAdmin={true}>
-              <Report />
-            </ProtectedRoute>
-          } />
+          }
+        >
+          {/* Routes cho cả Admin và Staff */}
+          <Route
+            path="dashboard"
+            index
+            element={
+              <ProtectedRoute requireStaffOrAdmin={true}>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="reports"
+            element={
+              <ProtectedRoute requireAdmin={true}>
+                <Report />
+              </ProtectedRoute>
+            }
+          />
           <Route path="account" element={<Account />} />
 
-          {/* Routes chỉ dành cho Admin - Quản lý khách hàng */}
-          <Route path="customers" element={
-            <ProtectedRoute requireAdmin={true}>
-              <CustomerMainPage />
-            </ProtectedRoute>
-          } />
-          <Route path="customers/:id" element={
-            <ProtectedRoute requireAdmin={true}>
-              <DetailCustomerPage />
-            </ProtectedRoute>
-          } />
+          {/* Routes chỉ dành cho Admin và Staff - Quản lý khách hàng */}
+          <Route
+            path="customers"
+            element={
+              <ProtectedRoute requireStaffOrAdmin={true}>
+                <CustomerMainPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="customers/:id"
+            element={
+              <ProtectedRoute requireStaffOrAdmin={true}>
+                <DetailCustomerPage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Routes chỉ dành cho Admin - Quản lý tour route */}
-          <Route path="tour-route" element={
-            <ProtectedRoute requireAdmin={true}>
-              <TourRouteMainPage />
-            </ProtectedRoute>
-          } />
+          <Route
+            path="tour-route"
+            element={
+              <ProtectedRoute requireAdmin={true}>
+                <TourRouteMainPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/admin/tour-route/get/:id"
             element={
@@ -81,17 +100,23 @@ export default function MainRoutes() {
             }
           />
 
-          {/* Routes chỉ dành cho Admin - Quản lý tour */}
-          <Route path="tour" element={
-            <ProtectedRoute requireAdmin={true}>
-              <TourMainPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/tour/get/:id" element={
-            <ProtectedRoute requireAdmin={true}>
-              <DetailTour />
-            </ProtectedRoute>
-          } />
+          {/* Routes chỉ dành cho Admin và Staff - Quản lý tour */}
+          <Route
+            path="tour"
+            element={
+              <ProtectedRoute requireStaffOrAdmin={true}>
+                <TourMainPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/tour/get/:id"
+            element={
+              <ProtectedRoute requireStaffOrAdmin={true}>
+                <DetailTour />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Routes chỉ dành cho Admin - Quản lý điểm đến và nhân viên */}
           <Route
@@ -102,11 +127,14 @@ export default function MainRoutes() {
               </ProtectedRoute>
             }
           ></Route>
-          <Route path="staff" element={
-            <ProtectedRoute requireAdmin={true}>
-              <EmployeeManagement />
-            </ProtectedRoute>
-          }></Route>
+          <Route
+            path="staff"
+            element={
+              <ProtectedRoute requireAdmin={true}>
+                <EmployeeManagement />
+              </ProtectedRoute>
+            }
+          ></Route>
 
           {/* Routes cho cả Admin và Staff - Quản lý booking */}
           <Route
@@ -130,26 +158,38 @@ export default function MainRoutes() {
         <Route path="/" element={<CustomerLayout />}>
           <Route index element={<Home />} />
           <Route path="search" element={<Search />} />
-          <Route path="login" element={
-            <ProtectedRoute redirectLoggedIn={true}>
-              <Login />
-            </ProtectedRoute>
-          } />
-          <Route path="register" element={
-            <ProtectedRoute redirectLoggedIn={true}>
-              <Register />
-            </ProtectedRoute>
-          } />
-          <Route path="forget-password" element={
-            <ProtectedRoute redirectLoggedIn={true}>
-              <ForgetPassword />
-            </ProtectedRoute>
-          } />
-          <Route path="account" element={
-            <ProtectedRoute>
-              <Account />
-            </ProtectedRoute>
-          } />
+          <Route
+            path="login"
+            element={
+              <ProtectedRoute redirectLoggedIn={true}>
+                <Login />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="register"
+            element={
+              <ProtectedRoute redirectLoggedIn={true}>
+                <Register />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="forget-password"
+            element={
+              <ProtectedRoute redirectLoggedIn={true}>
+                <ForgetPassword />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="account"
+            element={
+              <ProtectedRoute>
+                <Account />
+              </ProtectedRoute>
+            }
+          />
           <Route path="cart" element={<Cart />} />
           <Route path="bookings" element={<BookingHistory />} />
           <Route path="members" element={<Member />} />
