@@ -31,6 +31,7 @@ import BookingHistory from "../pages/Customer/BookingHistory";
 import TourDetail from "../pages/Customer/TourDetail";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import Payment from "../pages/Customer/Payment";
+import HelpPage from "../pages/Customer/HelpPage/HelpPage";
 
 export default function MainRoutes() {
   return (
@@ -158,6 +159,7 @@ export default function MainRoutes() {
         {/* Customer */}
         <Route path="/" element={<CustomerLayout />}>
           <Route index element={<Home />} />
+          <Route path="help" element={<HelpPage />} />
           <Route path="search" element={<Search />} />
           <Route
             path="login"

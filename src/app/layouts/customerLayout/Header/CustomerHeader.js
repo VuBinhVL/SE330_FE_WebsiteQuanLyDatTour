@@ -448,7 +448,7 @@ export default function CustomerHeader() {
           )}
       </div>
       <div className="header-right">
-        <NavLink to="/admin" className="help-link">
+        <NavLink to="/help" className="help-link">
           Trợ giúp
         </NavLink>
         {isLoggedIn ? (
