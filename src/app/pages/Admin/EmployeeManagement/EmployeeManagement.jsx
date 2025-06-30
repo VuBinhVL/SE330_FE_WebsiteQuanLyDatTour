@@ -5,6 +5,7 @@ import ViewEditEmployeePopup from "./ViewEditEmployeePopup";
 import { ReactComponent as ViewIcon } from "../../../assets/icons/admin/Frame 23.svg";
 import { fetchGet } from "../../../lib/httpHandler";
 import { AdminTitleContext } from "../../../layouts/adminLayout/AdminLayout/AdminLayout";
+import { toast } from "react-toastify";
 
 // Hàm chuẩn hóa tìm kiếm – FIXED
 const normalize = (str) =>
@@ -39,7 +40,7 @@ export default function EmployeeManagement() {
       "/api/admin/staff/get-all",
       (res) => setEmployees(res.data || []),
       () => setEmployees([]),
-      () => alert("Có lỗi xảy ra khi tải danh sách nhân viên!")
+      () => toast.error("Có lỗi xảy ra khi tải danh sách nhân viên!")
     );
   };
 

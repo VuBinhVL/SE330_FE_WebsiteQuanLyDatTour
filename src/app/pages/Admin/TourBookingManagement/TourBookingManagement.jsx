@@ -5,6 +5,7 @@ import { ReactComponent as DeleteIcon } from "../../../assets/icons/admin/Frame 
 import { fetchGet, fetchDelete } from "../../../lib/httpHandler";
 import "./TourBookingManagement.css";
 import { AdminTitleContext } from "../../../layouts/adminLayout/AdminLayout/AdminLayout";
+import { toast } from "react-toastify";
 
 // Hàm chuyển đổi trạng thái tour từ int sang chuỗi hiển thị
 const getTourStatusLabel = (status) => {
@@ -41,7 +42,7 @@ export default function TourBookingManagement() {
       "/api/admin/tour-booking/get-all",
       (res) => setBookings(res.data || []),
       () => setBookings([]),
-      () => alert("Có lỗi xảy ra khi tải danh sách đơn đặt tour!")
+      () => toast.error("Có lỗi xảy ra khi tải danh sách đơn đặt tour!")
     );
   };
 
@@ -60,12 +61,13 @@ export default function TourBookingManagement() {
         `/api/admin/tour-booking/delete/${id}`,
         () => {
           setBookings((prev) => prev.filter((b) => b.id !== id));
+          toast.success("Xóa đơn đặt tour thành công!", { autoClose: 3000 });
         },
         () => {
-          alert("Xóa đơn đặt tour thất bại!");
+          toast.error("Xóa đơn đặt tour thất bại!");
         },
         () => {
-          alert("Có lỗi xảy ra khi kết nối đến máy chủ!");
+          toast.error("Có lỗi xảy ra khi kết nối đến máy chủ!");
         }
       );
     }

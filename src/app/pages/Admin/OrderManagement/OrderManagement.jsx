@@ -5,6 +5,7 @@ import { ReactComponent as DeleteIcon } from "../../../assets/icons/admin/Frame 
 import { fetchGet, fetchDelete } from "../../../lib/httpHandler";
 import "./OrderManagement.css";
 import { AdminTitleContext } from "../../../layouts/adminLayout/AdminLayout/AdminLayout";
+import { toast } from "react-toastify";
 
 const getStatusText = (status, isCanceled) => {
   if (isCanceled) return "Đã hủy";
@@ -53,7 +54,7 @@ export default function OrderManagement() {
         setOrders(transformed);
       },
       () => setOrders([]),
-      () => alert("Không thể tải danh sách hóa đơn.")
+      () => toast.error("Không thể tải danh sách hóa đơn.")
     );
   };
 
@@ -70,12 +71,13 @@ export default function OrderManagement() {
         `/api/admin/invoice/delete/${id}`,
         () => {
           setOrders((prev) => prev.filter((order) => order.id !== id));
+          toast.success("Xóa đơn hàng thành công!");
         },
         () => {
-          alert("Xóa đơn hàng thất bại!");
+          toast.error("Xóa đơn hàng thất bại!");
         },
         () => {
-          alert("Có lỗi xảy ra khi kết nối đến máy chủ!");
+          toast.error("Có lỗi xảy ra khi kết nối đến máy chủ!");
         }
       );
     }
