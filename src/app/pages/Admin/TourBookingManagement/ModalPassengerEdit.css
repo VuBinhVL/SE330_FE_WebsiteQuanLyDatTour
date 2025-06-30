@@ -15,7 +15,8 @@
   background: #ffffff;
   padding: 24px 32px;
   border-radius: 10px;
-  width: 420px;
+  width: 460px;
+  max-width: 90%;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   position: relative;
   animation: fadeIn 0.2s ease-out;
@@ -36,7 +37,8 @@
   color: #444;
 }
 
-.popup form input {
+.popup form input,
+.popup form select {
   width: 100%;
   padding: 10px 12px;
   margin-bottom: 18px;
@@ -44,11 +46,34 @@
   border-radius: 6px;
   font-size: 14px;
   transition: border-color 0.2s;
+  background-color: #fff;
 }
 
-.popup form input:focus {
+.popup form input:focus,
+.popup form select:focus {
   border-color: #28a745;
   outline: none;
+}
+
+.popup form select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='gray' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658c-.566-.648-.106-1.658.753-1.658h9.592c.86 0 1.319 1.01.753 1.658L8.753 11.14a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 14px 14px;
+}
+
+.row-group {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.row-group .form-group {
+  flex: 1;
 }
 
 .actions {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "./BookingDetail.css";
 import ModalPassengerEdit from "./ModalPassengerEdit";
 import { ReactComponent as EditIcon } from "../../../assets/icons/admin/Nút sửa.svg";
@@ -8,21 +8,31 @@ import { fetchGet } from "../../../lib/httpHandler";
 const BookingDetail = () => {
   const { bookingId } = useParams();
   const navigate = useNavigate();
+
   const [booking, setBooking] = useState(null);
+  const [passengers, setPassengers] = useState([]);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedPassenger, setSelectedPassenger] = useState(null);
 
   useEffect(() => {
     if (bookingId) {
+      // Fetch booking info
       fetchGet(
         `/api/admin/tour-booking/get/${bookingId}`,
         (res) => setBooking(res.data),
         () => setBooking(null),
         () => alert("Không thể tải thông tin booking.")
       );
+
+      // Fetch real passenger details
+      fetchGet(
+        `/api/admin/tour-booking-detail/get/${bookingId}`,
+        (res) => setPassengers(res.data),
+        () => setPassengers([]),
+        () => alert("Không thể tải danh sách hành khách.")
+      );
     }
   }, [bookingId]);
-
 
   if (!booking) {
     return (
@@ -33,7 +43,7 @@ const BookingDetail = () => {
         </button>
       </div>
     );
-  };
+  }
 
   const getStatusText = (status) => {
     return status ? "Đã thanh toán" : "Chưa thanh toán";
@@ -71,7 +81,6 @@ const BookingDetail = () => {
               readOnly
             />
           </div>
-
           <div className="form-group">
             <label>Ngày trở về:</label>
             <input
@@ -80,7 +89,6 @@ const BookingDetail = () => {
               readOnly
             />
           </div>
-
           <div className="form-group">
             <label>Giờ xuất phát:</label>
             <input
@@ -92,7 +100,6 @@ const BookingDetail = () => {
               readOnly
             />
           </div>
-
           <div className="form-group">
             <label>Điểm xuất phát:</label>
             <input type="text" value={booking.tour?.pickUpLocation} readOnly />
@@ -119,12 +126,11 @@ const BookingDetail = () => {
           </div>
           <div className="form-group">
             <label>Trạng thái thanh toán:</label>
-           <input
+            <input
               type="text"
               value={getStatusText(booking.invoice?.paymentStatus === "PAID")}
               readOnly
             />
-
           </div>
         </div>
       </div>
@@ -137,25 +143,25 @@ const BookingDetail = () => {
             <th>Họ và tên</th>
             <th>Số điện thoại</th>
             <th>Email</th>
-            <th>Edit</th>
+            <th>Sửa</th>
           </tr>
         </thead>
         <tbody>
-          {Array.from({ length: booking.seats }).map((_, index) => (
-            <tr key={index}>
+          {passengers.map((passenger, index) => (
+            <tr key={passenger.id}>
               <td>{index + 1}</td>
-              <td>{`Hành Khách ${index + 1}`}</td>
-              <td>{`09000000${index}`}</td>
-              <td>{`passenger${index}@mail.com`}</td>
+              <td>{passenger.userMember?.fullname}</td>
+              <td>{passenger.userMember?.phoneNumber}</td>
+              <td>{passenger.userMember?.email}</td>
               <td>
                 <button
                   className="edit-btn"
                   onClick={() =>
                     handleEditPassenger({
-                      id: index + 1,
-                      name: `Hành Khách ${index + 1}`,
-                      phone: `09000000${index}`,
-                      email: `passenger${index}@mail.com`,
+                      id: passenger.userMember?.id,
+                      name: passenger.userMember?.fullname,
+                      phone: passenger.userMember?.phoneNumber,
+                      email: passenger.userMember?.email,
                     })
                   }
                 >
@@ -169,20 +175,19 @@ const BookingDetail = () => {
 
       <div className="footer-btns">
         <button
-              className="invoice-btn"
-              onClick={() => {
-                if (booking.invoiceId) {
-                  navigate(`/admin/invoices/detail/${booking.invoiceId}`, {
-                    state: { order: booking.invoice },
-                  });
-                } else {
-                  alert("Không tìm thấy thông tin hóa đơn.");
-                }
-              }}
+          className="invoice-btn"
+          onClick={() => {
+            if (booking.invoiceId) {
+              navigate(`/admin/invoices/detail/${booking.invoiceId}`, {
+                state: { order: booking.invoice },
+              });
+            } else {
+              alert("Không tìm thấy thông tin hóa đơn.");
+            }
+          }}
         >
           Xem thông tin hóa đơn
         </button>
-
       </div>
 
       {isPopupOpen && selectedPassenger && (
