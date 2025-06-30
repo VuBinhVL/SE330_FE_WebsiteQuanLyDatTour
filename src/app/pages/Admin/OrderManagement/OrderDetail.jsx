@@ -30,7 +30,6 @@ export default function OrderDetail() {
         const data = res.data;
         setOrder(data);
 
-        // 🔧 Ưu tiên hiển thị trạng thái "Đã hủy" nếu đơn đã bị hủy
         if (data.isCanceled) {
           setOrderStatus("Đã hủy");
         } else {
@@ -58,28 +57,6 @@ export default function OrderDetail() {
     });
   };
 
-  const handleCancelOrder = () => {
-    const confirmCancel = window.confirm("Bạn có chắc muốn hủy đơn hàng này?");
-    if (!confirmCancel) return;
-
-    const updatedInvoice = {
-      ...order,
-      isCanceled: true,
-    };
-
-    fetchPut(
-      `/api/admin/invoice/update/${invoiceId}`,
-      updatedInvoice,
-      (res) => {
-        toast.success("Đơn hàng đã được hủy thành công!");
-        setOrderStatus("Đã hủy");
-        setOrder((prev) => ({ ...prev, isCanceled: true }));
-      },
-      () => toast.error("Không thể hủy đơn hàng"),
-      () => toast.error("Lỗi hệ thống khi hủy đơn hàng")
-    );
-  };
-
   const handleConfirmPayment = () => {
     if (orderStatus === "Đã hủy") {
       toast.error("Đơn hàng đã bị hủy. Không thể thanh toán.");
@@ -87,7 +64,6 @@ export default function OrderDetail() {
     }
 
     const updatedInvoice = {
-      ...order,
       paymentStatus: true,
     };
 
@@ -97,6 +73,7 @@ export default function OrderDetail() {
       (res) => {
         toast.success("Xác nhận thanh toán thành công!");
         setOrderStatus("Đã thanh toán");
+        setOrder((prev) => ({ ...prev, paymentStatus: true }));
       },
       () => toast.error("Không thể xác nhận thanh toán"),
       () => toast.error("Lỗi hệ thống khi xác nhận thanh toán")
@@ -262,14 +239,6 @@ export default function OrderDetail() {
           </tbody>
         </table>
       </div>
-
-      {orderStatus !== "Đã hủy" && !order.paymentStatus && (
-        <div className="actions">
-          <button className="cancel-btn" onClick={handleCancelOrder}>
-            Hủy đơn hàng
-          </button>
-        </div>
-      )}
     </div>
   );
 }
