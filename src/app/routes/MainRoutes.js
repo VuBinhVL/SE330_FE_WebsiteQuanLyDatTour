@@ -25,6 +25,7 @@ import DetailTour from "../components/Admin/TourManagement/DetailTour/DetailTour
 import Account from "../pages/Other/Account";
 import Cart from "../pages/Customer/Cart";
 import Member from "../pages/Customer/Member";
+import Favorites from "../pages/Customer/Favorites";
 import DetailCustomerPage from "../components/Admin/CustomerManagement/DetailCustomerPage/DetailCustomerPage";
 import BookingHistory from "../pages/Customer/BookingHistory";
 import TourDetail from "../pages/Customer/TourDetail";
@@ -193,6 +194,7 @@ export default function MainRoutes() {
           <Route path="cart" element={<Cart />} />
           <Route path="bookings" element={<BookingHistory />} />
           <Route path="members" element={<Member />} />
+          <Route path="favorites" element={<Favorites />} />
           <Route path="tour-detail/:id" element={<TourDetail />} />
           <Route path="payment" element={<Payment />} />
         </Route>

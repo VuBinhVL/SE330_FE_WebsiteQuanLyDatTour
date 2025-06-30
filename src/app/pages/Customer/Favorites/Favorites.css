@@ -1,0 +1,278 @@
+/* ============================ */
+/*         Favorites CSS        */
+/* ============================ */
+
+.favorites-container {
+  display: flex;
+  gap: 24px;
+  padding: 24px 16px;
+  background: #fafbfc;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.favorites-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.favorites-header {
+  margin-bottom: 20px;
+  text-align: left; /* Dời chữ về phía trái */
+}
+
+.favorites-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: left; /* Dời chữ về phía trái */
+}
+
+.favorites-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.favorites-top-bar {
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+  background: #fafbfc;
+  text-align: left; /* Dời chữ về phía trái */
+}
+
+.favorites-stats {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Dời chữ về phía trái */
+  font-size: 16px;
+  color: #666;
+}
+
+.favorites-count {
+  font-weight: 600;
+  color: #c34141;
+}
+
+.favorites-tour-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 20px;
+}
+
+.favorites-tour-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  display: flex;
+  height: 180px;
+  border: 1px solid #f1f1f1;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.favorites-tour-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.favorites-tour-img {
+  position: relative;
+  width: 220px;
+  height: 180px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.favorites-tour-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s;
+}
+
+.favorites-tour-card:hover .favorites-tour-img img {
+  transform: scale(1.05);
+}
+
+.favorites-favorite-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s;
+  backdrop-filter: blur(4px);
+}
+
+.favorites-favorite-btn:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+}
+
+.favorites-favorite-btn.active {
+  background: rgba(229, 57, 53, 0.1);
+}
+
+.favorites-tour-info {
+  padding: 16px 18px;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  text-align: left; /* Dời chữ về phía trái */
+}
+
+.favorites-tour-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-align: left; /* Dời chữ về phía trái */
+}
+
+.favorites-tour-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: #666;
+  text-align: left; /* Dời chữ về phía trái */
+}
+
+.favorites-tour-meta > div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.favorites-tour-meta b {
+  color: #333;
+  font-weight: 600;
+  min-width: 100px;
+}
+
+.favorites-tour-date {
+  display: inline-block;
+  background: #f1f3f5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-right: 4px;
+  margin-bottom: 2px;
+}
+
+.favorites-tour-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #f1f3f5;
+  margin-top: auto;
+}
+
+.favorites-tour-price {
+  font-size: 13px;
+  color: #666;
+}
+
+.favorites-tour-price span {
+  font-size: 16px;
+  font-weight: 700;
+  color: #c34141;
+}
+
+.favorites-book-btn {
+  background: #c34141;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.favorites-book-btn:hover {
+  background: #a93226;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .favorites-tour-card {
+    flex-direction: column;
+    height: auto;
+  }
+  .favorites-tour-img {
+    width: 100%;
+    height: 180px;
+  }
+  .favorites-tour-info {
+    width: 100%;
+    padding: 16px;
+  }
+  .favorites-tour-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .favorites-tour-title {
+    font-size: 15px;
+  }
+  .favorites-tour-meta {
+    font-size: 12px;
+  }
+  .favorites-tour-price span {
+    font-size: 14px;
+  }
+  .favorites-book-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+  .favorites-favorite-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    top: 8px;
+    right: 8px;
+  }
+}
+
+@media (max-width: 360px) {
+  .favorites-tour-img {
+    height: 160px;
+  }
+  .favorites-tour-title {
+    font-size: 14px;
+  }
+  .favorites-tour-meta {
+    font-size: 11px;
+  }
+  .favorites-book-btn {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}
