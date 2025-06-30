@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./TourMainPage.css";
 import search from "../../../assets/icons/customer/header/search.png";
 import { MdOutlineAddBox } from "react-icons/md";
@@ -10,38 +10,47 @@ import { DataGrid } from "@mui/x-data-grid";
 import { Box, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import AddTour from "../../../components/Admin/TourManagement/AddTour/AddTour";
 import { toast } from "react-toastify";
+import { AdminTitleContext } from "../../../layouts/adminLayout/AdminLayout/AdminLayout";
 
 export default function TourMainPage() {
   const [tours, setTours] = useState([]);
   const [searchValue, setSearchValue] = useState("");
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const navigate = useNavigate();
+  const { setTitle, setSubtitle } = useContext(AdminTitleContext);
 
+  useEffect(() => {
+    setTitle("Tất cả chuyến du lịch");
+    setSubtitle("Thông tin tất cả chuyến du lịch");
+  }, [setTitle, setSubtitle]);
   useEffect(() => {
     fetchGet(
       "/api/admin/tour/get-all",
       async (res) => {
         console.log("Danh sách tour:", res);
         try {
-          const tourRouteIds = [...new Set(res.data.map((tour) => tour.tourRouteId))];
-          const tourRoutePromises = tourRouteIds.map((id) =>
-            new Promise((resolve, reject) => {
-              fetchGet(
-                `/api/admin/tour-route/get/${id}`,
-                (routeRes) => {
-                  console.log("Dữ liệu tuyến:", routeRes);
-                  resolve({
-                    id: routeRes.data?.id || id,
-                    name: routeRes.data?.routeName || `Tuyến du lịch ${id}`,
-                  });
-                },
-                (error) => {
-                  console.error(`Lỗi tour route ${id}:`, error);
-                  resolve({ id, name: `Tuyến du lịch ${id}` });
-                },
-                () => console.log(`Hoàn tất tour route ${id}`)
-              );
-            })
+          const tourRouteIds = [
+            ...new Set(res.data.map((tour) => tour.tourRouteId)),
+          ];
+          const tourRoutePromises = tourRouteIds.map(
+            (id) =>
+              new Promise((resolve, reject) => {
+                fetchGet(
+                  `/api/admin/tour-route/get/${id}`,
+                  (routeRes) => {
+                    console.log("Dữ liệu tuyến:", routeRes);
+                    resolve({
+                      id: routeRes.data?.id || id,
+                      name: routeRes.data?.routeName || `Tuyến du lịch ${id}`,
+                    });
+                  },
+                  (error) => {
+                    console.error(`Lỗi tour route ${id}:`, error);
+                    resolve({ id, name: `Tuyến du lịch ${id}` });
+                  },
+                  () => console.log(`Hoàn tất tour route ${id}`)
+                );
+              })
           );
           const tourRoutes = await Promise.all(tourRoutePromises);
           console.log("tourRoutes:", tourRoutes);
@@ -147,12 +156,42 @@ export default function TourMainPage() {
   };
 
   const columns = [
-    { field: "name", headerName: "Tên tuyến du lịch", width: 300, headerAlign: "center" },
-    { field: "startDate", headerName: "Ngày khởi hành", width: 150, headerAlign: "center" },
-    { field: "departure", headerName: "Điểm xuất phát", width: 230, headerAlign: "center" },
-    { field: "status", headerName: "Trạng thái", width: 120, headerAlign: "center" },
-    { field: "price", headerName: "Giá tuyến", width: 120, headerAlign: "center" },
-    { field: "quantity", headerName: "Số lượng", width: 100, headerAlign: "center" },
+    {
+      field: "name",
+      headerName: "Tên tuyến du lịch",
+      width: 300,
+      headerAlign: "center",
+    },
+    {
+      field: "startDate",
+      headerName: "Ngày khởi hành",
+      width: 150,
+      headerAlign: "center",
+    },
+    {
+      field: "departure",
+      headerName: "Điểm xuất phát",
+      width: 230,
+      headerAlign: "center",
+    },
+    {
+      field: "status",
+      headerName: "Trạng thái",
+      width: 120,
+      headerAlign: "center",
+    },
+    {
+      field: "price",
+      headerName: "Giá tuyến",
+      width: 120,
+      headerAlign: "center",
+    },
+    {
+      field: "quantity",
+      headerName: "Số lượng",
+      width: 100,
+      headerAlign: "center",
+    },
     {
       field: "view",
       headerName: "View",
@@ -232,7 +271,12 @@ export default function TourMainPage() {
         />
       </Box>
 
-      <Dialog open={openAddDialog} onClose={handleCloseAddDialog} maxWidth="md" fullWidth>
+      <Dialog
+        open={openAddDialog}
+        onClose={handleCloseAddDialog}
+        maxWidth="md"
+        fullWidth
+      >
         <DialogTitle>Thêm chuyến du lịch</DialogTitle>
         <DialogContent>
           <AddTour onClose={handleCloseAddDialog} setTours={setTours} />

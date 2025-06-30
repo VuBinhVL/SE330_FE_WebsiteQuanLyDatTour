@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./EmployeeManagement.css";
 import AddEmployeePopup from "./AddEmployeePopup";
 import ViewEditEmployeePopup from "./ViewEditEmployeePopup";
 import { ReactComponent as ViewIcon } from "../../../assets/icons/admin/Frame 23.svg";
 import { fetchGet } from "../../../lib/httpHandler";
+import { AdminTitleContext } from "../../../layouts/adminLayout/AdminLayout/AdminLayout";
 
 // Hàm chuẩn hóa tìm kiếm – FIXED
 const normalize = (str) =>
@@ -12,7 +13,6 @@ const normalize = (str) =>
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
-
 
 // Class CSS cho trạng thái
 const getStatusClass = (isLock) => {
@@ -24,7 +24,12 @@ export default function EmployeeManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const { setTitle, setSubtitle } = useContext(AdminTitleContext);
 
+  useEffect(() => {
+    setTitle("Tất cả nhân viên");
+    setSubtitle("Thông tin tất cả nhân viên");
+  }, [setTitle, setSubtitle]);
   useEffect(() => {
     fetchEmployees();
   }, []);
@@ -142,7 +147,6 @@ export default function EmployeeManagement() {
           employeeId={selectedEmployee.id}
         />
       )}
-
     </div>
   );
 }

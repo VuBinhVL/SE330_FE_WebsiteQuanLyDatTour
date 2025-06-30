@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { ReactComponent as ViewIcon } from "../../../assets/icons/admin/Frame 23.svg";
 import { ReactComponent as DeleteIcon } from "../../../assets/icons/admin/Frame 24.svg";
 import { fetchGet, fetchDelete } from "../../../lib/httpHandler";
 import "./OrderManagement.css";
+import { AdminTitleContext } from "../../../layouts/adminLayout/AdminLayout/AdminLayout";
 
 const getStatusText = (status, isCanceled) => {
   if (isCanceled) return "Đã hủy";
@@ -25,7 +26,12 @@ export default function OrderManagement() {
   const [orders, setOrders] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
+  const { setTitle, setSubtitle } = useContext(AdminTitleContext);
 
+  useEffect(() => {
+    setTitle("Tất cả hóa đơn");
+    setSubtitle("Thông tin tất cả hóa đơn");
+  }, [setTitle, setSubtitle]);
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -56,7 +62,9 @@ export default function OrderManagement() {
   };
 
   const handleDelete = (id) => {
-    const confirmDelete = window.confirm("Bạn có chắc muốn xóa đơn hàng này không?");
+    const confirmDelete = window.confirm(
+      "Bạn có chắc muốn xóa đơn hàng này không?"
+    );
     if (confirmDelete) {
       fetchDelete(
         `/api/admin/invoice/delete/${id}`,
@@ -125,7 +133,10 @@ export default function OrderManagement() {
                 </button>
               </td>
               <td>
-                <button className="delete-btn" onClick={() => handleDelete(order.id)}>
+                <button
+                  className="delete-btn"
+                  onClick={() => handleDelete(order.id)}
+                >
                   <DeleteIcon className="icon-svg" />
                 </button>
               </td>

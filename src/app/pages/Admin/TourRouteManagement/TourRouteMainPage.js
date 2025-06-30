@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./TourRouteMainPage.css";
 import search from "../../../assets/icons/customer/header/search.png";
 import { MdOutlineAddBox } from "react-icons/md";
@@ -10,6 +10,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { Box, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import { toast } from "react-toastify";
 import AddTourRoute from "../../../components/Admin/TourRouteManagement/AddTourRoute/AddTourRoute";
+import { AdminTitleContext } from "../../../layouts/adminLayout/AdminLayout/AdminLayout";
 
 export default function TourRouteMainPage() {
   const [tourRoutes, setTourRoutes] = useState([]);
@@ -17,7 +18,12 @@ export default function TourRouteMainPage() {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0); // Thêm state để trigger gọi lại API
   const navigate = useNavigate();
+  const { setTitle, setSubtitle } = useContext(AdminTitleContext);
 
+  useEffect(() => {
+    setTitle("Tất cả chuyến du lịch");
+    setSubtitle("Thông tin tất cả chuyến du lịch");
+  }, [setTitle, setSubtitle]);
   useEffect(() => {
     fetchGet(
       "/api/admin/tour-route/get-all",
@@ -37,9 +43,12 @@ export default function TourRouteMainPage() {
       (err) => {
         console.error("Lỗi lấy tour routes:", err);
         setTourRoutes([]);
-        toast.error(err.response?.data?.message || "Lỗi khi lấy danh sách tuyến du lịch", {
-          autoClose: 5000,
-        });
+        toast.error(
+          err.response?.data?.message || "Lỗi khi lấy danh sách tuyến du lịch",
+          {
+            autoClose: 5000,
+          }
+        );
       },
       () => console.log("Hoàn tất lấy tour routes.")
     );
@@ -77,7 +86,9 @@ export default function TourRouteMainPage() {
         `/api/admin/tour-route/delete/${id}`,
         null,
         () => {
-          setTourRoutes((prev) => prev.filter((tour_route) => tour_route.id !== id));
+          setTourRoutes((prev) =>
+            prev.filter((tour_route) => tour_route.id !== id)
+          );
           toast.success("Xóa tuyến du lịch thành công!", { autoClose: 3000 });
         },
         (err) => {
@@ -114,10 +125,30 @@ export default function TourRouteMainPage() {
       ),
       headerAlign: "center",
     },
-    { field: "name", headerName: "Tên tuyến du lịch", width: 350, headerAlign: "center" },
-    { field: "status", headerName: "Tình trạng", width: 180, headerAlign: "center" },
-    { field: "departure", headerName: "Khởi hành", width: 200, headerAlign: "center" },
-    { field: "duration", headerName: "Thời gian", width: 120, headerAlign: "center" },
+    {
+      field: "name",
+      headerName: "Tên tuyến du lịch",
+      width: 350,
+      headerAlign: "center",
+    },
+    {
+      field: "status",
+      headerName: "Tình trạng",
+      width: 180,
+      headerAlign: "center",
+    },
+    {
+      field: "departure",
+      headerName: "Khởi hành",
+      width: 200,
+      headerAlign: "center",
+    },
+    {
+      field: "duration",
+      headerName: "Thời gian",
+      width: 120,
+      headerAlign: "center",
+    },
     {
       field: "view",
       headerName: "Xem",
@@ -197,10 +228,18 @@ export default function TourRouteMainPage() {
         />
       </Box>
 
-      <Dialog open={openAddDialog} onClose={handleCloseAddDialog} maxWidth="md" fullWidth>
+      <Dialog
+        open={openAddDialog}
+        onClose={handleCloseAddDialog}
+        maxWidth="md"
+        fullWidth
+      >
         <DialogTitle>Thêm tuyến du lịch mới</DialogTitle>
         <DialogContent>
-          <AddTourRoute onClose={handleCloseAddDialog} setTourRoutes={setTourRoutes} />
+          <AddTourRoute
+            onClose={handleCloseAddDialog}
+            setTourRoutes={setTourRoutes}
+          />
         </DialogContent>
       </Dialog>
     </div>
