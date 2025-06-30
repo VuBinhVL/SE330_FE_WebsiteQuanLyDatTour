@@ -1,6 +1,6 @@
 # Getting Started
 
-Hi, this project structure is a sample that you can easily use to create many projects.
+Hi, this project structure is a tour booking website. We use React to dev
 
 ## Setup Scripts
 
