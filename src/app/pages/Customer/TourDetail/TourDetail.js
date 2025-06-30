@@ -23,9 +23,9 @@ export default function TourDetail() {
     isFavorite: false,
     tours: [],
     itinerary: [],
-    averageRating: 0,
-    totalReviews: 0,
   });
+  const [averageRating, setAverageRating] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
   const [selectedTour, setSelectedTour] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [newReview, setNewReview] = useState({
@@ -66,37 +66,25 @@ export default function TourDetail() {
         // Tính toán rating trung bình
         if (res.length > 0) {
           const avgRating = res.reduce((sum, review) => sum + review.rating, 0) / res.length;
-          setData(prev => ({
-            ...prev,
-            averageRating: Math.round(avgRating * 10) / 10,
-            totalReviews: res.length
-          }));
+          setAverageRating(Math.round(avgRating * 10) / 10);
+          setTotalReviews(res.length);
         } else {
           // Trường hợp không có review nào
-          setData(prev => ({
-            ...prev,
-            averageRating: 0,
-            totalReviews: 0
-          }));
+          setAverageRating(0);
+          setTotalReviews(0);
         }
       },
       (err) => {
         console.error("Lỗi khi lấy đánh giá:", err);
         // Đặt giá trị mặc định khi có lỗi
-        setData(prev => ({
-          ...prev,
-          averageRating: 0,
-          totalReviews: 0
-        }));
+        setAverageRating(0);
+        setTotalReviews(0);
       },
       () => {
         console.error("Không thể lấy danh sách đánh giá");
         // Đặt giá trị mặc định khi không kết nối được
-        setData(prev => ({
-          ...prev,
-          averageRating: 0,
-          totalReviews: 0
-        }));
+        setAverageRating(0);
+        setTotalReviews(0);
       }
     );
   }, [id]);
@@ -484,10 +472,10 @@ export default function TourDetail() {
             </h6>
             <div className="rating-info">
               <div className="rating-stars">
-                {renderStars(data.averageRating, 18)}
+                {renderStars(averageRating, 18)}
                 <span className="rating-text">
-                  {data.averageRating > 0 ? data.averageRating : "Chưa có"} 
-                  ({data.totalReviews} đánh giá)
+                  {averageRating > 0 ? averageRating.toFixed(1) : "Chưa có"} 
+                  ({totalReviews} đánh giá)
                 </span>
               </div>
             </div>
