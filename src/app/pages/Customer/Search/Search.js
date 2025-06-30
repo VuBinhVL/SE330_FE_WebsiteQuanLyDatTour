@@ -3,6 +3,7 @@ import "./Search.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import { fetchGet, fetchPost, fetchDelete, BE_ENDPOINT } from "../../../lib/httpHandler";
 import { useAuth } from "../../../lib/AuthContext";
+import { FaStar } from "react-icons/fa";
 
 // Budget options
 const BUDGETS = [
@@ -60,6 +61,24 @@ const todayPlus3 = () => {
   return d;
 };
 
+// Hàm render sao đánh giá
+function renderStars(rating, size = 14) {
+  const stars = [];
+  const fullStars = Math.floor(rating);
+  const hasHalfStar = rating - fullStars >= 0.5;
+
+  for (let i = 0; i < 5; i++) {
+    if (i < fullStars) {
+      stars.push(<FaStar key={i} color="#ffc107" size={size} />);
+    } else if (i === fullStars && hasHalfStar) {
+      stars.push(<FaStar key={i} color="#ffc107" size={size} style={{ opacity: 0.5 }} />);
+    } else {
+      stars.push(<FaStar key={i} color="#e0e0e0" size={size} />);
+    }
+  }
+  return stars;
+}
+
 export default function Search() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -115,6 +134,9 @@ export default function Search() {
   // Trạng thái yêu thích: { [tourRouteId]: favoriteId }
   const [favorites, setFavorites] = useState({});
 
+  // Trạng thái ratings: { [tourRouteId]: { averageRating, totalReviews } }
+  const [ratings, setRatings] = useState({});
+
   // Lấy danh sách tour từ API
   useEffect(() => {
     setLoading(true);
@@ -123,6 +145,8 @@ export default function Search() {
       (res) => {
         setTours(res.data || []);
         setLoading(false);
+        // Fetch ratings cho tất cả tours
+        fetchRatingsForTours(res.data || []);
       },
       (fail)=>{
         console.error("Lỗi khi lấy danh sách tour:", fail);
@@ -132,6 +156,58 @@ export default function Search() {
       () => setLoading(false)
     );
   }, []);
+
+  // Hàm fetch ratings cho tất cả tours
+  const fetchRatingsForTours = (toursList) => {
+    const ratingsPromises = toursList.map(tour => 
+      new Promise((resolve) => {
+        fetchGet(
+          `/api/reviews/tour/${tour.id}`,
+          (res) => {
+            if (res.length > 0) {
+              const avgRating = res.reduce((sum, review) => sum + review.rating, 0) / res.length;
+              resolve({
+                tourRouteId: tour.id,
+                averageRating: Math.round(avgRating * 10) / 10,
+                totalReviews: res.length
+              });
+            } else {
+              resolve({
+                tourRouteId: tour.id,
+                averageRating: 0,
+                totalReviews: 0
+              });
+            }
+          },
+          () => {
+            resolve({
+              tourRouteId: tour.id,
+              averageRating: 0,
+              totalReviews: 0
+            });
+          },
+          () => {
+            resolve({
+              tourRouteId: tour.id,
+              averageRating: 0,
+              totalReviews: 0
+            });
+          }
+        );
+      })
+    );
+
+    Promise.all(ratingsPromises).then(results => {
+      const ratingsMap = {};
+      results.forEach(rating => {
+        ratingsMap[rating.tourRouteId] = {
+          averageRating: rating.averageRating,
+          totalReviews: rating.totalReviews
+        };
+      });
+      setRatings(ratingsMap);
+    });
+  };
 
   // Lấy danh sách tour yêu thích của user
   useEffect(() => {
@@ -410,6 +486,17 @@ export default function Search() {
               </div>
               <div className="tour-info">
                 <div className="tour-title">{tour.name}</div>
+                <div className="tour-rating">
+                  <div className="rating-stars">
+                    {renderStars(ratings[tour.id]?.averageRating || 0)}
+                    <span className="rating-text">
+                      {ratings[tour.id]?.averageRating > 0 
+                        ? `${ratings[tour.id].averageRating} (${ratings[tour.id].totalReviews} đánh giá)`
+                        : "Chưa có đánh giá"
+                      }
+                    </span>
+                  </div>
+                </div>
                 <div className="tour-meta">
                   <div>
                     <b>Mã tour:</b> {tour.code}

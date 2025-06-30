@@ -253,7 +253,7 @@
   font-size: 18px;
   font-weight: bold;
   color: #222;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   transition: color 0.2s;
 }
 
@@ -369,4 +369,25 @@
 
 .clear-search-btn:hover {
   background: #cc0000;
+}
+
+/* Tour Rating Styles */
+.tour-rating {
+  margin-bottom: 8px;
+}
+
+.rating-stars {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rating-text {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+}
+
+.rating-stars svg {
+  margin-right: 1px;
 }

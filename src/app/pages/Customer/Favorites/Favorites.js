@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import UserSidebar from "../../../components/Customer/UserSidebar/UserSidebar";
 import { fetchGet, fetchDelete, BE_ENDPOINT } from "../../../lib/httpHandler";
+import { FaStar } from "react-icons/fa";
 import "./Favorites.css";
 
 function formatCurrency(num) {
@@ -18,10 +19,28 @@ function formatDate(dateStr) {
   });
 }
 
-export default function Favorites() {
-  const navigate = useNavigate();
+// Hàm render sao đánh giá
+function renderStars(rating, size = 14) {
+  const stars = [];
+  const fullStars = Math.floor(rating);
+  const hasHalfStar = rating - fullStars >= 0.5;
+
+  for (let i = 0; i < 5; i++) {
+    if (i < fullStars) {
+      stars.push(<FaStar key={i} color="#ffc107" size={size} />);
+    } else if (i === fullStars && hasHalfStar) {
+      stars.push(<FaStar key={i} color="#ffc107" size={size} style={{ opacity: 0.5 }} />);
+    } else {
+      stars.push(<FaStar key={i} color="#e0e0e0" size={size} />);
+    }
+  }
+  return stars;
+}
+
+export default function Favorites() {  const navigate = useNavigate();
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [ratings, setRatings] = useState({});
 
   const userId = localStorage.getItem("userId");
 
@@ -112,6 +131,8 @@ export default function Favorites() {
             const validResults = results.filter((r) => r !== null);
             setFavorites(validResults);
             setLoading(false);
+            // Fetch ratings cho tất cả favorites
+            fetchRatingsForFavorites(validResults);
           });
         } else {
           setFavorites([]);
@@ -123,6 +144,58 @@ export default function Favorites() {
         setLoading(false);
       }
     );
+  };
+
+  // Hàm fetch ratings cho favorite tours
+  const fetchRatingsForFavorites = (favoritesList) => {
+    const ratingsPromises = favoritesList.map(tour => 
+      new Promise((resolve) => {
+        fetchGet(
+          `/api/reviews/tour/${tour.id}`,
+          (res) => {
+            if (res.length > 0) {
+              const avgRating = res.reduce((sum, review) => sum + review.rating, 0) / res.length;
+              resolve({
+                tourRouteId: tour.id,
+                averageRating: Math.round(avgRating * 10) / 10,
+                totalReviews: res.length
+              });
+            } else {
+              resolve({
+                tourRouteId: tour.id,
+                averageRating: 0,
+                totalReviews: 0
+              });
+            }
+          },
+          () => {
+            resolve({
+              tourRouteId: tour.id,
+              averageRating: 0,
+              totalReviews: 0
+            });
+          },
+          () => {
+            resolve({
+              tourRouteId: tour.id,
+              averageRating: 0,
+              totalReviews: 0
+            });
+          }
+        );
+      })
+    );
+
+    Promise.all(ratingsPromises).then(results => {
+      const ratingsMap = {};
+      results.forEach(rating => {
+        ratingsMap[rating.tourRouteId] = {
+          averageRating: rating.averageRating,
+          totalReviews: rating.totalReviews
+        };
+      });
+      setRatings(ratingsMap);
+    });
   };
 
   useEffect(() => {
@@ -249,6 +322,17 @@ export default function Favorites() {
                     </div>
                     <div className="favorites-tour-info">
                       <div className="favorites-tour-title">{tour.name}</div>
+                      <div className="favorites-tour-rating">
+                        <div className="rating-stars">
+                          {renderStars(ratings[tour.id]?.averageRating || 0)}
+                          <span className="rating-text">
+                            {ratings[tour.id]?.averageRating > 0 
+                              ? `${ratings[tour.id].averageRating} (${ratings[tour.id].totalReviews} đánh giá)`
+                              : "Chưa có đánh giá"
+                            }
+                          </span>
+                        </div>
+                      </div>
                       <div className="favorites-tour-meta">
                         <div>
                           <b>Mã tour:</b>

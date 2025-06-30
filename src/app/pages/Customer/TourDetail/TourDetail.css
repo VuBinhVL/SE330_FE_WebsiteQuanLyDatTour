@@ -251,3 +251,283 @@
   border-radius: 4px;
   font-size: 16px;
 }
+
+/* Rating Stars trong trip info */
+.tour-detail-container .rating-info {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.tour-detail-container .rating-stars {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tour-detail-container .rating-text {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+/* Reviews Section */
+.tour-detail-container .reviews-section {
+  margin-top: 40px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tour-detail-container .reviews-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #eee;
+}
+
+.tour-detail-container .reviews-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+.tour-detail-container .reviews-summary {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.tour-detail-container .rating-overview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tour-detail-container .rating-stars-large {
+  display: flex;
+  gap: 2px;
+}
+
+.tour-detail-container .rating-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tour-detail-container .average-rating {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.tour-detail-container .total-reviews {
+  font-size: 12px;
+  color: #666;
+}
+
+.tour-detail-container .write-review-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.tour-detail-container .write-review-btn:hover {
+  background: #0056b3;
+}
+
+/* Review Form */
+.tour-detail-container .review-form {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.tour-detail-container .review-form h4 {
+  margin: 0 0 15px 0;
+  color: #333;
+}
+
+.tour-detail-container .rating-input {
+  margin-bottom: 15px;
+}
+
+.tour-detail-container .rating-input label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #333;
+}
+
+.tour-detail-container .stars-input {
+  display: flex;
+  gap: 5px;
+}
+
+.tour-detail-container .comment-input {
+  margin-bottom: 15px;
+}
+
+.tour-detail-container .comment-input label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #333;
+}
+
+.tour-detail-container .comment-input textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.tour-detail-container .comment-input textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+}
+
+.tour-detail-container .review-form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.tour-detail-container .submit-review-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.tour-detail-container .submit-review-btn:hover {
+  background: #1e7e34;
+}
+
+.tour-detail-container .cancel-review-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.tour-detail-container .cancel-review-btn:hover {
+  background: #545b62;
+}
+
+/* Reviews List */
+.tour-detail-container .reviews-list {
+  margin-top: 20px;
+}
+
+.tour-detail-container .review-item {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  background: #fff;
+}
+
+.tour-detail-container .review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.tour-detail-container .reviewer-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tour-detail-container .reviewer-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.tour-detail-container .review-rating {
+  display: flex;
+  gap: 2px;
+}
+
+.tour-detail-container .review-date {
+  font-size: 12px;
+  color: #666;
+}
+
+.tour-detail-container .review-content {
+  color: #555;
+  line-height: 1.5;
+}
+
+.tour-detail-container .review-content p {
+  margin: 0;
+}
+
+.tour-detail-container .no-reviews {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.tour-detail-container .no-reviews p {
+  margin: 5px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tour-detail-container .reviews-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+  
+  .tour-detail-container .reviews-summary {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  
+  .tour-detail-container .rating-overview {
+    flex-direction: column;
+    gap: 5px;
+    align-items: flex-start;
+  }
+  
+  .tour-detail-container .review-form-actions {
+    flex-direction: column;
+  }
+  
+  .tour-detail-container .review-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

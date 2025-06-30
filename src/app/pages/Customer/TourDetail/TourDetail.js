@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CiCalendar } from "react-icons/ci";
-import { FaArrowLeft, FaArrowRight, FaCartPlus, FaHeart } from "react-icons/fa";
+import { FaArrowLeft, FaArrowRight, FaCartPlus, FaHeart, FaStar } from "react-icons/fa";
 import { IoLocationOutline } from "react-icons/io5";
 import { LuAlarmClockCheck, LuTicketCheck } from "react-icons/lu";
 import { useParams } from "react-router-dom";
@@ -23,8 +23,16 @@ export default function TourDetail() {
     isFavorite: false,
     tours: [],
     itinerary: [],
+    averageRating: 0,
+    totalReviews: 0,
   });
   const [selectedTour, setSelectedTour] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [newReview, setNewReview] = useState({
+    rating: 5,
+    comment: "",
+  });
+  const [showReviewForm, setShowReviewForm] = useState(false);
   //Hàm dung để lấy class cho biểu tượng trái tim
   const getHeartClass = (isFavorite) => {
     return isFavorite ? "liked" : "not-liked";
@@ -49,6 +57,50 @@ export default function TourDetail() {
     }));
   };
 
+  // Hàm lấy danh sách đánh giá
+  const fetchReviews = useCallback(() => {
+    fetchGet(
+      `/api/reviews/tour/${id}`,
+      (res) => {
+        setReviews(res);
+        // Tính toán rating trung bình
+        if (res.length > 0) {
+          const avgRating = res.reduce((sum, review) => sum + review.rating, 0) / res.length;
+          setData(prev => ({
+            ...prev,
+            averageRating: Math.round(avgRating * 10) / 10,
+            totalReviews: res.length
+          }));
+        } else {
+          // Trường hợp không có review nào
+          setData(prev => ({
+            ...prev,
+            averageRating: 0,
+            totalReviews: 0
+          }));
+        }
+      },
+      (err) => {
+        console.error("Lỗi khi lấy đánh giá:", err);
+        // Đặt giá trị mặc định khi có lỗi
+        setData(prev => ({
+          ...prev,
+          averageRating: 0,
+          totalReviews: 0
+        }));
+      },
+      () => {
+        console.error("Không thể lấy danh sách đánh giá");
+        // Đặt giá trị mặc định khi không kết nối được
+        setData(prev => ({
+          ...prev,
+          averageRating: 0,
+          totalReviews: 0
+        }));
+      }
+    );
+  }, [id]);
+
   //Gọi API để lấy dữ liệu tour
   useEffect(() => {
     const uri = `/api/tour-route/${id}?userId=${userId ?? ""}`;
@@ -67,6 +119,84 @@ export default function TourDetail() {
       }
     );
   }, [id, userId]);
+
+  // useEffect riêng cho việc lấy reviews
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
+
+  // Hàm gửi đánh giá
+  const handleSubmitReview = () => {
+    if (!userId) {
+      toast.error("Bạn cần đăng nhập để đánh giá!", { autoClose: 5000 });
+      return;
+    }
+
+    if (!newReview.comment.trim()) {
+      toast.error("Vui lòng nhập nội dung đánh giá!", { autoClose: 5000 });
+      return;
+    }
+
+    const reviewData = {
+      userId: Number(userId),
+      tourRouteId: Number(id),
+      rating: newReview.rating,
+      comment: newReview.comment.trim(),
+    };
+
+    fetchPost(
+      "/api/reviews",
+      reviewData,
+      (res) => {
+        toast.success("Đánh giá của bạn đã được gửi!", { autoClose: 5000 });
+        setNewReview({ rating: 5, comment: "" });
+        setShowReviewForm(false);
+        fetchReviews(); // Reload reviews
+      },
+      (err) => {
+        console.error("Lỗi khi gửi đánh giá:", err);
+        toast.error("Không thể gửi đánh giá!", { autoClose: 5000 });
+      },
+      () => {
+        toast.error("Lỗi kết nối mạng!", { autoClose: 5000 });
+      }
+    );
+  };
+
+  // Hàm render sao
+  const renderStars = (rating, size = 16) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating - fullStars >= 0.5;
+
+    for (let i = 0; i < 5; i++) {
+      if (i < fullStars) {
+        stars.push(<FaStar key={i} color="#ffc107" size={size} />);
+      } else if (i === fullStars && hasHalfStar) {
+        stars.push(<FaStar key={i} color="#ffc107" size={size} style={{ opacity: 0.5 }} />);
+      } else {
+        stars.push(<FaStar key={i} color="#e0e0e0" size={size} />);
+      }
+    }
+    return stars;
+  };
+
+  // Hàm render sao có thể click (cho form đánh giá)
+  const renderClickableStars = (currentRating, onRatingChange) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <FaStar
+          key={i}
+          color={i <= currentRating ? "#ffc107" : "#e0e0e0"}
+          size={20}
+          style={{ cursor: "pointer", margin: "0 2px" }}
+          onClick={() => onRatingChange(i)}
+        />
+      );
+    }
+    return stars;
+  };
 
   const totalPages = Math.ceil(data.itinerary.length / 3);
   const handlePrev = () => {
@@ -352,6 +482,15 @@ export default function TourDetail() {
             <h6>
               <strong>THÔNG TIN VỀ CHUYẾN ĐI</strong>
             </h6>
+            <div className="rating-info">
+              <div className="rating-stars">
+                {renderStars(data.averageRating, 18)}
+                <span className="rating-text">
+                  {data.averageRating > 0 ? data.averageRating : "Chưa có"} 
+                  ({data.totalReviews} đánh giá)
+                </span>
+              </div>
+            </div>
             <p>
               <IoLocationOutline className="icon" /> Khởi hành:{" "}
               <b>{data?.startLocation}</b>
@@ -430,6 +569,101 @@ export default function TourDetail() {
                 </ul>
               </div>
             ))}
+        </div>
+      </div>
+
+      {/* Reviews Section */}
+      <div className="reviews-section">
+        <div className="reviews-header">
+          <h3>ĐÁNH GIÁ KHÁCH HÀNG</h3>
+          <div className="reviews-summary">
+            <div className="rating-overview">
+              <div className="rating-stars-large">
+                {renderStars(data.averageRating, 24)}
+              </div>
+              <div className="rating-details">
+                <span className="average-rating">{data.averageRating > 0 ? data.averageRating : "0"}</span>
+                <span className="total-reviews">({data.totalReviews} đánh giá)</span>
+              </div>
+            </div>
+            <button 
+              className="write-review-btn"
+              onClick={() => setShowReviewForm(!showReviewForm)}
+            >
+              Viết đánh giá
+            </button>
+          </div>
+        </div>
+
+        {/* Review Form */}
+        {showReviewForm && (
+          <div className="review-form">
+            <h4>Đánh giá của bạn</h4>
+            <div className="rating-input">
+              <label>Xếp hạng:</label>
+              <div className="stars-input">
+                {renderClickableStars(newReview.rating, (rating) =>
+                  setNewReview(prev => ({ ...prev, rating }))
+                )}
+              </div>
+            </div>
+            <div className="comment-input">
+              <label>Nhận xét:</label>
+              <textarea
+                value={newReview.comment}
+                onChange={(e) =>
+                  setNewReview(prev => ({ ...prev, comment: e.target.value }))
+                }
+                placeholder="Chia sẻ trải nghiệm của bạn về tour này..."
+                rows={4}
+              />
+            </div>
+            <div className="review-form-actions">
+              <button className="submit-review-btn" onClick={handleSubmitReview}>
+                Gửi đánh giá
+              </button>
+              <button 
+                className="cancel-review-btn" 
+                onClick={() => {
+                  setShowReviewForm(false);
+                  setNewReview({ rating: 5, comment: "" });
+                }}
+              >
+                Hủy
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Reviews List */}
+        <div className="reviews-list">
+          {reviews.length > 0 ? (
+            reviews.map((review) => (
+              <div key={review.id} className="review-item">
+                <div className="review-header">
+                  <div className="reviewer-info">
+                    <span className="reviewer-name">
+                      Khách hàng #{review.userId}
+                    </span>
+                    <div className="review-rating">
+                      {renderStars(review.rating, 14)}
+                    </div>
+                  </div>
+                  <div className="review-date">
+                    {new Date(review.createdAt).toLocaleDateString("vi-VN")}
+                  </div>
+                </div>
+                <div className="review-content">
+                  <p>{review.comment}</p>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="no-reviews">
+              <p>Chưa có đánh giá nào cho tour này.</p>
+              <p>Hãy là người đầu tiên đánh giá!</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
