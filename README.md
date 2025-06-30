@@ -1,20 +1,18 @@
-# Getting Started
+# 🧭 Tour Booking System
 
-Hi, this project structure is a tour booking website. We use React to dev
+Hệ thống đặt tour du lịch trực tuyến giúp người dùng tìm kiếm, chọn tour, thêm vào giỏ hàng, đặt vé và thanh toán.....
 
-## Setup Scripts
+## 🌐 Công nghệ sử dụng
 
-Run this script to install library
+- **Frontend**: React, CSS, React Router, Toastify ..
 
-```bash
-npm install
 ```
 
-Run this script to start
+## ⚙️ Cài đặt và chạy dự án
 
+### Frontend (React)
 ```bash
+npm install
 npm start
 ```
 
-Runs the app in the development mode.
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
