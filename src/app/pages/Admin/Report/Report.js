@@ -759,7 +759,7 @@ export default function Report() {
       try {
         // Fetch invoices from API
         fetchGet(
-          "/api/admin/invoice/all",
+          "/api/admin/invoice/get-all",
           (response) => {
             const invoices = response.data || [];
             setRawInvoices(invoices);
