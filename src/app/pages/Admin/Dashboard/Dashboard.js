@@ -108,17 +108,17 @@ export default function Dashboard() {
   // Lấy danh sách chuyến đi trong tháng được chọn
   useEffect(() => {
     fetchGet(
-      "/api/admin/tour/get-all",
+      "/api/admin/tour-route/get-all",
       (res) => {
         const data = res.data || [];
         const month = selectedDate.getMonth() + 1;
         const year = selectedDate.getFullYear();
         const trips = data
           .map(t => ({
-            day: new Date(t.depatureDate).getMonth() + 1 === month && new Date(t.depatureDate).getFullYear() === year
-              ? new Date(t.depatureDate).getDate()
+            day: new Date(t.startDate).getMonth() + 1 === month && new Date(t.startDate).getFullYear() === year
+              ? new Date(t.startDate).getDate()
               : null,
-            name: t.tourRouteName || t.pickUpLocation || "Chuyến đi",
+            name: t.routeName || "Chuyến đi",
           }))
           .filter(t => t.day);
         setTripDaysInfo(trips);
