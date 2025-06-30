@@ -14,6 +14,7 @@ export default function OrderDetail() {
 
   const [order, setOrder] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [orderStatus, setOrderStatus] = useState("");
   const [customerData, setCustomerData] = useState({
     name: "",
@@ -23,7 +24,7 @@ export default function OrderDetail() {
     address: "",
   });
 
-  useEffect(() => {
+  const fetchOrder = () => {
     fetchGet(
       `/api/admin/invoice/get/${invoiceId}`,
       (res) => {
@@ -49,6 +50,10 @@ export default function OrderDetail() {
       () => setOrder(null),
       () => toast.error("Không thể tải thông tin đơn hàng.")
     );
+  };
+
+  useEffect(() => {
+    fetchOrder();
   }, [invoiceId]);
 
   const handleViewBooking = (booking) => {
@@ -70,7 +75,7 @@ export default function OrderDetail() {
     fetchPut(
       `/api/admin/invoice/update/${order.id}`,
       updatedInvoice,
-      (res) => {
+      () => {
         toast.success("Xác nhận thanh toán thành công!");
         setOrderStatus("Đã thanh toán");
         setOrder((prev) => ({ ...prev, paymentStatus: true }));
@@ -90,7 +95,13 @@ export default function OrderDetail() {
       <div className="customer-info">
         <div className="section-header">
           <h3>Thông tin khách hàng</h3>
-          <button className="edit-btn" onClick={() => setIsPopupOpen(true)}>
+          <button
+            className="edit-btn"
+            onClick={() => {
+              setSelectedCustomerId(order?.user?.id || null);
+              setIsPopupOpen(true);
+            }}
+          >
             <EditIcon className="icon-svg" />
           </button>
         </div>
@@ -129,9 +140,15 @@ export default function OrderDetail() {
 
       <EditCustomerPopup
         isOpen={isPopupOpen}
-        onClose={() => setIsPopupOpen(false)}
-        initialData={customerData}
-        onSubmit={setCustomerData}
+        onClose={() => {
+          setIsPopupOpen(false);
+          setSelectedCustomerId(null);
+        }}
+        onSubmit={() => {
+          fetchOrder();
+          setIsPopupOpen(false);
+        }}
+        userId={selectedCustomerId}
       />
 
       {/* Thông tin đơn hàng */}
