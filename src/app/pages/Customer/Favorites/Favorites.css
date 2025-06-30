@@ -1,14 +1,10 @@
-/* ============================ */
-/*         Favorites CSS        */
-/* ============================ */
-
 .favorites-container {
   display: flex;
   gap: 24px;
   padding: 24px 16px;
   background: #fafbfc;
   min-height: 100vh;
-  font-family: 'Segoe UI', Arial, sans-serif;
+  font-family: "Segoe UI", Arial, sans-serif;
 }
 
 .favorites-main {
@@ -71,7 +67,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   display: flex;
-  height: 180px;
+  height: 250px;
   border: 1px solid #f1f1f1;
   transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -144,6 +140,7 @@
   margin-bottom: 10px;
   line-height: 1.3;
   display: -webkit-box;
+  min-height: 20px;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
