@@ -1,0 +1,39 @@
+.help-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: Arial, sans-serif;
+}
+
+.help-title {
+  text-align: center;
+  color: red;
+  font-weight: bold;
+  font-size: 24px;
+  margin-bottom: 2rem;
+}
+
+.help-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.help-item {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: #f9f9f9;
+}
+
+.help-question {
+  font-weight: bold;
+  cursor: pointer;
+  outline: none;
+}
+
+.help-answer {
+  margin-top: 0.5rem;
+  white-space: pre-line;
+  line-height: 1.6;
+}
